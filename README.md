@@ -1,0 +1,2 @@
+# GreenScout
+ A scouting application.
