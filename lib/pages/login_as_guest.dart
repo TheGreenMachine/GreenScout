@@ -120,6 +120,8 @@ class _LoginPageForGuest extends State<LoginPageForGuest> {
 
 							controller: _controller,
 
+							onFieldSubmitted: (_) => guestContinueButtonOnPressed(),
+
 							textAlign: TextAlign.start,
 
 							decoration: InputDecoration(

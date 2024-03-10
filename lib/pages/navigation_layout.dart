@@ -11,8 +11,16 @@ final navigationLayout = <String, Widget Function(BuildContext)>{
 const loggedInRoute = '/matchForm';
 const loggedOutRoute = '/loginAsGuest';
 
+/*
+ * - 'Divider' is special cased to produce a divider in the
+ * place of a route. Sometimes we want the list to be split
+ * visually
+ * 
+ * - Starting any key with '|' will make that key be ignored
+ * when constructing the navigation menu. 
+ */
 const navigationLayoutNames = <String, String>{
-	"Match Form": "/matchForm",
+	"|Match Form": "/matchForm",
 	"Divider": "",
 	"Logout": '/loginAsGuest',
 };
@@ -49,6 +57,8 @@ class NavigationMenu extends StatelessWidget {
 								}
 							)
 						);
+					} else if (entry.key.startsWith("|")) {
+						// Empty block since we want to ignore cases that start with '|'
 					} else {
 						result.add(
 							PopupMenuItem(
