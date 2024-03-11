@@ -6,8 +6,7 @@ void setScouterName(String name) {
 }
 
 String getScouterName() {
-	// return App.getString("Scouter") ?? "";
-	return "";
+	return App.getString("Scouter") ?? "";
 }
 
 bool loggedInAlready() {

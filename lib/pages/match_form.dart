@@ -1,3 +1,4 @@
+import 'package:GreenScout/pages/preference_helpers.dart';
 import 'package:GreenScout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,14 +29,36 @@ class Reference<T> {
 enum SpeakerPosition {
 	top,
 	middle,
-	bottom,
+	bottom;
+
+	@override 
+	String toString() {
+		return switch (this) {
+			SpeakerPosition.top => "top",
+			SpeakerPosition.middle => "middle",
+			SpeakerPosition.bottom => "bottom",
+
+			// ignore: unreachable_switch_case
+			_ => "unknown",
+		};	
+	}
 }
 
 enum CycleTimeLocationType {
 	speaker,
 	amp,
 	
-	none,
+	none;
+
+	@override
+	String toString() {
+		return switch (this) {
+			CycleTimeLocationType.speaker => "Speaker",
+			CycleTimeLocationType.amp => "Amp",
+
+			_ => "None",	
+		};
+	}
 }
 
 class CycleTimeInfo {
@@ -59,7 +82,11 @@ class _MatchFormPage extends State<MatchFormPage> {
 	bool cycleTimerStartDisabled = false;
 	bool cycleTimerLocationDisabled = true; 
 
-	Reference<SpeakerPosition> speakerPosition = Reference(SpeakerPosition.middle);
+	Reference<bool> speakerTop    = Reference(false);
+	Reference<bool> speakerMiddle = Reference(false);
+	Reference<bool> speakerBottom = Reference(false);
+
+	// Reference<SpeakerPosition> speakerPosition = Reference(SpeakerPosition.middle);
 	Reference<bool> canShootIntoSpeaker = Reference(false);
 	Reference<bool> canShootIntoAmp = Reference(false);
 
@@ -77,13 +104,25 @@ class _MatchFormPage extends State<MatchFormPage> {
 	Reference<String> autoEjectsNum = Reference("");
 
 	Reference<bool> canClimb = Reference(false);
+	Reference<bool> canClimbSuccessfully = Reference(false);
+	final _climbAttemptsController = TextEditingController();
+	Reference<String> climbAttemptsNum = Reference("");
+
 	Reference<bool> canTrap = Reference(false);
-	Reference<bool> canPark = Reference(false);
 	Reference<bool> canTrapSuccessfully = Reference(false);
+	final _trapAttemptsController = TextEditingController();
+	Reference<String> trapAttemptsNum = Reference("");
+	final _trapScoreController = TextEditingController();
+	Reference<String> trapScoreNum = Reference("");
+
+	Reference<bool> canPark = Reference(false);
 
 	Reference<bool> cooperates = Reference(false);
 
-	List<CycleTimeInfo> timestamps = [];
+	final _notesController = TextEditingController();
+	Reference<String> notes = Reference("");
+
+	List<CycleTimeInfo> cycleTimestamps = [];
 
 	final bufferTimeMs = 450;
 
@@ -91,6 +130,16 @@ class _MatchFormPage extends State<MatchFormPage> {
 	void dispose() {
 		_matchController.dispose();
 		_teamController.dispose();
+
+		_autoScoresController.dispose();
+		_autoMissesController.dispose();
+		_autoEjectsController.dispose();
+
+		_climbAttemptsController.dispose();
+		_trapAttemptsController.dispose();
+		_trapScoreController.dispose();
+
+		_notesController.dispose();
 
 		super.dispose();
 	}
@@ -114,6 +163,13 @@ class _MatchFormPage extends State<MatchFormPage> {
 		_autoScoresController.text = autoScoresNum.value;
 		_autoMissesController.text = autoMissesNum.value;
 		_autoEjectsController.text = autoEjectsNum.value;
+
+		_climbAttemptsController.text = climbAttemptsNum.value;
+		
+		_trapAttemptsController.text = trapAttemptsNum.value;
+		_trapScoreController.text = trapScoreNum.value;
+
+		_notesController.text = notes.value;
 
 		return Scaffold(
 			appBar: AppBar(
@@ -215,7 +271,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 								// initialIcon: const Text("NO"),
 								pressedIcon: const Icon(Icons.public),
 								// pressedIcon: const Text("YES"),
-								onPressed: (_) {},
+								onPressed: (_) { print(this.toJson()); },
 
 								initialValue: isReplay,
 							),
@@ -239,23 +295,21 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 				const Padding(padding: EdgeInsets.all(16)),
 
-				createSectionHeader("General Info"),
-
-				createLabelAndDropdown<SpeakerPosition>(
-					"Speaker Position", 
-					{
-						"Top": SpeakerPosition.top,
-						"Middle": SpeakerPosition.middle,
-						"Bottom": SpeakerPosition.bottom,
-					},
-
-					speakerPosition, 
-					SpeakerPosition.middle,
-				),
+				createSectionHeader("Shooting Info"),
 
 				createLabelAndCheckBox("Can Shoot Into Speaker?", canShootIntoSpeaker),
 
 				createLabelAndCheckBox("Can Shoot Into Amp?", canShootIntoAmp),
+
+
+
+				const Padding(padding: EdgeInsets.all(16),),
+
+				createSectionHeader("Shooting Position (Speaker)"),
+
+				createLabelAndCheckBox("Top", speakerTop),
+				createLabelAndCheckBox("Middle", speakerMiddle),
+				createLabelAndCheckBox("Bottom", speakerBottom),
 
 
 
@@ -264,7 +318,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 				createSectionHeader("Auto Mode"),
 
 				createLabelAndCheckBox("Can They Do It?", canDoAuto),
-				createLabelAndCheckBox("Mostly Successfully?", canDoAutoSuccessfully),
+				createLabelAndCheckBox("Is It Successful?", canDoAutoSuccessfully),
 				createLabelAndNumberField("Scores", autoScoresNum, "#", _autoScoresController, 2, false),
 				createLabelAndNumberField("Misses", autoMissesNum, "#", _autoMissesController, 2, false),
 				createLabelAndNumberField("Ejects", autoEjectsNum, "#", _autoEjectsController, 2, false),
@@ -276,7 +330,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 				createSectionHeader("Distance Shooting"),
 
 				createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
-				createLabelAndNumberField("How Accurate?", distanceShootingAccuracyNum, "%", _distanceShootingAccuracyController, 6, true),
+				createLabelAndNumberField("How Accurate?", distanceShootingAccuracyNum, "%", _distanceShootingAccuracyController, 5, true),
 
 
 
@@ -285,7 +339,56 @@ class _MatchFormPage extends State<MatchFormPage> {
 				createSectionHeader("Climbing"),
 				
 				createLabelAndCheckBox("Can They Do It?", canClimb),
-				createLabelAndCheckBox("Are They Successful?", canClimb),
+				createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
+				createLabelAndNumberField("Attempts", climbAttemptsNum, "#", _climbAttemptsController, 2, false),
+
+
+
+				const Padding(padding: EdgeInsets.all(16)),
+
+				createSectionHeader("Trap"),
+
+				createLabelAndCheckBox("Can They Do It?", canTrap),
+				createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
+				createLabelAndNumberField("Attempts", trapAttemptsNum, "#", _trapAttemptsController, 2, false),
+				createLabelAndNumberField("Score Count", trapScoreNum, "#", _trapScoreController, 1, false),
+
+
+
+				const Padding(padding: EdgeInsets.all(16)),
+
+				createSectionHeader("Misc."),
+
+				createLabelAndCheckBox("Do They Park?", canPark),
+				createLabelAndCheckBox("Do They Cooperate?", cooperates),
+
+
+
+				const Padding(padding: EdgeInsets.all(24)),
+
+				createSectionHeader("Notes"),
+
+				Padding(
+					padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+
+					child: TextField(
+						controller: _notesController,
+
+						style: Theme.of(context).textTheme.bodyMedium,
+
+						onChanged: (value) => notes.value = value,
+
+						maxLines: 10,
+
+						decoration: const InputDecoration(
+							border: OutlineInputBorder(
+								borderRadius: BorderRadius.all(Radius.circular(1.0)),
+							),
+							// contentPadding: EdgeInsets.symmetric(vertical: 125),
+							isDense: false,
+						),
+					),
+				),
 
 				// Extra padding for the bottom
 				const Padding(padding: EdgeInsets.all(28)),
@@ -499,7 +602,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 							cycleTimerLocationDisabled = true;
 							cycleTimerStartDisabled = false;
 
-							timestamps.add(
+							cycleTimestamps.add(
 								CycleTimeInfo(
 									time: cycleWatch.elapsedMilliseconds.toDouble() / 1000, 
 									location: CycleTimeLocationType.amp,
@@ -550,7 +653,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 							cycleTimerLocationDisabled = true;
 							cycleTimerStartDisabled = false;
 
-							timestamps.add(
+							cycleTimestamps.add(
 								CycleTimeInfo(
 									time: cycleWatch.elapsedMilliseconds.toDouble() / 1000, 
 									location: CycleTimeLocationType.speaker,
@@ -574,7 +677,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 				height: 200,
 
 				child: ListView.builder(
-					itemCount: timestamps.length,
+					itemCount: cycleTimestamps.length,
 					itemBuilder: (context, index) {
 						return Row(
 							mainAxisAlignment: MainAxisAlignment.center,
@@ -589,7 +692,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 										alignment: Alignment.centerLeft,
 
 										child: Text(
-											timestamps[index].time.toStringAsPrecision(3),
+											cycleTimestamps[index].time.toStringAsPrecision(3),
 											style: Theme.of(context).textTheme.labelMedium,
 										),
 									),
@@ -602,18 +705,14 @@ class _MatchFormPage extends State<MatchFormPage> {
 									child: Container(
 										alignment: Alignment.center,
 
-										color: switch (timestamps[index].location) {
+										color: switch (cycleTimestamps[index].location) {
 											CycleTimeLocationType.amp => ampColor,
 											CycleTimeLocationType.speaker => speakerColor,
 											_ => Theme.of(context).colorScheme.inversePrimary,
 										},
 
 										child: Text(
-											switch (timestamps[index].location) {
-												CycleTimeLocationType.amp => "Amp",
-												CycleTimeLocationType.speaker => "Speaker",
-												_ => "None",
-											},
+											cycleTimestamps[index].location.toString(),
 
 											style: Theme.of(context).textTheme.labelMedium,
 											textAlign: TextAlign.center,
@@ -643,5 +742,98 @@ class _MatchFormPage extends State<MatchFormPage> {
 				),
 			),
 		);
+	}
+
+	String toJson() {
+		String expandCycles() {
+			StringBuffer builder = StringBuffer();
+
+			for (int i = 0; i < cycleTimestamps.length; i++) {
+				builder.write(
+					'{ "Time": ${cycleTimestamps[i].time}, "Type": "${cycleTimestamps[i].location}" }',
+				);
+
+				if (i != cycleTimestamps.length - 1) {
+					builder.writeln(',');
+				}
+			}
+
+			return builder.toString();
+		}
+
+		String unwrapNumberString(Reference<String> reference) {
+			if (reference.value.isEmpty) {
+				return "0";
+			} 
+
+			return reference.value;
+		}
+
+		String scouterName = getScouterName();
+
+		return '''		
+		{
+			"Team": ${teamNum.isEmpty ? "0" : teamNum},
+			"Match": {
+				"Number": ${matchNum.isEmpty ? "0" : matchNum},
+				"isReplay": $isReplay,
+			},
+
+			"Driver Station": {
+				"Is Blue": false,
+				"Number": 1
+			},
+
+			"Scouter": "$scouterName",
+
+			"Cycles": [
+				${expandCycles()}
+			],
+
+			"Amp": ${canShootIntoAmp.value},
+			"Speaker": ${canShootIntoSpeaker.value},
+
+			"Speaker Positions": {
+				"top": ${speakerTop.value},
+				"middle": ${speakerMiddle.value},
+				"bottom": ${speakerBottom.value}
+			},
+
+			"Distance Shooting": {
+				"Can": ${canDistanceShoot.value},
+				"Accuracy": ${unwrapNumberString(distanceShootingAccuracyNum)}
+			},
+
+			"Auto": {
+				"Can": ${canDoAuto.value},
+				"Succeeded": ${canDoAutoSuccessfully.value},
+				"Scores": ${unwrapNumberString(autoScoresNum)},
+				"Misses": ${unwrapNumberString(autoMissesNum)},
+				"Ejects": ${unwrapNumberString(autoEjectsNum)}
+			},
+
+			"EndGame": {
+				"Can Climb": ${canClimb.value},
+				"Climb Succeeded": ${canClimbSuccessfully.value},
+				"Climb Attempts": ${unwrapNumberString(climbAttemptsNum)},
+				"Parked": ${canPark.value}
+			},
+
+			"Trap": {
+				"Can": ${canTrap.value},
+				"Succeeded": ${canTrapSuccessfully.value},
+				"Attempts": ${unwrapNumberString(trapAttemptsNum)},
+				"Number Of Scores": ${unwrapNumberString(trapScoreNum)} 
+			},
+
+			"Coopertition": ${cooperates.value},
+
+			"Penalities": [
+
+			],
+
+			"Notes": "${notes.value}"
+		}
+		''';
 	}
 }

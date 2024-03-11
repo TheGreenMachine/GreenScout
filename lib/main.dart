@@ -1,5 +1,5 @@
+import 'package:GreenScout/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'pages/match_form.dart';
 
 import 'pages/login_as_guest.dart';
 import 'pages/navigation_layout.dart';
@@ -9,10 +9,6 @@ import 'timer_button.dart';
 import 'globals.dart';
 
 void main() async {
-	// Future.wait(<Future<void>>[
-	// 	App.start(),
-	// ]);
-
 	WidgetsFlutterBinding.ensureInitialized();
 
 	await App.start();
@@ -51,7 +47,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
         useMaterial3: true,
       ),
-      home: !loggedInAlready() ? const LoginPageForGuest() : const MatchFormPage(),
+      home: !loggedInAlready() ? const LoginPageForGuest() : const HomePage(),
     //   home: const LoginPageForGuest(),
 	  routes: navigationLayout,
     );
