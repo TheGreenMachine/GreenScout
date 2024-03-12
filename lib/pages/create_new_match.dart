@@ -1,4 +1,5 @@
 import 'package:GreenScout/pages/match_form.dart';
+import 'package:GreenScout/pages/navigation_layout.dart';
 import 'package:GreenScout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -122,6 +123,8 @@ class _CreateMatchFormPage extends State<CreateMatchFormPage> {
 							color: Theme.of(context).colorScheme.inversePrimary,
 
 							onPressed: () {
+								currentRoute = "";
+
 								Navigator.pop(context);
 
 								Navigator.pushReplacement(
