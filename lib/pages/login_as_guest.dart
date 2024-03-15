@@ -165,7 +165,7 @@ class _LoginPageForGuest extends State<LoginPageForGuest> {
 						padding: const EdgeInsets.only(bottom: 20),
 
 						child: Text(
-							"GreenScout is currently in beta.\nThe ability to login with an account (other than a guest account) will come in a later version of the app.",
+							"GreenScout is currently in beta.",
 							textAlign: TextAlign.center,
 							style: Theme.of(context).textTheme.bodySmall,
 						),

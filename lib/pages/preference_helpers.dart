@@ -29,10 +29,20 @@ void setAdminStatus(bool value) {
 	App.setBool("Admin", value);
 }
 
+String getCertificate() {
+	final certificate = App.getString("User Certificate");
+
+	return certificate ?? "";
+}
+
+void storeCertificate(String certificate) {
+	App.setString("User Certificate", certificate);
+}
+
 String getUserUUID() {
 	final uuid = App.getString("User UUID");
 
-	return uuid ?? "INVALID UUID";
+	return uuid ?? "";
 }
 
 void storeUserUUID(String uuid) {

@@ -63,7 +63,7 @@ class _FloatingButton extends State<FloatingButton> {
 						textAlign: TextAlign.center,
 						style: Theme.of(context).textTheme.labelMedium,
 					) : const Padding(padding: EdgeInsets.zero),
-					widget.icon ?? const Icon(Icons.error),
+					widget.icon ?? const Padding(padding: EdgeInsets.zero),
 				],
 			),
 		);

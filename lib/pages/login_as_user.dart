@@ -3,6 +3,8 @@ import "dart:developer";
 import "package:crypto/crypto.dart";
 import "package:flutter/material.dart";
 import 'dart:convert';
+import 'package:pointycastle/asymmetric/api.dart';
+import 'package:encrypt/encrypt.dart';
 
 import "../globals.dart";
 
@@ -33,6 +35,26 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 		super.dispose();
 	}
 
+	Future<RSAPublicKey> getPublicKey() async {
+		var url = Uri.parse("http://127.0.0.1:3333/pub");
+
+		var response = await http.get(url);
+
+		final parser = RSAKeyParser();
+
+		return parser.parse(response.body) as RSAPublicKey;
+	}
+
+	Future<String> encryptPassword64(String plaintext) async {
+		final publicKey = await getPublicKey();
+
+		final encrypter = Encrypter(RSA(publicKey: publicKey));
+
+		final encrypted = encrypter.encrypt(plaintext);
+
+		return encrypted.base64;
+	}
+
 	String? validateLogin() {
 		if (continueButtonPressed) {
 			if (userStr.isEmpty) {
@@ -47,36 +69,52 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
 			log("Using this path: $path");
 
-			http.post(
-				path, 
-				body: '''
-					{
-						"Username": "$userStr",
-						"Password": "${sha256.convert(utf8.encode(passwordStr)).toString()}"
-					}
-				'''.trim()).then((value) {
+			() async { 
+				String certificate = '';
+				String uuid = '';
+
+				await http.post(
+					path, 
+					body: '''
+						{
+							"Username": "$userStr",
+							"EncryptedPassword": "${await encryptPassword64(passwordStr)}"
+						}
+					'''.trim(),
+					headers: { "Content-Type": "application/json" },
+				).then((value) {
 					log(value.statusCode.toString());
 					log(value.body);
 					for (var entry in value.headers.entries) {
 						log("${entry.key}: ${entry.value}");
 					}
+
+					uuid = value.headers['UUID'] ?? "";
+					certificate = value.headers["Certificate"] ?? "";
 				}).catchError((error) { log(error.toString()); });
+
+				storeUserUUID(uuid);
+				storeCertificate(certificate);
+			}();
+
+			if (getCertificate().isEmpty) {
+				return "Invalid password or username";
+			}
 		}
 
 		continueButtonPressed = false;
 		return null;
 	}
 
-
 	void continueButtonOnPressed() {
 	 	setState(() {
 			continueButtonPressed = true;
 
 			if (validateLogin() == null) {
-				// setScouterName(_userController.text);
-				// setLoginStatus(true);
-// 
-				// Navigator.of(context).pushReplacementNamed(loggedInRoute);
+				setScouterName(_userController.text);
+				setLoginStatus(true);
+	
+				Navigator.of(context).pushReplacementNamed('/home');
 			}
 	 	});
 	}

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:GreenScout/pages/preference_helpers.dart';
-import 'package:GreenScout/timer_button.dart';
-import 'package:GreenScout/widgets/floating_button.dart';
-import 'package:GreenScout/widgets/header.dart';
-import 'package:GreenScout/widgets/subheader.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/timer_button.dart';
+import 'package:green_scout/widgets/floating_button.dart';
+import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../globals.dart';
@@ -91,6 +91,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 	String teamNum = "";
 	bool isReplay = false;
 
+	Reference<(bool, int)> driverStation = Reference((false, 1));
+
 	final cycleWatch = Stopwatch();
 	bool cycleStopwatchTimerValue = false;
 	bool cycleTimerLocationDisabled = true; 
@@ -98,9 +100,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 	final climbingWatch = Stopwatch();
 	double climbingTime = 0.0;
 
-	Reference<bool> speakerTop    = Reference(false);
+	Reference<bool> speakerSides    = Reference(false);
 	Reference<bool> speakerMiddle = Reference(false);
-	Reference<bool> speakerBottom = Reference(false);
 
 	Reference<bool> canShootIntoSpeaker = Reference(false);
 	Reference<bool> canShootIntoAmp = Reference(false);
@@ -150,7 +151,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 			bodyContent = buildDesktopView(context);
 		} else {
 		}
-			bodyContent = buildMobileView(context);
+
+		// TODO: Finally create an appropriate Desktop view for the match form data.
+		bodyContent = buildMobileView(context);
 
 		_matchController.text = widget.matchNum ?? matchNum;
 		_teamController.text = widget.teamNum ?? teamNum;
@@ -266,8 +269,22 @@ class _MatchFormPage extends State<MatchFormPage> {
 				),
 
 				// TODO: Add an optional menu that appears when the user needs to properly 
-				// input a driver station value. (are they blue? and what number are they).
+				// input a driver station value. (are they blue and what number are they).
+				const Padding(padding: EdgeInsets.all(4)),
 
+				createLabelAndDropdown<(bool, int)>(
+					"Driver Station", 
+					{ 
+						"Blue 1": (true, 1),
+						"Blue 2": (true, 2),
+						"Blue 3": (true, 3),
+						"Red 1": (false, 1),
+						"Red 2": (false, 2),
+						"Red 3": (false, 3),
+					}, 
+					driverStation, 
+					(false, 1),
+				),
 
 				const Padding(padding: EdgeInsets.all(14)),
 
@@ -294,9 +311,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 				createSectionHeader("Shooting Position (Speaker / Subwoofer)"),
 
-				createLabelAndCheckBox("Top", speakerTop),
 				createLabelAndCheckBox("Middle", speakerMiddle),
-				createLabelAndCheckBox("Bottom", speakerBottom),
+				createLabelAndCheckBox("Sides", speakerSides),
 
 
 
@@ -897,8 +913,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 			},
 
 			"Driver Station": {
-				"Is Blue": ${widget.isBlue},
-				"Number": ${widget.driverNumber}
+				"Is Blue": ${driverStation.value.$1},
+				"Number": ${driverStation.value.$2}
 			},
 
 			"Scouter": "$scouterName",
@@ -911,9 +927,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 			"Speaker": ${canShootIntoSpeaker.value},
 
 			"Speaker Positions": {
-				"top": ${speakerTop.value},
+				"sides": ${speakerSides.value},
 				"middle": ${speakerMiddle.value},
-				"bottom": ${speakerBottom.value}
 			},
 
 			"Distance Shooting": {

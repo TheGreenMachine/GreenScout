@@ -1,11 +1,13 @@
-import 'package:GreenScout/pages/admin.dart';
-import 'package:GreenScout/pages/create_new_match.dart';
-import 'package:GreenScout/pages/match_form.dart';
-import 'package:GreenScout/pages/navigation_layout.dart';
-import 'package:GreenScout/pages/preference_helpers.dart';
-import 'package:GreenScout/widgets/floating_button.dart';
-import 'package:GreenScout/widgets/header.dart';
+import 'package:green_scout/pages/admin.dart';
+import 'package:green_scout/pages/create_new_match.dart';
+import 'package:green_scout/pages/match_form.dart';
+import 'package:green_scout/pages/navigation_layout.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/widgets/floating_button.dart';
+import 'package:green_scout/widgets/header.dart';
 import 'package:flutter/material.dart';
+
+import 'matches_data.dart';
 
 class HomePage extends StatefulWidget {
 	const HomePage({
@@ -14,16 +16,6 @@ class HomePage extends StatefulWidget {
 
 	@override
 	State<HomePage> createState() => _HomePage();
-}
-
-class MatchInfo {
-	const MatchInfo(this.matchNum, this.team, this.isBlue, this.driveTeamNum);
-
-	final int matchNum;
-	final int team;
-
-	final bool isBlue;
-	final int driveTeamNum;
 }
 
 List<MatchInfo> allMatches = [
@@ -87,44 +79,44 @@ class _HomePage extends State<HomePage> {
 						),
 					),
 
-					const Padding(padding: EdgeInsets.all(18)),
+					// TODO: Finish this after the scrimmage.
 
-					const HeaderLabel("Assigned Matches"),
+					// const Padding(padding: EdgeInsets.all(18)),
 
-					const Padding(padding: EdgeInsets.all(4)),
+					// const HeaderLabel("Assigned Matches"),
 
-					Padding(
-						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					// const Padding(padding: EdgeInsets.all(4)),
 
-						child: SizedBox(
-							height: 250,
+					// Padding(
+					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-							child: ListView(
-								children: [],
-							),
-						),
-					),
+					// 	child: SizedBox(
+					// 		height: 250,
 
-					const Padding(padding: EdgeInsets.all(12)),
+					// 		child: ListView(
+					// 			children: [],
+					// 		),
+					// 	),
+					// ),
 
-					const HeaderLabel("All Matches"),
+					// const Padding(padding: EdgeInsets.all(12)),
 
-					const Padding(padding: EdgeInsets.all(4)),
+					// const HeaderLabel("All Matches"),
 
-					Padding(
-						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					// const Padding(padding: EdgeInsets.all(4)),
 
-						child: SizedBox(
-							height: 250,
+					// Padding(
+					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-							child: ListView.builder(
-								itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
-								itemCount: allMatches.length,
-							),
-						),
-					),
+					// 	child: SizedBox(
+					// 		height: 250,
 
-
+					// 		child: ListView.builder(
+					// 			itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
+					// 			itemCount: allMatches.length,
+					// 		),
+					// 	),
+					// ),
 				],
 			),
 		);

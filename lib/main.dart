@@ -1,6 +1,9 @@
-import 'package:GreenScout/admin_data/accounts_info.dart';
-import 'package:GreenScout/pages/home.dart';
-import 'package:GreenScout/pages/login_as_user.dart';
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:green_scout/admin_data/accounts_info.dart';
+import 'package:green_scout/pages/home.dart';
+import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/navigation_layout.dart';
@@ -8,11 +11,44 @@ import 'number_label_field.dart';
 import 'pages/preference_helpers.dart';
 import 'timer_button.dart';
 import 'globals.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
 	WidgetsFlutterBinding.ensureInitialized();
 
 	await App.start();
+
+	Timer.periodic(
+		const Duration(seconds: 15),
+		(timer) async {
+			final matches = getMatchCache();
+
+			if (!loggedInAlready()) {
+				return;
+			}
+
+			if (matches.isNotEmpty) {
+				final path = Uri(scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
+
+				for (var match in matches) {
+					await http.post(
+						path, 
+						headers: { "Certificate": getCertificate() }, 
+						body: match,
+					).then((response) {
+						log("Response status: ${response.statusCode}");
+						log("Response body: ${response.body}");
+					}).catchError((error) { log(error.toString()); });
+				}
+				
+				// A little safety check to ensure that we aren't getting
+				// rid of data that just got put into the list.
+				if (matches.length == getMatchCache().length) {
+					resetMatchCache();
+				}
+			}
+		}
+	);
 
   	runApp(const MyApp());
 }

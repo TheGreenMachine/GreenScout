@@ -1,5 +1,5 @@
-import 'package:GreenScout/pages/match_form.dart';
-import 'package:GreenScout/widgets/floating_button.dart';
+import 'package:green_scout/pages/match_form.dart';
+import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

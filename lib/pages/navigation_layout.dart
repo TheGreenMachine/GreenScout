@@ -1,5 +1,5 @@
-import 'package:GreenScout/pages/home.dart';
-import 'package:GreenScout/pages/login_as_user.dart';
+import 'package:green_scout/pages/home.dart';
+import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'login_as_guest.dart';
 import 'preference_helpers.dart';

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:GreenScout/globals.dart';
-import 'package:GreenScout/pages/preference_helpers.dart';
+import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:http/http.dart' as http;
 
 class AdminAllAccounts {

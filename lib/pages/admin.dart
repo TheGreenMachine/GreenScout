@@ -1,7 +1,7 @@
-import 'package:GreenScout/pages/navigation_layout.dart';
-import 'package:GreenScout/pages/preference_helpers.dart';
-import 'package:GreenScout/widgets/header.dart';
-import 'package:GreenScout/widgets/subheader.dart';
+import 'package:green_scout/pages/navigation_layout.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 
 class MatchDisplayAdminData {
