@@ -1,7 +1,8 @@
+import 'package:GreenScout/admin_data/accounts_info.dart';
 import 'package:GreenScout/pages/home.dart';
+import 'package:GreenScout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/login_as_guest.dart';
 import 'pages/navigation_layout.dart';
 import 'number_label_field.dart';
 import 'pages/preference_helpers.dart';
@@ -22,9 +23,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-	currentRoute = !loggedInAlready() ?
-		loggedOutRoute:
-		loggedInRoute ;
+	// We aren't ready to work towards a fully working admin page.	
+	setAdminStatus(false);
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
         useMaterial3: true,
       ),
-      home: !loggedInAlready() ? const LoginPageForGuest() : const HomePage(),
+      home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
     //   home: const LoginPageForGuest(),
 	  routes: navigationLayout,
     );

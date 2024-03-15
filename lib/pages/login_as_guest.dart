@@ -68,6 +68,7 @@ class _LoginPageForGuest extends State<LoginPageForGuest> {
 				setScouterName(_controller.text);
 				setLoginStatus(true);
 
+				Navigator.pop(context);
 				Navigator.of(context).pushReplacementNamed(loggedInRoute);
 			}
 	 	});

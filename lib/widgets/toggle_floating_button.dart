@@ -49,18 +49,53 @@ class _FloatingToggleButton extends State<FloatingToggleButton> {
 	Widget build(BuildContext context) {
 		wasClicked ??= widget.initialValue;
 
+		Color? color;
+
+		if (widget.disabled) {
+			final ensuredColor = widget.initialColor ?? const Color.fromARGB(255, 255, 255, 255);
+
+			color = Color.fromARGB(
+				ensuredColor.alpha,
+				ensuredColor.red ~/ 2,
+				ensuredColor.green ~/ 2,
+				ensuredColor.blue ~/ 2,
+			);
+		} else {
+			color = wasClicked! ? widget.pressedColor : widget.initialColor;
+		}
+
+		Widget? icon;
+
+		if (widget.disabled) {
+			icon = widget.initialIcon;
+		} else {
+			icon = wasClicked! ? widget.pressedIcon : widget.initialIcon;
+		}
+
+		if (widget.disabled) {
+			if (wasClicked! && widget.onPressed != null) {
+				widget.onPressed!(false);
+			}
+
+			wasClicked = false;
+		}
+
 		return FloatingActionButton(
 			heroTag: null,
 
-			backgroundColor: wasClicked! ? widget.pressedColor : widget.initialColor,
+			backgroundColor: color,
 
 			onPressed: onPressed,
 
 			child: Column(
 				mainAxisAlignment: MainAxisAlignment.center,
 				children: [
-					Text(widget.labelText ?? ""),
-					(wasClicked! ? widget.pressedIcon : widget.initialIcon) ?? const Icon(Icons.question_mark),
+					widget.labelText != null ? Text(
+						widget.labelText ?? "",
+						textAlign: TextAlign.center,
+						style: Theme.of(context).textTheme.labelMedium,
+					) : const Padding(padding: EdgeInsets.zero),
+					icon ?? const Padding(padding: EdgeInsets.zero),
 				],
 			),
 		);

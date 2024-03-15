@@ -1,15 +1,17 @@
 import 'package:GreenScout/pages/home.dart';
+import 'package:GreenScout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'login_as_guest.dart';
 import 'preference_helpers.dart';
 
 final navigationLayout = <String, Widget Function(BuildContext)>{
 	'/loginAsGuest': (context) => const LoginPageForGuest(),
+	'/loginAsUser': (context) => const LoginPageForUsers(),
 	'/home': (context) => const HomePage(),
 };
 
 const loggedInRoute = '/home';
-const loggedOutRoute = '/loginAsGuest';
+const loggedOutRoute = '/loginAsUser';
 
 /*
  * - 'Divider' is special cased to produce a divider in the
@@ -19,14 +21,8 @@ const loggedOutRoute = '/loginAsGuest';
 const navigationLayoutNames = <String, String>{
 	"Home": "/home",
 	"Divider": "",
-	"Logout": '/loginAsGuest',
+	"Logout": '/loginAsUser',
 };
-
-/*
- * A global that I don't necessarily like, but need to make sure that
- * state will be consistent across pages.
- */
-String currentRoute = "/";
 
 class NavigationMenu extends StatelessWidget {
 	const NavigationMenu({super.key});
@@ -59,10 +55,7 @@ class NavigationMenu extends StatelessWidget {
 							PopupMenuItem(
 								child: Text(entry.key), 
 								onTap: () {
-									if (entry.value != currentRoute) {
-										Navigator.pushReplacementNamed(context, entry.value);
-										currentRoute = entry.value;
-									}
+									Navigator.pushReplacementNamed(context, entry.value);
 								}
 							)
 						);

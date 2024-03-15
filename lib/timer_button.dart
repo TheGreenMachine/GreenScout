@@ -6,12 +6,14 @@ import 'globals.dart';
 // The amount of milliseconds the imter should wait until calling the next
 // callback
 class TimerButton extends StatefulWidget {
-	const TimerButton({super.key, this.width, this.height, this.onEnd, this.lap});
+	const TimerButton({super.key, this.width, this.height, this.initialTime = 0.0, this.onEnd, this.lap});
 
 	final double? width;
 	final double? height;
 
 	final void Function(double)? onEnd;
+
+	final double initialTime;
 
 	final bool? lap;
 
@@ -133,6 +135,8 @@ class _TimerButton extends State<TimerButton> {
 
 	double currentElapsedTime = 0.0;
 
+	bool initialized = false;
+
 	void onPressed() {
 		setState(() {
 			periodicFinished = false;
@@ -176,7 +180,12 @@ class _TimerButton extends State<TimerButton> {
 
 	@override
 	Widget build(BuildContext context) {
-		FloatingActionButton button = FloatingActionButton(
+		if (!initialized) {
+			currentElapsedTime = widget.initialTime;
+			initialized = true;
+		}
+
+	 	FloatingActionButton button = FloatingActionButton(
 			onPressed: onPressed, 
 			backgroundColor: 
 				!wasPressed
@@ -187,10 +196,11 @@ class _TimerButton extends State<TimerButton> {
 				mainAxisAlignment: MainAxisAlignment.center,
 				children: [ 
 					Text(
-						"${currentElapsedTime ~/ 60}m ${(currentElapsedTime % 60).toStringAsPrecision(2)}s", 
+						"${currentElapsedTime ~/ 60}m ${(currentElapsedTime % 60).toStringAsPrecision(3)}s", 
 						overflow: TextOverflow.clip, 
 						softWrap: false,
-						textScaler: TextScaler.linear((widget.height ?? 1) / (widget.width ?? 1) * 2 / 3),
+						style: Theme.of(context).textTheme.labelMedium,
+						// textScaler: TextScaler.linear((widget.height ?? 1) / (widget.width ?? 1) * 2 / 3),
 					),
 					const Icon(Icons.timer),
 				],

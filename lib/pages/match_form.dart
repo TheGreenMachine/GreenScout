@@ -1,23 +1,33 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:GreenScout/pages/preference_helpers.dart';
+import 'package:GreenScout/timer_button.dart';
 import 'package:GreenScout/widgets/floating_button.dart';
+import 'package:GreenScout/widgets/header.dart';
+import 'package:GreenScout/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../globals.dart';
 import 'navigation_layout.dart';
 import '../widgets/toggle_floating_button.dart';
 import 'package:http/http.dart' as http;
+import 'dart:math' as math;
 
 class MatchFormPage extends StatefulWidget {
 	const MatchFormPage({
 		super.key,
 		this.matchNum,
 		this.teamNum,
+		this.isBlue = false,
+		this.driverNumber = 1,
 	});
 
 	final String? matchNum;
 	final String? teamNum;
+
+	final bool isBlue;
+	final int driverNumber;
 
 	@override
 	State<MatchFormPage> createState() => _MatchFormPage();
@@ -82,45 +92,40 @@ class _MatchFormPage extends State<MatchFormPage> {
 	bool isReplay = false;
 
 	final cycleWatch = Stopwatch();
-	bool cycleTimerStartDisabled = false;
+	bool cycleStopwatchTimerValue = false;
 	bool cycleTimerLocationDisabled = true; 
+
+	final climbingWatch = Stopwatch();
+	double climbingTime = 0.0;
 
 	Reference<bool> speakerTop    = Reference(false);
 	Reference<bool> speakerMiddle = Reference(false);
 	Reference<bool> speakerBottom = Reference(false);
 
-	// Reference<SpeakerPosition> speakerPosition = Reference(SpeakerPosition.middle);
 	Reference<bool> canShootIntoSpeaker = Reference(false);
 	Reference<bool> canShootIntoAmp = Reference(false);
 
 	Reference<bool> canDistanceShoot = Reference(false);
-	Reference<int> distanceShootingAccuracyNum = Reference(0);
+	Reference<int> distanceShootingScores = Reference(0);
+	Reference<int> distanceShootingMisses = Reference(0);
 
 	Reference<bool> canDoAuto = Reference(false);
-	Reference<bool> canDoAutoSuccessfully = Reference(false);
 	Reference<int> autoScoresNum = Reference(0);
 	Reference<int> autoMissesNum = Reference(0);
 	Reference<int> autoEjectsNum = Reference(0);
 
-	Reference<bool> canClimb = Reference(false);
-	Reference<bool> canClimbSuccessfully = Reference(false);
-	Reference<int> climbAttemptsNum = Reference(0);
-
-	Reference<bool> canTrap = Reference(false);
-	Reference<bool> canTrapSuccessfully = Reference(false);
-	Reference<int> trapAttemptsNum = Reference(0);
+	Reference<int> trapMissesNum = Reference(0);
 	Reference<int> trapScoreNum = Reference(0);
 
 	Reference<bool> canPark = Reference(false);
 	Reference<bool> disconnected = Reference(false);
 	Reference<bool> lostTrack = Reference(false);
 
-	Reference<bool> cooperates = Reference(false);
-
 	final _notesController = TextEditingController();
 	Reference<String> notes = Reference("");
 
 	List<CycleTimeInfo> cycleTimestamps = [];
+	int minTimestampsToDisplay = 10;
 
 	final bufferTimeMs = 450;
 
@@ -260,6 +265,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 					],
 				),
 
+				// TODO: Add an optional menu that appears when the user needs to properly 
+				// input a driver station value. (are they blue? and what number are they).
 
 
 				const Padding(padding: EdgeInsets.all(14)),
@@ -298,7 +305,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 				createSectionHeader("Auto Mode"),
 
 				createLabelAndCheckBox("Works?", canDoAuto),
-				// createLabelAndCheckBox("Is It Successful?", canDoAutoSuccessfully),
 				createLabelAndNumberField("Scores", autoScoresNum),
 				createLabelAndNumberField("Misses", autoMissesNum),
 				createLabelAndNumberField("Ejects", autoEjectsNum),
@@ -310,7 +316,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 				createSectionHeader("Distance Shooting"),
 
 				createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
-				createLabelAndNumberField("How Accurate?", distanceShootingAccuracyNum),
+				createLabelAndNumberField("Scores", distanceShootingScores),
+				createLabelAndNumberField("Misses", distanceShootingMisses),
 
 
 
@@ -318,11 +325,39 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 				createSectionHeader("Climbing"),
 
-				createSubsectionHeader("Timer"),
-				
-				createLabelAndCheckBox("Can They Do It?", canClimb),
-				// createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
-				createLabelAndNumberField("Attempts", climbAttemptsNum),
+				Padding(
+					padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+
+					child: TimerButton(
+						height: 85,
+						onEnd: (value) {
+							climbingTime = value;
+						},
+
+						initialTime: climbingTime,
+						
+						lap: false,
+					)
+				),
+
+				// TODO: Reset button. I can't figure out how to make sure the
+				// visual of the button to be reset too.
+
+				// const Padding(padding: EdgeInsets.all(3)),
+
+				// Padding(
+				// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65)),
+
+				// 	child: FloatingButton(
+				// 		color: Theme.of(context).colorScheme.primaryContainer.withRed(255),
+
+				// 		onPressed: () => setState(() {
+				// 			climbingTime = 0.0;
+				// 		}), 
+
+				// 		icon: const Icon(Icons.restore),
+				// 	),
+				// ),
 
 
 
@@ -330,10 +365,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 				createSectionHeader("Trap"),
 
-				// createLabelAndCheckBox("Can They Do It?", canTrap),
-				// createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
-				createLabelAndNumberField("Attempts", trapAttemptsNum),
-				createLabelAndNumberField("Scores", trapScoreNum, incrementChildren: [ trapAttemptsNum ], decrementChildren: [ trapAttemptsNum ]),
+				createLabelAndNumberField("Misses", trapMissesNum),
+				createLabelAndNumberField("Scores", trapScoreNum),
 
 
 
@@ -343,7 +376,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 				createLabelAndCheckBox("Do They Park?", canPark),
 				createLabelAndCheckBox("Did They Disconnect?", disconnected),
-				createLabelAndCheckBox("Did YOU Lose Track at any point?", lostTrack),
+				createLabelAndCheckBox("Did YOU Lose Track At Any Point?", lostTrack),
 
 				// createLabelAndCheckBox("Do They Cooperate?", cooperates),
 
@@ -378,18 +411,20 @@ class _MatchFormPage extends State<MatchFormPage> {
 				const Padding(padding: EdgeInsets.all(24)),
 
 				FloatingButton(
-					labelText: "Send to Somebody's server",
-					icon: const Icon(Icons.send),
+					labelText: "Save",
+					icon: const Icon(Icons.save),
 					color: Theme.of(context).colorScheme.inversePrimary,
 
 					onPressed: () {
-						// TODO: Remember to remove tag's host address.
-						final path = Uri(scheme: 'http', host: '', path: 'dataEntry', port: 3333);
+						// final path = Uri(scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
 
-						http.post(path, headers: {}, body: toJson()).then((response) {
-							log("Response status: ${response.statusCode}");
-							log("Response body: ${response.body}");
-						}).catchError((error) { log(error.toString()); });
+						// http.post(path, headers: {}, body: toJson()).then((response) {
+						// 	log("Response status: ${response.statusCode}");
+						// 	log("Response body: ${response.body}");
+						// }).catchError((error) { log(error.toString()); });
+
+						addToMatchCache(toJson());
+						Navigator.pushReplacementNamed(context, '/home');
 					},
 				),
 
@@ -457,27 +492,11 @@ class _MatchFormPage extends State<MatchFormPage> {
 	}
 
 	Widget createSectionHeader(String headline) {
-		return Padding(
-			padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85), vertical: 5),
-
-			child: Text(
-				headline,
-				style: Theme.of(context).textTheme.headlineSmall,
-				textAlign: TextAlign.center,
-			),
-		);
+		return HeaderLabel(headline);
 	}
 
 	Widget createSubsectionHeader(String headline) {
-		return Padding(
-			padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85), vertical: 5),
-
-			child: Text(
-				headline,
-				style: Theme.of(context).textTheme.titleLarge,
-				textAlign: TextAlign.center,
-			),
-		);
+		return SubheaderLabel(headline);
 	}
 
 	Widget createLabelAndCheckBox(String question, Reference<bool> condition) {
@@ -513,60 +532,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 		);
 	}
 
-	// Widget createLabelAndNumberField(String label, Reference<String> numstr, String hintText, TextEditingController controller, int numberLengthLimit, bool decimal) {
-	// 	return Padding(
-	// 		padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85), vertical: 5),
-
-	// 		child: Row( 
-	// 			mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-	// 			children: [
-	// 				SizedBox(
-	// 					width: MediaQuery.of(context).size.width * (1.0 * 0.35),
-
-	// 					child: Text(
-	// 						label,
-	// 						style: Theme.of(context).textTheme.labelLarge,
-
-	// 						overflow: TextOverflow.ellipsis,
-
-	// 						maxLines: 4,
-	// 					),
-	// 				),
-
-	// 				SizedBox( 
-	// 					width: 75,
-	// 					height: 35,
-
-	// 					child: TextField(
-	// 						controller: controller,
-
-	// 						keyboardType: TextInputType.numberWithOptions(decimal: decimal),
-	// 						style: Theme.of(context).textTheme.titleMedium,
-
-	// 						textAlign: TextAlign.center,
-
-	// 						onChanged: (value) => numstr.value = value,
-
-	// 						inputFormatters: [
-	// 							decimal 
-	// 							? FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))
-	// 							: FilteringTextInputFormatter.digitsOnly,
-	// 							LengthLimitingTextInputFormatter(numberLengthLimit),
-	// 						],
-
-	// 						decoration: InputDecoration(
-	// 							border: const OutlineInputBorder(),
-	// 							hintText: hintText,
-	// 							hintStyle: Theme.of(context).textTheme.labelMedium,
-	// 						),
-	// 					),
-	// 				),
-	// 			],
-	// 		),
-	// 	);
-	// } 
-
 	Widget createLabelAndNumberField(String label, Reference<int> number, {List<Reference<int>> incrementChildren = const [], List<Reference<int>> decrementChildren = const [], int lowerBound = 0, int upperBound = 99}) {
 		// TODO: An interesting idea to pursue in the future is to make this and almost every little functio here
 		// into individual stateful widgets so that only those that have anything modified actually update. Currently,
@@ -579,6 +544,73 @@ class _MatchFormPage extends State<MatchFormPage> {
 		if (number.value >= upperBound) {
 			number.value = upperBound;
 		}
+
+		final incrementButton = SizedBox(
+			width: 65,
+			height: 35,
+			
+			child: TextButton(
+				style: ButtonStyle(
+					textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.labelLarge),
+
+					backgroundColor: MaterialStateProperty.resolveWith((states) {
+						if (states.contains(MaterialState.pressed)) {
+							return Theme.of(context).colorScheme.primary;
+						}
+
+						return Theme.of(context).colorScheme.inversePrimary;
+					}),
+
+					shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+				),
+
+				onPressed: () {
+					setState(() {
+						number.value = number.value + 1;
+
+						for (var increment in incrementChildren) {
+							increment.value = increment.value + 1;
+						}
+					});
+				},
+
+				child: Text(number.value.toString()),
+			),
+		);
+
+		final decrementButton = SizedBox(
+			width: 35,
+			height: 35,
+
+			child: TextButton(
+				style: ButtonStyle(
+					textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.titleLarge),
+					backgroundColor: MaterialStateProperty.resolveWith((states) {
+						if (states.contains(MaterialState.pressed)) {
+							return Theme.of(context).colorScheme.primary.withRed(255);
+						}
+
+						return Theme.of(context).colorScheme.inversePrimary.withRed(255);
+					}),
+
+					shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+
+					alignment: Alignment.center,
+				),
+
+				onPressed: () {
+					setState(() {
+						number.value = number.value - 1;
+
+						for (var decrement in decrementChildren) {
+							decrement.value = decrement.value - 1;
+						}
+					});
+				},
+
+				child: const Text("-"),
+			)
+		);
 		
 		return Padding(
 			padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85), vertical: 5),
@@ -606,76 +638,11 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 						child: Row( 
 							children: [
-								// decrement number
-								SizedBox(
-									width: 35,
-									height: 35,
-
-									child: TextButton(
-										style: ButtonStyle(
-											textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.titleLarge),
-											backgroundColor: MaterialStateProperty.resolveWith((states) {
-												if (states.contains(MaterialState.pressed)) {
-													return Theme.of(context).colorScheme.primary.withRed(255);
-												}
-
-												return Theme.of(context).colorScheme.inversePrimary.withRed(255);
-											}),
-
-											shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-
-											alignment: Alignment.center,
-										),
-
-										onPressed: () {
-											setState(() {
-												number.value = number.value - 1;
-
-												for (var decrement in decrementChildren) {
-													decrement.value = decrement.value - 1;
-												}
-											});
-										},
-
-										child: const Text("-"),
-									)
-								),
+								decrementButton,								
 
 								const Padding(padding: EdgeInsets.symmetric(horizontal: 2.5)),
 
-								// increment number
-								SizedBox(
-									width: 65,
-									height: 35,
-									
-									child: TextButton(
-										style: ButtonStyle(
-											textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.labelLarge),
-
-											backgroundColor: MaterialStateProperty.resolveWith((states) {
-												if (states.contains(MaterialState.pressed)) {
-													return Theme.of(context).colorScheme.primary;
-												}
-
-												return Theme.of(context).colorScheme.inversePrimary;
-											}),
-
-											shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-										),
-
-										onPressed: () {
-											setState(() {
-												number.value = number.value + 1;
-
-												for (var increment in incrementChildren) {
-													increment.value = increment.value + 1;
-												}
-											});
-										},
-
-										child: Text(number.value.toString()),
-									),
-								),
+								incrementButton,
 							],
 						),
 					),
@@ -746,10 +713,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 								return;
 							}
 
-							cycleWatch.stop();
-							cycleTimerLocationDisabled = true;
-							cycleTimerStartDisabled = false;
-
 							cycleTimestamps.add(
 								CycleTimeInfo(
 									time: cycleWatch.elapsedMilliseconds.toDouble() / 1000, 
@@ -765,21 +728,27 @@ class _MatchFormPage extends State<MatchFormPage> {
 					width: 85,
 					height: 50,
 
-					child: FloatingButton(
-						labelText: "Start",
-						icon: const Icon(Icons.timer_sharp),
-						color: Theme.of(context).colorScheme.primaryContainer,
+					child: FloatingToggleButton(
+						labelText: "Start / Pause",
+						initialIcon: const Icon(Icons.timer_sharp),
+						pressedIcon: const Icon(Icons.timer),
+						initialColor: Theme.of(context).colorScheme.primaryContainer,
+						pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
-						onPressed: () =>
+						onPressed: (pressed) =>
 						setState(() {
-							cycleTimerStartDisabled = true;
-							cycleTimerLocationDisabled = false;
+							cycleTimerLocationDisabled = !pressed;
+							cycleStopwatchTimerValue = !cycleStopwatchTimerValue;
 
-							cycleWatch.reset();
+							// cycleWatch.reset();
 							cycleWatch.start();
+
+							if (!pressed) {
+								cycleWatch.stop();
+							}
 						}),
 
-						disabled: cycleTimerStartDisabled,
+						initialValue: cycleStopwatchTimerValue,
 					),
 				),
 				SizedBox( 
@@ -796,10 +765,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 							if (cycleWatch.elapsedMilliseconds < bufferTimeMs) {
 								return;
 							}
-
-							cycleWatch.stop();
-							cycleTimerLocationDisabled = true;
-							cycleTimerStartDisabled = false;
 
 							cycleTimestamps.add(
 								CycleTimeInfo(
@@ -825,8 +790,16 @@ class _MatchFormPage extends State<MatchFormPage> {
 				height: 200,
 
 				child: ListView.builder(
-					itemCount: cycleTimestamps.length,
+					itemCount: math.max(minTimestampsToDisplay, cycleTimestamps.length),
 					itemBuilder: (context, index) {
+						CycleTimeInfo info;
+
+						if (index > cycleTimestamps.length - 1) {
+							info = CycleTimeInfo();
+						} else {
+							info = cycleTimestamps[index];
+						}
+
 						return Row(
 							mainAxisAlignment: MainAxisAlignment.center,
 
@@ -840,7 +813,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 										alignment: Alignment.centerLeft,
 
 										child: Text(
-											cycleTimestamps[index].time.toStringAsPrecision(3),
+											info.time.toStringAsPrecision(3),
 											style: Theme.of(context).textTheme.labelMedium,
 										),
 									),
@@ -853,14 +826,14 @@ class _MatchFormPage extends State<MatchFormPage> {
 									child: Container(
 										alignment: Alignment.center,
 
-										color: switch (cycleTimestamps[index].location) {
+										color: switch (info.location) {
 											CycleTimeLocationType.amp => ampColor,
 											CycleTimeLocationType.speaker => speakerColor,
 											_ => Theme.of(context).colorScheme.inversePrimary,
 										},
 
 										child: Text(
-											cycleTimestamps[index].location.toString(),
+											info.location.toString(),
 
 											style: Theme.of(context).textTheme.labelMedium,
 											textAlign: TextAlign.center,
@@ -906,6 +879,10 @@ class _MatchFormPage extends State<MatchFormPage> {
 				}
 			}
 
+			if (cycleTimestamps.isEmpty) {
+				builder.write('{ "Time": 0, "Type": "None" }');
+			}
+
 			return builder.toString();
 		}
 
@@ -913,15 +890,15 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 		return '''		
 		{
-			"Team": ${teamNum.isEmpty ? "0" : teamNum},
+			"Team": ${teamNum.isEmpty ? "1" : teamNum},
 			"Match": {
-				"Number": ${matchNum.isEmpty ? "0" : matchNum},
+				"Number": ${matchNum.isEmpty ? "1" : matchNum},
 				"isReplay": $isReplay
 			},
 
 			"Driver Station": {
-				"Is Blue": false,
-				"Number": 1
+				"Is Blue": ${widget.isBlue},
+				"Number": ${widget.driverNumber}
 			},
 
 			"Scouter": "$scouterName",
@@ -941,34 +918,34 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 			"Distance Shooting": {
 				"Can": ${canDistanceShoot.value},
-				"Accuracy": ${distanceShootingAccuracyNum.value}
+				"Misses": ${distanceShootingMisses.value},
+				"Scores": ${distanceShootingScores.value}
 			},
 
 			"Auto": {
 				"Can": ${canDoAuto.value},
-				"Succeeded": ${canDoAutoSuccessfully.value},
 				"Scores": ${autoScoresNum.value},
 				"Misses": ${autoMissesNum.value},
 				"Ejects": ${autoEjectsNum.value}
 			},
 
-			"EndGame": {
-				"Can Climb": ${canClimb.value},
-				"Climb Succeeded": ${canClimbSuccessfully.value},
-				"Climb Attempts": ${climbAttemptsNum.value},
-				"Parked": ${canPark.value}
+			"Climbing": {
+				"Can": ${climbingTime > 0.4},
+				"Time": $climbingTime
 			},
 
 			"Trap": {
-				"Can": ${canTrap.value},
-				"Succeeded": ${canTrapSuccessfully.value},
-				"Attempts": ${trapAttemptsNum.value},
-				"Number Of Scores": ${trapScoreNum.value} 
+				"Misses": ${trapMissesNum.value},
+				"Scores": ${trapScoreNum.value} 
 			},
 
-			"Coopertition": ${cooperates.value},
+			"Misc": {
+				"Parked": ${canPark.value},
+				"Lost Communication": ${disconnected.value},
+				"User Lost Track": t${lostTrack.value}
+			},
 
-			"Penalities": [
+			"Penalties": [
 
 			],
 
