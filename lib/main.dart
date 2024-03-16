@@ -14,43 +14,51 @@ import 'globals.dart';
 import 'package:http/http.dart' as http;
 
 void main() async {
-	WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-	await App.start();
+  await App.start();
 
-	Timer.periodic(
-		const Duration(seconds: 15),
-		(timer) async {
-			final matches = getMatchCache();
+  Timer.periodic(const Duration(seconds: 15), (timer) async {
+    final matches = getMatchCache();
 
-			if (!loggedInAlready()) {
-				return;
-			}
+    if (!loggedInAlready()) {
+      return;
+    }
 
-			if (matches.isNotEmpty) {
-				final path = Uri(scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
+    if (matches.isNotEmpty) {
+      final path = Uri(
+          scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
 
-				for (var match in matches) {
-					await http.post(
-						path, 
-						headers: { "Certificate": getCertificate() }, 
-						body: match,
-					).then((response) {
-						log("Response status: ${response.statusCode}");
-						log("Response body: ${response.body}");
-					}).catchError((error) { log(error.toString()); });
-				}
-				
-				// A little safety check to ensure that we aren't getting
-				// rid of data that just got put into the list.
-				if (matches.length == getMatchCache().length) {
-					resetMatchCache();
-				}
-			}
-		}
-	);
+      for (var match in matches) {
+        dynamic err;
+        await http
+            .post(
+          path,
+          headers: {"Certificate": getCertificate()},
+          body: match,
+        )
+            .then((response) {
+          log("Response status: ${response.statusCode}");
+          log("Response body: ${response.body}");
+        }).catchError((error) {
+          err = error;
+          log(error.toString());
+        });
 
-  	runApp(const MyApp());
+        if (err != null) {
+          return;
+        }
+      }
+
+      // A little safety check to ensure that we aren't getting
+      // rid of data that just got put into the list.
+      if (matches.length == getMatchCache().length) {
+        resetMatchCache();
+      }
+    }
+  });
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -59,8 +67,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-	// We aren't ready to work towards a fully working admin page.	
-	setAdminStatus(false);
+    // We aren't ready to work towards a fully working admin page.
+    setAdminStatus(false);
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -84,76 +92,82 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
-    //   home: const LoginPageForGuest(),
-	  routes: navigationLayout,
+      //   home: const LoginPageForGuest(),
+      routes: navigationLayout,
     );
   }
 }
 
 class BoolLabelField extends StatefulWidget {
-	const BoolLabelField({super.key, this.labelText, this.width, this.height, this.onChanged});
+  const BoolLabelField(
+      {super.key, this.labelText, this.width, this.height, this.onChanged});
 
-	final String? labelText;
+  final String? labelText;
 
-	final double? width;
-	final double? height;
+  final double? width;
+  final double? height;
 
-	final void Function(bool)? onChanged;
+  final void Function(bool)? onChanged;
 
-	@override 
-	State<BoolLabelField> createState() => _BoolLabelField();
+  @override
+  State<BoolLabelField> createState() => _BoolLabelField();
 }
 
 class _BoolLabelField extends State<BoolLabelField> {
-	bool checkValue = false;
+  bool checkValue = false;
 
-	@override
-	Widget build(BuildContext context) {
-		const paddingAmount = 2;
+  @override
+  Widget build(BuildContext context) {
+    const paddingAmount = 2;
 
-		return SizedBox(
-			width: widget.width,
-			height: widget.height,
-			child: Row(
-				children: [
-					SizedBox( 
-						width: (widget.width ?? 1) / 2,
-						height: widget.height,
-						child: FittedBox( 
-							fit: BoxFit.fitHeight,
-							alignment: Alignment.centerRight,
-							child: Text(
-								(widget.labelText ?? "").padRight((widget.labelText?.length ?? 0) + paddingAmount),
-								textAlign: TextAlign.left,
-								style: Theme.of(context).textTheme.labelMedium,
-								// textHeightBehavior: const TextHeightBehavior(),
-								// textScaler: TextScaler.linear(((width ?? 1) / 2) / (height ?? 1)),
-							),
-						),
-					),
-					const Spacer(flex: 1,),
-					SizedBox( 
-						width: (widget.width ?? 1) / 2,
-						height: widget.height,
-						child: Row( 
-							mainAxisAlignment: MainAxisAlignment.start,
-							children: [
-								Checkbox(value: checkValue, onChanged: (bValue) { 
-									setState(() {
-										checkValue = bValue != null && bValue;
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Row(
+        children: [
+          SizedBox(
+            width: (widget.width ?? 1) / 2,
+            height: widget.height,
+            child: FittedBox(
+              fit: BoxFit.fitHeight,
+              alignment: Alignment.centerRight,
+              child: Text(
+                (widget.labelText ?? "")
+                    .padRight((widget.labelText?.length ?? 0) + paddingAmount),
+                textAlign: TextAlign.left,
+                style: Theme.of(context).textTheme.labelMedium,
+                // textHeightBehavior: const TextHeightBehavior(),
+                // textScaler: TextScaler.linear(((width ?? 1) / 2) / (height ?? 1)),
+              ),
+            ),
+          ),
+          const Spacer(
+            flex: 1,
+          ),
+          SizedBox(
+            width: (widget.width ?? 1) / 2,
+            height: widget.height,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Checkbox(
+                    value: checkValue,
+                    onChanged: (bValue) {
+                      setState(() {
+                        checkValue = bValue != null && bValue;
 
-										if (widget.onChanged != null) {
-											widget.onChanged!(checkValue);
-										}
-									}); 
-								}),
-							],
-						),
-					),
-				],
-			),
-		);
-	}
+                        if (widget.onChanged != null) {
+                          widget.onChanged!(checkValue);
+                        }
+                      });
+                    }),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /*
@@ -171,95 +185,265 @@ class _BoolLabelField extends State<BoolLabelField> {
  * and when they deposit into the either of the two spots. 
  */
 
-
 class FormFillingPage extends StatefulWidget {
-	const FormFillingPage({super.key});
+  const FormFillingPage({super.key});
 
-	@override 
-	State<FormFillingPage> createState() => _FormFillingPage();
+  @override
+  State<FormFillingPage> createState() => _FormFillingPage();
 }
 
 void onEndS(double value) {
-	print("End time: $value");
+  print("End time: $value");
 }
 
 class _FormFillingPage extends State<FormFillingPage> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				backgroundColor: greenMachineGreen,
-				centerTitle: true,
-
-				title: const Text(
-					"Match Info", 
-					style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24), 
-					textAlign: TextAlign.center,
-				),
-			),
-			body: ListView(
-				children: const [
-					Center(child: NumberLabelField(labelText: "Match", hintText: "#", width: 150, height: 35, numberLengthLimit: 2,),),
-					Center(child: BoolLabelField(labelText: "Replay?", width: 150, height: 35,),),
-					Center(child: NumberLabelField(labelText: "Team", hintText: "#", width: 150, height: 35, numberLengthLimit: 5,),),
-
-					Padding(padding: EdgeInsets.all(8)),
-					Column(
-						mainAxisAlignment: MainAxisAlignment.center,
-						children: [ 
-							SizedBox(width: 250, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Cycling"))),
-							TimerButton(width: 250, height: 250, onEnd: onEndS, lap: true),
-						],
-					),
-					Padding(padding: EdgeInsets.all(4)),
-					Center(child: BoolLabelField(labelText: "Amp", width: 120, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Speaker", width: 120, height: 35,)),
-					Padding(padding: EdgeInsets.all(12)),
-
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Speaker Positions"),)),
-					Center(child: BoolLabelField(labelText: "Top", width: 120, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Middle", width: 120, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Bottom", width: 120, height: 35,)),
-
-					Padding(padding: EdgeInsets.all(12)),
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Distance Shooting"),)),
-					Center(child: BoolLabelField(labelText: "Can", width: 195, height: 35,)),
-					Center(child: NumberLabelField(labelText: "Average", hintText: "%", width: 195, height: 35, numberLengthLimit: 6,)),
-
-					Padding(padding: EdgeInsets.all(12)),
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Auto"),)),
-					Center(child: BoolLabelField(labelText: "Can", width: 195, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Succeeded", width: 195, height: 35,)),
-					Center(child: NumberLabelField(labelText: "Scores", hintText: "#", width: 195, height: 35, numberLengthLimit: 6,)),
-					Center(child: NumberLabelField(labelText: "Misses", hintText: "#", width: 195, height: 35, numberLengthLimit: 6,)),
-					Center(child: NumberLabelField(labelText: "Ejects", hintText: "#", width: 195, height: 35, numberLengthLimit: 6,)),
-
-					Divider(height: 12),
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("EndGame"),)),
-					Center(child: BoolLabelField(labelText: "Parks", width: 195, height: 35,)),
-
-					Padding(padding: EdgeInsets.all(12)),
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Climb"),)),
-					Center(child: BoolLabelField(labelText: "Can", width: 195, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Succeeded", width: 195, height: 35,)),
-					Center(child: NumberLabelField(labelText: "Attempts", hintText: "#", width: 215, height: 35, numberLengthLimit: 6,)),
-					
-					Padding(padding: EdgeInsets.all(12)),
-					SizedBox(width: 150, height: 35, child: FittedBox(fit: BoxFit.fitHeight, child: Text("Trap"),)),
-					Center(child: BoolLabelField(labelText: "Can", width: 195, height: 35,)),
-					Center(child: BoolLabelField(labelText: "Succeeded", width: 195, height: 35,)),
-					Center(child: NumberLabelField(labelText: "Attempts", hintText: "#", width: 215, height: 35, numberLengthLimit: 6,)),
-					Center(child: NumberLabelField(labelText: "Scores", hintText: "#", width: 215, height: 35, numberLengthLimit: 6,)),
-
-					Padding(padding: EdgeInsets.all(14)),
-					Center(child: BoolLabelField(labelText: "Coopertition", width: 195, height: 35,),),
-
-
-					Padding(padding: EdgeInsets.all(24)),
-				],
-			),
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: greenMachineGreen,
+        centerTitle: true,
+        title: const Text(
+          "Match Info",
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      body: ListView(
+        children: const [
+          Center(
+            child: NumberLabelField(
+              labelText: "Match",
+              hintText: "#",
+              width: 150,
+              height: 35,
+              numberLengthLimit: 2,
+            ),
+          ),
+          Center(
+            child: BoolLabelField(
+              labelText: "Replay?",
+              width: 150,
+              height: 35,
+            ),
+          ),
+          Center(
+            child: NumberLabelField(
+              labelText: "Team",
+              hintText: "#",
+              width: 150,
+              height: 35,
+              numberLengthLimit: 5,
+            ),
+          ),
+          Padding(padding: EdgeInsets.all(8)),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                  width: 250,
+                  height: 35,
+                  child:
+                      FittedBox(fit: BoxFit.fitHeight, child: Text("Cycling"))),
+              TimerButton(width: 250, height: 250, onEnd: onEndS, lap: true),
+            ],
+          ),
+          Padding(padding: EdgeInsets.all(4)),
+          Center(
+              child: BoolLabelField(
+            labelText: "Amp",
+            width: 120,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Speaker",
+            width: 120,
+            height: 35,
+          )),
+          Padding(padding: EdgeInsets.all(12)),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("Speaker Positions"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Top",
+            width: 120,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Middle",
+            width: 120,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Bottom",
+            width: 120,
+            height: 35,
+          )),
+          Padding(padding: EdgeInsets.all(12)),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("Distance Shooting"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Can",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Average",
+            hintText: "%",
+            width: 195,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Padding(padding: EdgeInsets.all(12)),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("Auto"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Can",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Succeeded",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Scores",
+            hintText: "#",
+            width: 195,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Misses",
+            hintText: "#",
+            width: 195,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Ejects",
+            hintText: "#",
+            width: 195,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Divider(height: 12),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("EndGame"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Parks",
+            width: 195,
+            height: 35,
+          )),
+          Padding(padding: EdgeInsets.all(12)),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("Climb"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Can",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Succeeded",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Attempts",
+            hintText: "#",
+            width: 215,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Padding(padding: EdgeInsets.all(12)),
+          SizedBox(
+              width: 150,
+              height: 35,
+              child: FittedBox(
+                fit: BoxFit.fitHeight,
+                child: Text("Trap"),
+              )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Can",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: BoolLabelField(
+            labelText: "Succeeded",
+            width: 195,
+            height: 35,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Attempts",
+            hintText: "#",
+            width: 215,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Center(
+              child: NumberLabelField(
+            labelText: "Scores",
+            hintText: "#",
+            width: 215,
+            height: 35,
+            numberLengthLimit: 6,
+          )),
+          Padding(padding: EdgeInsets.all(14)),
+          Center(
+            child: BoolLabelField(
+              labelText: "Coopertition",
+              width: 195,
+              height: 35,
+            ),
+          ),
+          Padding(padding: EdgeInsets.all(24)),
+        ],
+      ),
+    );
+  }
 }
 
 class MyHomePage extends StatefulWidget {
