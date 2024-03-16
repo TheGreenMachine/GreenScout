@@ -36,7 +36,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 	}
 
 	Future<RSAPublicKey> getPublicKey() async {
-		var url = Uri.parse("http://127.0.0.1:3333/pub");
+		final url = Uri(scheme: 'http', host: serverHostName, path: 'pub', port: 3333);
 
 		var response = await http.get(url);
 
@@ -69,6 +69,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
 			log("Using this path: $path");
 
+			// Crappy little hack to get the post request to be 'sync'.
 			() async { 
 				String certificate = '';
 				String uuid = '';
