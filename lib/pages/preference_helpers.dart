@@ -60,19 +60,17 @@ void setAccountDataForAdmins(String value) {
 
 const matchCacheKey = "Match JSONS";
 
+List<String> matchCache = [];
+
 void addToMatchCache(String matchJSON) {
-  var matches = App.getStringList(matchCacheKey) ?? [];
-
-  matches.add(matchJSON);
-
-  App.setStringList(matchCacheKey, matches);
+  matchCache.add(matchJSON);
 }
 
 List<String> getMatchCache() {
-  return App.getStringList(matchCacheKey) ?? [];
+  return matchCache;
 }
 
 void resetMatchCache() {
   print("Resetting cache");
-  App.setStringList(matchCacheKey, []);
+  matchCache = [];
 }
