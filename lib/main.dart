@@ -28,7 +28,7 @@ void main() async {
 
     if (matches.isNotEmpty) {
       final path = Uri(
-          scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
+          scheme: 'http', host: serverHostName, path: 'dataEntry', port: 443);
 
       for (var match in matches) {
         dynamic err;
