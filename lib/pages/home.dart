@@ -1,4 +1,5 @@
 import 'package:green_scout/pages/admin.dart';
+import 'package:green_scout/pages/bluetooth_selector.dart';
 import 'package:green_scout/pages/create_new_match.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -64,12 +65,6 @@ class _HomePage extends State<HomePage> {
 
 							icon: const Icon(Icons.create),
 							color: Theme.of(context).colorScheme.inversePrimary,
-							// onPressed: () => Navigator.push(
-							// 	context,
-							// 	MaterialPageRoute(
-							// 		builder: (context) => const CreateMatchFormPage(),
-							// 	),
-							// ),
 							onPressed: () => Navigator.pushReplacement(
 								context,
 								MaterialPageRoute(
@@ -79,44 +74,63 @@ class _HomePage extends State<HomePage> {
 						),
 					),
 
+					const Padding(padding: EdgeInsets.all(4)),
+
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75), vertical: 0),
+
+						child: FloatingButton(
+							labelText: "Stream Data Through Bluetooth",
+
+							icon: const Icon(Icons.bluetooth),
+							color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+							onPressed: () => Navigator.pushReplacement(
+								context,
+								MaterialPageRoute(
+									builder: (context) => const BluetoothSelectorPage(),
+								),
+							),
+						),
+					),
+
 					// TODO: Finish this after the scrimmage.
 
-					// const Padding(padding: EdgeInsets.all(18)),
+					const Padding(padding: EdgeInsets.all(18)),
 
-					// const HeaderLabel("Assigned Matches"),
+					const HeaderLabel("Assigned Matches"),
 
-					// const Padding(padding: EdgeInsets.all(4)),
+					const Padding(padding: EdgeInsets.all(4)),
 
-					// Padding(
-					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-					// 	child: SizedBox(
-					// 		height: 250,
+						child: SizedBox(
+							height: 250,
 
-					// 		child: ListView(
-					// 			children: [],
-					// 		),
-					// 	),
-					// ),
+							child: ListView(
+								children: [],
+							),
+						),
+					),
 
-					// const Padding(padding: EdgeInsets.all(12)),
+					const Padding(padding: EdgeInsets.all(12)),
 
-					// const HeaderLabel("All Matches"),
+					const HeaderLabel("All Matches"),
 
-					// const Padding(padding: EdgeInsets.all(4)),
+					const Padding(padding: EdgeInsets.all(4)),
 
-					// Padding(
-					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-					// 	child: SizedBox(
-					// 		height: 250,
+						child: SizedBox(
+							height: 250,
 
-					// 		child: ListView.builder(
-					// 			itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
-					// 			itemCount: allMatches.length,
-					// 		),
-					// 	),
-					// ),
+							child: ListView.builder(
+								itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
+								itemCount: allMatches.length,
+							),
+						),
+					),
 				],
 			),
 		);

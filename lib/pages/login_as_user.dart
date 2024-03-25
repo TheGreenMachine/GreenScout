@@ -227,7 +227,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
           const Padding(padding: EdgeInsets.all(17.5)),
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75),
+			),
+			
             child: SizedBox(
               width: 200,
               height: 40,
