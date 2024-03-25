@@ -37,7 +37,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
   Future<RSAPublicKey> getPublicKey() async {
     final url =
-        Uri(scheme: 'http', host: serverHostName, path: 'pub', port: 443);
+        Uri(scheme: 'https', host: serverHostName, path: 'pub', port: 443);
 
     var response = await http.get(url);
 
@@ -67,7 +67,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       }
 
       final path =
-          Uri(scheme: 'http', host: serverHostName, path: 'login', port: 443);
+          Uri(scheme: 'https', host: serverHostName, path: 'login', port: 443);
 
       log("Using this path: $path");
 

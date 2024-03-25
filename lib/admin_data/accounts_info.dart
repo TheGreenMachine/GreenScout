@@ -10,7 +10,7 @@ class AdminAllAccounts {
   static void load() {
     if (isAdmin()) {
       final path =
-          Uri(scheme: 'http', host: serverHostName, path: '', port: 443);
+          Uri(scheme: 'https', host: serverHostName, path: '', port: 443);
 
       http.post(path, headers: {}).then((response) {
         log("Response status: ${response.statusCode}");

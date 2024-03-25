@@ -14,7 +14,18 @@ import 'timer_button.dart';
 import 'globals.dart';
 import 'package:http/http.dart' as http;
 
+class DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() async {
+  HttpOverrides.global = DevHttpOverrides();
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await App.start();
@@ -28,7 +39,7 @@ void main() async {
 
     if (matches.isNotEmpty) {
       final path = Uri(
-          scheme: 'http', host: serverHostName, path: 'dataEntry', port: 443);
+          scheme: 'https', host: serverHostName, path: 'dataEntry', port: 443);
 
       for (var match in matches) {
         dynamic err;
