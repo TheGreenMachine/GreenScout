@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
 
-const serverHostName = '';
+const serverHostName = '127.0.0.1';
 
 class App {
   static SharedPreferences? localStorage;

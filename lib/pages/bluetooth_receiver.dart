@@ -7,97 +7,90 @@ import 'package:green_scout/utils/bluetooth_utils.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
 class BluetoothReceiverPage extends StatefulWidget {
-	const BluetoothReceiverPage({super.key});
+  const BluetoothReceiverPage({super.key});
 
-	@override
-	State<BluetoothReceiverPage> createState() => _BluetoothReceiverPage();
+  @override
+  State<BluetoothReceiverPage> createState() => _BluetoothReceiverPage();
 }
 
 class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
-	List<int> peripheralMessage = [];
+  List<int> peripheralMessage = [];
 
-	@override
-	void initState() {
-		// Hack. force async to be sync.
-		() async {
-			await BlePeripheral.initialize();
+  @override
+  void initState() {
+    // Hack. force async to be sync.
+    () async {
+      await BlePeripheral.initialize();
 
-			await BlePeripheral.addService(
-				BleService(
-					uuid: serviceUuid, 
-					primary: true, 
-					characteristics: [ 
-						BleCharacteristic(
-							uuid: characteristicUuid, 
-							properties: [
-								CharacteristicProperties.write.index,
-							], 
-							permissions: [
-								AttributePermissions.writeable.index,
-							]
-						),
-					],
-				),
-				timeout: const Duration(seconds: 15),
-			);
+      await BlePeripheral.addService(
+        BleService(
+          uuid: serviceUuid,
+          primary: true,
+          characteristics: [
+            BleCharacteristic(uuid: characteristicUuid, properties: [
+              CharacteristicProperties.write.index,
+            ], permissions: [
+              AttributePermissions.writeable.index,
+            ]),
+          ],
+        ),
+        timeout: const Duration(seconds: 15),
+      );
 
-			BlePeripheral.setWriteRequestCallback((deviceId, characteristicId, offset, value) {
-				// TODO: Add a check to filter out that this only runs for our service characterisitic.
-				
-				peripheralMessage += value ?? [];
-			});
-		}();
+      BlePeripheral.setWriteRequestCallback(
+          (deviceId, characteristicId, offset, value) {
+        // TODO: Add a check to filter out that this only runs for our service characterisitic.
 
-		super.initState();
-	}
+        peripheralMessage += value ?? [];
+      });
+    }();
 
-	@override
-	void deactivate() {
-		() async {
-			// no equivalent deinit for ble peripheral. Why...
-		}();
+    super.initState();
+  }
 
-		super.deactivate();
-	}
+  @override
+  void deactivate() {
+    () async {
+      // no equivalent deinit for ble peripheral. Why...
+    }();
 
-	@override 
-	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-				actions: const [
-					NavigationMenu(),
-					Spacer(),
-				],
-			),
+    super.deactivate();
+  }
 
-			body: buildBody(context),
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: const [
+          NavigationMenu(),
+          Spacer(),
+        ],
+      ),
+      body: buildBody(context),
+    );
+  }
 
-	Widget buildBody(BuildContext context) {
-		return ListView(
-			children: [
-				FloatingToggleButton(
-					labelText: "Advertise",
-					initialIcon: const Icon(Icons.public_off),
-					initialColor: Colors.red,
-					pressedColor: Colors.blue,
-					pressedIcon: const Icon(Icons.public),
-
-					onPressed: (pressed) async {
-						if (pressed) {
-							await BlePeripheral.startAdvertising(
-								services: [ serviceUuid ], 
-								localName: "A bluetooth server - GreenScout"
-							);
-						} else {
-							await BlePeripheral.stopAdvertising();
-						}
-					},
-				),
-				Text(utf8.decode(peripheralMessage)),
-			],
-		);
-	}
+  Widget buildBody(BuildContext context) {
+    return ListView(
+      children: [
+        FloatingToggleButton(
+          labelText: "Advertise",
+          initialIcon: const Icon(Icons.public_off),
+          initialColor: Colors.red,
+          pressedColor: Colors.blue,
+          pressedIcon: const Icon(Icons.public),
+          onPressed: (pressed) async {
+            if (pressed) {
+              await BlePeripheral.startAdvertising(
+                  services: [serviceUuid], localName: "GreenScoutReciever");
+            } else {
+              await BlePeripheral.stopAdvertising();
+            }
+          },
+        ),
+        Text(utf8.decode(peripheralMessage)),
+      ],
+    );
+  }
 }
