@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:ble_peripheral/ble_peripheral.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/utils/bluetooth_utils.dart';
+import 'package:green_scout/widgets/toggle_floating_button.dart';
 
 class BluetoothReceiverPage extends StatefulWidget {
 	const BluetoothReceiverPage({super.key});
@@ -11,6 +14,8 @@ class BluetoothReceiverPage extends StatefulWidget {
 }
 
 class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
+	List<int> peripheralMessage = [];
+
 	@override
 	void initState() {
 		// Hack. force async to be sync.
@@ -35,6 +40,12 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
 				),
 				timeout: const Duration(seconds: 15),
 			);
+
+			BlePeripheral.setWriteRequestCallback((deviceId, characteristicId, offset, value) {
+				// TODO: Add a check to filter out that this only runs for our service characterisitic.
+				
+				peripheralMessage += value ?? [];
+			});
 		}();
 
 		super.initState();
@@ -66,7 +77,27 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
 
 	Widget buildBody(BuildContext context) {
 		return ListView(
-			
+			children: [
+				FloatingToggleButton(
+					labelText: "Advertise",
+					initialIcon: const Icon(Icons.public_off),
+					initialColor: Colors.red,
+					pressedColor: Colors.blue,
+					pressedIcon: const Icon(Icons.public),
+
+					onPressed: (pressed) async {
+						if (pressed) {
+							await BlePeripheral.startAdvertising(
+								services: [ serviceUuid ], 
+								localName: "A bluetooth server - GreenScout"
+							);
+						} else {
+							await BlePeripheral.stopAdvertising();
+						}
+					},
+				),
+				Text(utf8.decode(peripheralMessage)),
+			],
 		);
 	}
 }

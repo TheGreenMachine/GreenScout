@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:green_scout/admin_data/accounts_info.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/login_as_user.dart';
