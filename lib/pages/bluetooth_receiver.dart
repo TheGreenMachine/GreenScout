@@ -83,7 +83,7 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
           onPressed: (pressed) async {
             if (pressed) {
               await BlePeripheral.startAdvertising(
-                  services: [serviceUuid], localName: "GreenScoutReciever");
+                  services: [serviceUuid], localName: "GreenScoutReceiver");
             } else {
               await BlePeripheral.stopAdvertising();
             }

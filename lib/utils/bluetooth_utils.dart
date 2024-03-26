@@ -5,8 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 // Ensures we have a consistent service id to interface with.
 
-const serviceUuid = "0000198F-0000-1000-8000-00805F9B34FB";
-const characteristicUuid = "00002B28-0000-1000-8000-00805F9B34FB";
+const serviceUuid = "0000180F-0000-1000-8000-00805F9B34FB";
+const characteristicUuid = "00002A19-0000-1000-8000-00805F9B34FB";
 
 // Code taken from: https://pub.dev/packages/flutter_bluetooth_sharing/example
 Future<bool> isBTPermissionGiven() async {
