@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:developer';
 
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/timer_button.dart';
@@ -11,7 +9,6 @@ import 'package:flutter/services.dart';
 import '../globals.dart';
 import 'navigation_layout.dart';
 import '../widgets/toggle_floating_button.dart';
-import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 
 class MatchFormPage extends StatefulWidget {

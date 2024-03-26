@@ -1,10 +1,8 @@
 import 'package:green_scout/pages/admin.dart';
-import 'package:green_scout/pages/create_new_match.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/widgets/floating_button.dart';
-import 'package:green_scout/widgets/header.dart';
 import 'package:flutter/material.dart';
 
 import 'matches_data.dart';
