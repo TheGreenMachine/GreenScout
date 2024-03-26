@@ -2,6 +2,7 @@
 // https://github.com/boskokg/flutter_blue_plus/tree/master/example
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -27,6 +28,8 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 	late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
   	late StreamSubscription<bool> _isScanningSubscription;
 
+	BluetoothDevice? currentDevice;
+
 	@override
 	void initState() {
 		super.initState();
@@ -35,11 +38,10 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 			_scanResults = [];
 
 			for (final result in results) {
-				for (final uuid in result.advertisementData.serviceUuids) {
-					// if (uuid.str128 == serviceUuid.toLowerCase()) {
-					// 	break;
-					// }
-
+				for (final service in result.device.servicesList) {
+					if (service.uuid.str128 == serviceUuid.toLowerCase()) {
+						break;
+					}
 				}
 
 				// if (result.device.advName.isEmpty) {
@@ -74,7 +76,25 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 	}
 
 	void onConnectPressed(BluetoothDevice device) {
+		if (!device.isConnected) {
+			device.connect().then((_) { 
+				if (currentDevice != null) { 
+					currentDevice!.disconnect().catchError((e) {
+						Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
+					});
+				}
 
+				currentDevice = device;
+			}).catchError((e) {
+				Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
+			});
+		} else {
+			device.disconnect().catchError((e) {
+				Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
+			});
+
+      currentDevice = null;
+		}
 	}
 
 	List<Widget> _buildSystemDeviceTiles(BuildContext context) {
@@ -96,6 +116,49 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		.toList();
 	}
 
+	Future<void> sendDataToDevice(String message) async {
+		if (currentDevice == null) {
+			return;
+		}
+
+		for (var service in currentDevice!.servicesList) {
+			if (service.uuid.str128 != serviceUuid.toLowerCase()) {
+				continue;
+			}
+
+			for (var characteristic in service.characteristics) {
+				if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
+					continue;
+				}
+
+				// The '3' is for the amount of space the bluetooth
+				// device takes up for sending the data.
+				final maximumMessageSize = currentDevice!.mtuNow - 3;
+
+				final packetCount = message.length ~/ maximumMessageSize;
+
+				for (var i = 0; i < packetCount; i++) {
+					await characteristic.write(
+						utf8.encode(message)
+							.sublist(
+								i     * maximumMessageSize,
+								(i+1) * maximumMessageSize,
+							), 
+						withoutResponse: characteristic.properties.writeWithoutResponse,
+					);
+				}
+
+				if (message.length % maximumMessageSize != 0) {
+					await characteristic.write(
+						utf8.encode(message)
+							.sublist(packetCount * maximumMessageSize), 
+						withoutResponse: characteristic.properties.writeWithoutResponse,
+					);
+				}
+			}
+		}
+	}
+
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
@@ -107,22 +170,7 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 				],
 			),
 
-			body: ListView(
-				children: [
-					FloatingButton(
-						labelText: "Connect",
-						onPressed: () async {
-							await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
-
-							if (mounted) {
-								setState(() {});
-							}
-						},
-					),
-					..._buildSystemDeviceTiles(context),
-					..._buildScanResultTiles(context),
-				],
-			),
+			body: buildBody(context),
 		);
 	}
 
@@ -130,13 +178,25 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		return ListView(
 			children: [
 				FloatingButton(
-					labelText: "Connect",
+					labelText: "Find Device",
 					onPressed: () async {
+						try {
+							_systemDevices = await FlutterBluePlus.systemDevices;
+						} catch (e) {
+							Snackbar.show(ABC.b, prettyException("System Devices Error:", e), success: false);
+						}
+
 						await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
 
 						if (mounted) {
 							setState(() {});
 						}
+					},
+				),
+				FloatingButton(
+					labelText: "Write Example Data",
+					onPressed: () async {
+						await sendDataToDevice("This is a message that tests the capabilities of the device when sending a pretty long message.\nThe length of this message is mostly just to be padded and to obscure and be nonsensical. I believe this should all be sent without a single problem... Hopefully...");	
 					},
 				),
 				..._buildSystemDeviceTiles(context),

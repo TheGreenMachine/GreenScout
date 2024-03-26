@@ -38,10 +38,10 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
       );
 
       BlePeripheral.setWriteRequestCallback(
-          (deviceId, characteristicId, offset, value) {
-        // TODO: Add a check to filter out that this only runs for our service characterisitic.
+        (deviceId, characteristicId, offset, value) {
+          // TODO: Add a check to filter out that this only runs for our service characterisitic.
 
-        peripheralMessage += value ?? [];
+          peripheralMessage += value ?? [];
       });
     }();
 
