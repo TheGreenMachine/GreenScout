@@ -121,24 +121,28 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		.toList();
 	}
 
-	Color hmm = Colors.yellow;
-
-	Future<void> sendDataToDevice(String message) async {
+	Future<void> sendDataToDevice(BluetoothDevice? currentDevice, String message) async {
 		if (currentDevice == null) {
-			final random = Random();
-			hmm = Color.fromARGB(255, random.nextInt(255), random.nextInt(255), random.nextInt(255));
-			setState(() {});
+			print("Tried to send data without having a device to send too.");
 			return;
 		}
 
-		for (var service in currentDevice!.servicesList) {
-      hmm = Colors.green;
-      setState(() {});
+		try {
+			await currentDevice.discoverServices();
+		} catch (e) {
+			print("Unable to discover services");
+			Snackbar.show(ABC.a, "Unable to write to device.", success: false);
+			return;
+		}
+
+		for (var service in currentDevice.servicesList) {
 			// if (service.uuid.str128 != serviceUuid.toLowerCase()) {
 			// 	continue;
 			// }
 
 			for (var characteristic in service.characteristics) {
+				print("found characteristic: ${characteristic.uuid.str128}");
+
 				// if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
 				// 	continue;
 				// }
@@ -148,41 +152,33 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 				// }
 				
 				try {
-					hmm = Colors.red;
-		setState(() {});
+					// The '3' is for the amount of space the bluetooth
+					// device takes up for sending the data.
+					final maximumMessageSize = currentDevice!.mtuNow - 3;
 
+					final packetCount = message.length ~/ maximumMessageSize;
 
-				// The '3' is for the amount of space the bluetooth
-				// device takes up for sending the data.
-				final maximumMessageSize = currentDevice!.mtuNow - 3;
+					for (var i = 0; i < packetCount; i++) {
+						await characteristic.write(
+							utf8.encode(message)
+								.sublist(
+									i     * maximumMessageSize,
+									(i+1) * maximumMessageSize,
+								), 
+							withoutResponse: characteristic.properties.writeWithoutResponse,
+						);
+					}
 
-				final packetCount = message.length ~/ maximumMessageSize;
-
-				for (var i = 0; i < packetCount; i++) {
-					await characteristic.write(
-						utf8.encode(message)
-							.sublist(
-								i     * maximumMessageSize,
-								(i+1) * maximumMessageSize,
-							), 
-						withoutResponse: characteristic.properties.writeWithoutResponse,
-					);
-				}
-
-				if (message.length % maximumMessageSize != 0) {
-					await characteristic.write(
-						utf8.encode(message)
-							.sublist(packetCount * maximumMessageSize), 
-						withoutResponse: characteristic.properties.writeWithoutResponse,
-					);
-				}
-				} finally { hmm = Colors.blue;
-		setState(() {});
-				 }
+					if (message.length % maximumMessageSize != 0) {
+						await characteristic.write(
+							utf8.encode(message)
+								.sublist(packetCount * maximumMessageSize), 
+							withoutResponse: characteristic.properties.writeWithoutResponse,
+						);
+					}
+				} finally {}
 			}
 		}
-
-		setState(() {});
 	}
 
 	@override
@@ -222,9 +218,9 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 				FloatingButton(
 					labelText: "Write Example Data",
 					onPressed: () async {
-						await sendDataToDevice("This is a message that tests the capabilities of the device when sending a pretty long message.\nThe length of this message is mostly just to be padded and to obscure and be nonsensical. I believe this should all be sent without a single problem... Hopefully...");	
+						print("Sending example data");
+						await sendDataToDevice(currentDevice, "This is a message that tests the capabilities of the device when sending a pretty long message.\nThe length of this message is mostly just to be padded and to obscure and be nonsensical. I believe this should all be sent without a single problem... Hopefully...");	
 					},
-					color: hmm,
 				),
 				..._buildSystemDeviceTiles(context),
 				..._buildScanResultTiles(context),

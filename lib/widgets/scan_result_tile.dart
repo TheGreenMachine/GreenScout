@@ -7,10 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class ScanResultTile extends StatefulWidget {
-  const ScanResultTile({super.key, required this.result, this.onTap});
+  const ScanResultTile({super.key, required this.result, this.onTap, this.onTapWrite});
 
   final ScanResult result;
   final VoidCallback? onTap;
+  final VoidCallback? onTapWrite;
 
   @override
   State<ScanResultTile> createState() => _ScanResultTileState();
@@ -89,6 +90,18 @@ class _ScanResultTileState extends State<ScanResultTile> {
       onPressed: (widget.result.advertisementData.connectable) ? widget.onTap : null,
 
       child: isConnected ? const Text('DISCONNECT') : const Text('CONNECT'),
+    );
+  }
+
+  Widget _buildWriteButton(BuildContext context) {
+	return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      onPressed: (widget.result.advertisementData.connectable) ? widget.onTapWrite : null,
+
+      child: const Text('WRITE'),
     );
   }
 
