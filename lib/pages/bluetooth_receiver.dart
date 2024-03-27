@@ -18,6 +18,8 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
 
   @override
   void initState() {
+    super.initState();
+
     // Hack. force async to be sync.
     () async {
       await BlePeripheral.initialize();
@@ -48,8 +50,6 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
           }
       });
     }();
-
-    super.initState();
   }
 
   @override

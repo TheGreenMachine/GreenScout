@@ -76,7 +76,7 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		super.deactivate();
 	}
 
-	void onConnectPressed(BluetoothDevice device) async {
+	Future<void> onConnectPressed(BluetoothDevice device) async {
 		try {
 			if (currentDevice != null) { 
 				await currentDevice!.disconnect().catchError((e) {
@@ -85,13 +85,7 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 			}
 
 			if (!device.isConnected) {
-				await device.connect(mtu: null).then((_) async { 
-					if (currentDevice != null) { 
-						await currentDevice!.disconnect().catchError((e) {
-							Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
-						});
-					}
-				}).catchError((e) {
+				await device.connect(mtu: null).catchError((e) {
 					Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
 				});
 
@@ -121,7 +115,7 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 			.map(
 				(r) => ScanResultTile(
 					result: r,
-					onTap: () => onConnectPressed(r.device),
+					onTap: () async => await onConnectPressed(r.device),
 				),
 			)
 		.toList();
@@ -138,6 +132,8 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		}
 
 		for (var service in currentDevice!.servicesList) {
+      hmm = Colors.green;
+      setState(() {});
 			// if (service.uuid.str128 != serviceUuid.toLowerCase()) {
 			// 	continue;
 			// }
