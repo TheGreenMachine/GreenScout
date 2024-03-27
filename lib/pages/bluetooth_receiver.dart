@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/utils/bluetooth_utils.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothReceiverPage extends StatefulWidget {
   const BluetoothReceiverPage({super.key});
@@ -85,6 +86,14 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
           pressedColor: Colors.blue,
           pressedIcon: const Icon(Icons.public),
           onPressed: (pressed) async {
+            if (await Permission.bluetoothAdvertise.isDenied) {
+              final status = await Permission.bluetoothAdvertise.request();
+
+              if (status.isDenied) {
+                return;
+              }
+            }
+
             if (pressed) {
               await BlePeripheral.startAdvertising(
                   services: [serviceUuid], localName: "GreenScoutReceiver");

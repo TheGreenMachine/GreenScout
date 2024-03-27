@@ -136,20 +136,20 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		}
 
 		for (var service in currentDevice.servicesList) {
-			// if (service.uuid.str128 != serviceUuid.toLowerCase()) {
-			// 	continue;
-			// }
+			if (service.uuid.str128 != serviceUuid.toLowerCase()) {
+				continue;
+			}
 
 			for (var characteristic in service.characteristics) {
 				print("found characteristic: ${characteristic.uuid.str128}");
 
-				// if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
-				// 	continue;
-				// }
+				if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
+					continue;
+				}
 
-				// if (!characteristic.properties.write) {
-				// 	continue;
-				// }
+				if (!characteristic.properties.write) {
+					continue;
+				}
 				
 				try {
 					// The '3' is for the amount of space the bluetooth
@@ -176,8 +176,11 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 							withoutResponse: characteristic.properties.writeWithoutResponse,
 						);
 					}
-				} finally {}
+				} finally {
+				}
+					break;
 			}
+			break;
 		}
 	}
 

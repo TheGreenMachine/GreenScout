@@ -1,4 +1,6 @@
+import 'package:ble_peripheral/ble_peripheral.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:green_scout/pages/bluetooth_receiver.dart';
 import 'package:green_scout/pages/bluetooth_sender.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -41,6 +43,11 @@ class BluetoothSelectorPage extends StatelessWidget {
 	}
 
 	Widget createBody(BuildContext context) {
+		() async {
+			await BlePeripheral.initialize();
+			await FlutterBluePlus.turnOn();
+		}();
+
 		return Padding( 
 			padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)), 
 
