@@ -3,6 +3,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -75,25 +76,35 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		super.deactivate();
 	}
 
-	void onConnectPressed(BluetoothDevice device) {
-		if (!device.isConnected) {
-			device.connect().then((_) { 
-				if (currentDevice != null) { 
-					currentDevice!.disconnect().catchError((e) {
-						Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
-					});
-				}
+	void onConnectPressed(BluetoothDevice device) async {
+		try {
+			if (currentDevice != null) { 
+				await currentDevice!.disconnect().catchError((e) {
+					Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
+				});
+			}
+
+			if (!device.isConnected) {
+				await device.connect(mtu: null).then((_) async { 
+					if (currentDevice != null) { 
+						await currentDevice!.disconnect().catchError((e) {
+							Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
+						});
+					}
+				}).catchError((e) {
+					Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
+				});
 
 				currentDevice = device;
-			}).catchError((e) {
-				Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
-			});
-		} else {
-			device.disconnect().catchError((e) {
-				Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
-			});
+			} else {
+				await device.disconnect().catchError((e) {
+					Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
+				});
 
-      currentDevice = null;
+				currentDevice = null;
+			}
+		} finally {
+			
 		}
 	}
 
@@ -116,20 +127,34 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 		.toList();
 	}
 
+	Color hmm = Colors.yellow;
+
 	Future<void> sendDataToDevice(String message) async {
 		if (currentDevice == null) {
+			final random = Random();
+			hmm = Color.fromARGB(255, random.nextInt(255), random.nextInt(255), random.nextInt(255));
+			setState(() {});
 			return;
 		}
 
 		for (var service in currentDevice!.servicesList) {
-			if (service.uuid.str128 != serviceUuid.toLowerCase()) {
-				continue;
-			}
+			// if (service.uuid.str128 != serviceUuid.toLowerCase()) {
+			// 	continue;
+			// }
 
 			for (var characteristic in service.characteristics) {
-				if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
-					continue;
-				}
+				// if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
+				// 	continue;
+				// }
+
+				// if (!characteristic.properties.write) {
+				// 	continue;
+				// }
+				
+				try {
+					hmm = Colors.red;
+		setState(() {});
+
 
 				// The '3' is for the amount of space the bluetooth
 				// device takes up for sending the data.
@@ -155,8 +180,13 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 						withoutResponse: characteristic.properties.writeWithoutResponse,
 					);
 				}
+				} finally { hmm = Colors.blue;
+		setState(() {});
+				 }
 			}
 		}
+
+		setState(() {});
 	}
 
 	@override
@@ -198,6 +228,7 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 					onPressed: () async {
 						await sendDataToDevice("This is a message that tests the capabilities of the device when sending a pretty long message.\nThe length of this message is mostly just to be padded and to obscure and be nonsensical. I believe this should all be sent without a single problem... Hopefully...");	
 					},
+					color: hmm,
 				),
 				..._buildSystemDeviceTiles(context),
 				..._buildScanResultTiles(context),

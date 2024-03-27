@@ -42,6 +42,10 @@ class _BluetoothReceiverPage extends State<BluetoothReceiverPage> {
           // TODO: Add a check to filter out that this only runs for our service characterisitic.
 
           peripheralMessage += value ?? [];
+
+          if (mounted) {
+            setState(() {});
+          }
       });
     }();
 
