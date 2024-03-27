@@ -208,7 +208,10 @@ class _BluetoothSenderPage extends State<BluetoothSenderPage> {
 							Snackbar.show(ABC.b, prettyException("System Devices Error:", e), success: false);
 						}
 
-						await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
+						await FlutterBluePlus.startScan(
+							withServices: [ Guid.fromString(serviceUuid) ],
+							timeout: const Duration(seconds: 15),
+						);
 
 						if (mounted) {
 							setState(() {});
