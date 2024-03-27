@@ -1,236 +1,126 @@
-// Part of code stolen from: 
-// https://github.com/boskokg/flutter_blue_plus/tree/master/example
-
-import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
+import 'package:ble_peripheral/ble_peripheral.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:green_scout/utils/bluetooth_utils.dart';
-import 'package:green_scout/utils/snackbar.dart';
-import 'package:green_scout/widgets/floating_button.dart';
-import 'package:green_scout/widgets/scan_result_tile.dart';
+import 'package:green_scout/widgets/toggle_floating_button.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothSenderPage extends StatefulWidget {
-	const BluetoothSenderPage({super.key});
+  const BluetoothSenderPage({super.key});
 
-	@override
-	State<BluetoothSenderPage> createState() => _BluetoothSenderPage();
+  @override
+  State<BluetoothSenderPage> createState() => _BluetoothSenderPage();
 }
 
 class _BluetoothSenderPage extends State<BluetoothSenderPage> {
+  List<int> peripheralMessage = [];
 
-	// This code is borrowed from the flutter blue plus example.
-	List<BluetoothDevice> _systemDevices = [];
-	List<ScanResult> _scanResults = [];
-	bool _isScanning = false;
-	late StreamSubscription<List<ScanResult>> _scanResultsSubscription;
-  	late StreamSubscription<bool> _isScanningSubscription;
+  @override
+  void initState() {
+    super.initState();
 
-	BluetoothDevice? currentDevice;
+    // Hack. force async to be sync.
+    () async {
+      await BlePeripheral.initialize();
 
-	@override
-	void initState() {
-		super.initState();
+    //   await BlePeripheral.addService(
+    //     BleService(
+    //       uuid: serviceUuid,
+    //       primary: true,
+    //       characteristics: [
+    //         BleCharacteristic(uuid: characteristicUuid, properties: [
+    //           CharacteristicProperties.write.index,
+    //         ], permissions: [
+    //           AttributePermissions.writeable.index,
+    //         ]),
+    //       ],
+    //     ),
+    //     timeout: const Duration(seconds: 15),
+    //   );
 
-		_scanResultsSubscription = FlutterBluePlus.scanResults.listen((results) {
-			_scanResults = [];
+    //   BlePeripheral.setWriteRequestCallback(
+    //     (deviceId, characteristicId, offset, value) {
+    //       // TODO: Add a check to filter out that this only runs for our service characterisitic.
 
-			for (final result in results) {
-				for (final service in result.device.servicesList) {
-					if (service.uuid.str128 == serviceUuid.toLowerCase()) {
-						break;
-					}
-				}
+    //       peripheralMessage += value ?? [];
 
-				// if (result.device.advName.isEmpty) {
-				// 	break;
-				// }
+    //       if (mounted) {
+    //         setState(() {});
+    //       }
+    //   });
 
-				_scanResults.add(result);
-			}
+		BlePeripheral.setReadRequestCallback((deviceId, characteristicId, offset, value) {
+			return ReadRequestResult(value: utf8.encode(
+				"""
+				This is a long message to test the capabilitlies/ Oops... a misspelling.
+				I just want to have a really long message to test what is possible with
+				this read only architecture. This should go beyond what is normally expected
+				to force the application to be compatible for what is expected. 
 
-			if (mounted) {
-				setState(() {});
-			}
-		}, onError: (e) {
-			Snackbar.show(ABC.b, prettyException("Scan Error:", e), success: false);
+				At this point this is total gibberish that makes my head spin. But it's long,
+				it's boring, and it's best of all... plain. It's the ramblings of a man who has
+				lost it all to the terrible creature called: Bluetooth. 
+
+				I don't recommend anybody to ever face this foe as it may take your sanity as it
+				has taken mine. I will never let go of this hatred that is held deep for Bluetooth.\n
+				"""
+			));
 		});
+    }();
+  }
 
-		_isScanningSubscription = FlutterBluePlus.isScanning.listen((state) {
-				_isScanning = state;
-				if (mounted) {
-					setState(() {});
-				}
-			}
-		);
-	}
+  @override
+  void deactivate() {
+    () async {
+      // no equivalent deinit for ble peripheral. Why...
+    }();
 
-	@override
-	void deactivate() {
-		_scanResultsSubscription.cancel();
-		_isScanningSubscription.cancel();
+    super.deactivate();
+  }
 
-		super.deactivate();
-	}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: const [
+          NavigationMenu(),
+          Spacer(),
+        ],
+      ),
+      body: buildBody(context),
+    );
+  }
 
-	Future<void> onConnectPressed(BluetoothDevice device) async {
-		try {
-			if (currentDevice != null) { 
-				await currentDevice!.disconnect().catchError((e) {
-					Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
-				});
-			}
+  Widget buildBody(BuildContext context) {
+    return ListView(
+      children: [
+        FloatingToggleButton(
+          labelText: "Advertise",
+          initialIcon: const Icon(Icons.public_off),
+          initialColor: Colors.red,
+          pressedColor: Colors.blue,
+          pressedIcon: const Icon(Icons.public),
+          onPressed: (pressed) async {
+            if (await Permission.bluetoothAdvertise.isDenied) {
+              final status = await Permission.bluetoothAdvertise.request();
 
-			if (!device.isConnected) {
-				await device.connect(mtu: null).catchError((e) {
-					Snackbar.show(ABC.c, prettyException("Connect Error:", e), success: false);
-				});
+              if (status.isDenied) {
+                return;
+              }
+            }
 
-				currentDevice = device;
-			} else {
-				await device.disconnect().catchError((e) {
-					Snackbar.show(ABC.c, prettyException("Disconnect Error: ", e), success: false);
-				});
-
-				currentDevice = null;
-			}
-		} finally {
-			
-		}
-	}
-
-	List<Widget> _buildSystemDeviceTiles(BuildContext context) {
-		return _systemDevices
-			.map(
-				(d) => Text(d.advName),
-			)
-			.toList();
-	}
-
-	List<Widget> _buildScanResultTiles(BuildContext context) {
-		return _scanResults
-			.map(
-				(r) => ScanResultTile(
-					result: r,
-					onTap: () async => await onConnectPressed(r.device),
-				),
-			)
-		.toList();
-	}
-
-	Future<void> sendDataToDevice(BluetoothDevice? currentDevice, String message) async {
-		if (currentDevice == null) {
-			print("Tried to send data without having a device to send too.");
-			return;
-		}
-
-		try {
-			await currentDevice.discoverServices();
-		} catch (e) {
-			print("Unable to discover services");
-			Snackbar.show(ABC.a, "Unable to write to device.", success: false);
-			return;
-		}
-
-		for (var service in currentDevice.servicesList) {
-			if (service.uuid.str128 != serviceUuid.toLowerCase()) {
-				continue;
-			}
-
-			for (var characteristic in service.characteristics) {
-				print("found characteristic: ${characteristic.uuid.str128}");
-
-				if (characteristic.uuid.str128 != characteristicUuid.toLowerCase()) {
-					continue;
-				}
-
-				if (!characteristic.properties.write) {
-					continue;
-				}
-				
-				try {
-					// The '3' is for the amount of space the bluetooth
-					// device takes up for sending the data.
-					final maximumMessageSize = currentDevice!.mtuNow - 3;
-
-					final packetCount = message.length ~/ maximumMessageSize;
-
-					for (var i = 0; i < packetCount; i++) {
-						await characteristic.write(
-							utf8.encode(message)
-								.sublist(
-									i     * maximumMessageSize,
-									(i+1) * maximumMessageSize,
-								), 
-							withoutResponse: characteristic.properties.writeWithoutResponse,
-						);
-					}
-
-					if (message.length % maximumMessageSize != 0) {
-						await characteristic.write(
-							utf8.encode(message)
-								.sublist(packetCount * maximumMessageSize), 
-							withoutResponse: characteristic.properties.writeWithoutResponse,
-						);
-					}
-				} finally {
-				}
-					break;
-			}
-			break;
-		}
-	}
-
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-				actions: const [
-					NavigationMenu(),
-					Spacer(),
-				],
-			),
-
-			body: buildBody(context),
-		);
-	}
-
-	Widget buildBody(BuildContext context) {
-		return ListView(
-			children: [
-				FloatingButton(
-					labelText: "Find Device",
-					onPressed: () async {
-						try {
-							_systemDevices = await FlutterBluePlus.systemDevices;
-						} catch (e) {
-							Snackbar.show(ABC.b, prettyException("System Devices Error:", e), success: false);
-						}
-
-						await FlutterBluePlus.startScan(
-							withServices: [ Guid.fromString(serviceUuid) ],
-							timeout: const Duration(seconds: 15),
-						);
-
-						if (mounted) {
-							setState(() {});
-						}
-					},
-				),
-				FloatingButton(
-					labelText: "Write Example Data",
-					onPressed: () async {
-						print("Sending example data");
-						await sendDataToDevice(currentDevice, "This is a message that tests the capabilities of the device when sending a pretty long message.\nThe length of this message is mostly just to be padded and to obscure and be nonsensical. I believe this should all be sent without a single problem... Hopefully...");	
-					},
-				),
-				..._buildSystemDeviceTiles(context),
-				..._buildScanResultTiles(context),
-			],
-		);
-	}
+            if (pressed) {
+              await BlePeripheral.startAdvertising(services: [], localName: "GreenScoutSender");
+            } else {
+              await BlePeripheral.stopAdvertising();
+            }
+          },
+        ),
+        Text(utf8.decode(peripheralMessage)),
+      ],
+    );
+  }
 }
