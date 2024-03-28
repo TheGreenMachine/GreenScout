@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // We aren't ready to work towards a fully working admin page.
-    setAdminStatus(false);
+    setAdminStatus(true);
 
     return MaterialApp(
       title: 'Flutter Demo',
@@ -98,6 +98,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
         useMaterial3: true,
       ),
+	  // TODO: later
+	  darkTheme: ThemeData(
+		colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen.withGreen(23))
+	  ),
       home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
       //   home: const LoginPageForGuest(),
       routes: navigationLayout,
