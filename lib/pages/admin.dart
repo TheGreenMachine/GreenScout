@@ -65,22 +65,6 @@ class _AdminPage extends State<AdminPage> {
 						), 
 					),
 
-					Padding( 
-						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
-
-						child: SizedBox( 
-							width: null,
-							height: 230,
-
-							// TODO: Switch to ListView.builder
-							child: ListView(
-								children: [
-									Text(getAccountDataForAdmins()),
-								],
-							),
-						),
-					),
-
 					const Padding(padding: EdgeInsets.all(12)),
 
 					const SubheaderLabel("Matches"),

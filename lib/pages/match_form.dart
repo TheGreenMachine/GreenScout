@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/timer_button.dart';
 import 'package:green_scout/widgets/floating_button.dart';
@@ -73,10 +75,12 @@ enum CycleTimeLocationType {
 class CycleTimeInfo {
   CycleTimeInfo({
     this.time = 0.0,
+    this.success = true,
     this.location = CycleTimeLocationType.none,
   });
 
   double time;
+  bool success;
   CycleTimeLocationType location;
 }
 
@@ -93,6 +97,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   bool cycleStopwatchTimerValue = false;
   bool cycleTimerLocationDisabled = true;
 
+  Reference<bool> canClimbSuccessfully = Reference(false);
   final climbingWatch = Stopwatch();
   double climbingTime = 0.0;
 
@@ -102,12 +107,14 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> canShootIntoSpeaker = Reference(false);
   Reference<bool> canShootIntoAmp = Reference(false);
 
+  Reference<bool> canPickupGround = Reference(false);
+  Reference<bool> canPickupSource = Reference(false);
+
   Reference<bool> canDistanceShoot = Reference(false);
   Reference<int> distanceShootingScores = Reference(0);
   Reference<int> distanceShootingMisses = Reference(0);
 
   Reference<bool> canDoAuto = Reference(false);
-  Reference<bool> succeededAuto = Reference(false);
   Reference<int> autoScoresNum = Reference(0);
   Reference<int> autoMissesNum = Reference(0);
   Reference<int> autoEjectsNum = Reference(0);
@@ -118,6 +125,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> canPark = Reference(false);
   Reference<bool> disconnected = Reference(false);
   Reference<bool> lostTrack = Reference(false);
+  Reference<bool> disabled = Reference(false);
 
   final _notesController = TextEditingController();
   Reference<String> notes = Reference("");
@@ -303,10 +311,20 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         const Padding(padding: EdgeInsets.all(16)),
 
+
+
+        createSectionHeader("Pickup Locations"),
+
+        createLabelAndCheckBox("Ground", canPickupGround),
+        createLabelAndCheckBox("Source", canPickupSource),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+
         createSectionHeader("Auto Mode"),
 
-        createLabelAndCheckBox("Works?", canDoAuto),
-        createLabelAndCheckBox("Successful?", succeededAuto),
+        createLabelAndCheckBox("Can They Do It?", canDoAuto),
         createLabelAndNumberField("Scores", autoScoresNum),
         createLabelAndNumberField("Misses", autoMissesNum),
         createLabelAndNumberField("Ejects", autoEjectsNum),
@@ -324,6 +342,8 @@ class _MatchFormPage extends State<MatchFormPage> {
         const Padding(padding: EdgeInsets.all(16)),
 
         createSectionHeader("Climbing"),
+
+        createLabelAndCheckBox("Was It Successful?", canClimbSuccessfully),
 
         Padding(
             padding: EdgeInsets.symmetric(
@@ -370,6 +390,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         createLabelAndCheckBox("Do They Park?", canPark),
         createLabelAndCheckBox("Did They Disconnect?", disconnected),
         createLabelAndCheckBox("Did YOU Lose Track At Any Point?", lostTrack),
+        createLabelAndCheckBox("Did They're Robot Get Disabled?", disabled),
 
         // createLabelAndCheckBox("Do They Cooperate?", cooperates),
 
@@ -512,7 +533,7 @@ class _MatchFormPage extends State<MatchFormPage> {
       List<Reference<int>> decrementChildren = const [],
       int lowerBound = 0,
       int upperBound = 99}) {
-    // TODO: An interesting idea to pursue in the future is to make this and almost every little functio here
+    // TODO: An interesting idea to pursue in the future is to make this and almost every little function here
     // into individual stateful widgets so that only those that have anything modified actually update. Currently,
     // how we update for any little change can probably be a very bad thing that might bite us in terms of performance.
 
@@ -736,13 +757,18 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   Widget createCycleListView(Color ampColor, Color speakerColor) {
+    const widthRatio = 0.85;
+
+    final paddingWidth = MediaQuery.of(context).size.width * (1.0 - widthRatio);
+    final width = MediaQuery.of(context).size.width * widthRatio;
+
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width *
-              (1.0 - 0.80) *
-              MediaQuery.of(context).size.aspectRatio),
+        horizontal: paddingWidth / 2,
+      ),
+
       child: SizedBox(
-        width: 250,
+        width: width,
         height: 200,
         child: ListView.builder(
           itemCount: math.max(minTimestampsToDisplay, cycleTimestamps.length),
@@ -759,7 +785,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 125,
+                  width: width * 0.435,
                   height: 35,
                   child: FittedBox(
                     fit: BoxFit.contain,
@@ -772,7 +798,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                 ),
 
                 SizedBox(
-                  width: 100,
+                  width: width * 0.425,
                   height: 35,
                   child: Container(
                     alignment: Alignment.center,
@@ -789,22 +815,35 @@ class _MatchFormPage extends State<MatchFormPage> {
                   ),
                 ),
 
-                // SizedBox(
-                // 	width: 25,
-                // 	height: 35,
+                SizedBox(
+                	width: width * 0.10,
+                	height: 35,
 
-                // 	child: FloatingButton(
-                // 		color: Theme.of(context).colorScheme.background,
-                // 		icon: const Icon(Icons.remove_circle_outline_sharp),
+                	child: FloatingActionButton(
+                    heroTag: null,
 
-                // 		shadow: false,
+                		backgroundColor: info.success 
+                      ? Theme.of(context).colorScheme.inversePrimary
+                      : Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
-                // 		onPressed: () =>
-                // 		setState(() {
-                // 			timestamps.removeAt(index);
-                // 		}),
-                // 	),
-                // )
+                		elevation: 0,
+                    focusElevation: 0,
+                    hoverElevation: 0,
+                    disabledElevation: 0,
+                    highlightElevation: 0,
+
+                		onPressed: () =>
+                		setState(() {
+                		  info.success = !info.success;
+                		}),
+
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
+
+                		child: info.success 
+                      ? const Icon(Icons.check)
+                      : const Icon(Icons.close),
+                	),
+                )
               ],
             );
           },
@@ -814,91 +853,100 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   String toJson() {
-    String expandCycles() {
-      StringBuffer builder = StringBuffer();
+    List<dynamic> expandCycles() {
+      List<dynamic> result = [];
 
-      for (int i = 0; i < cycleTimestamps.length; i++) {
-        builder.write(
-          '{ "Time": ${cycleTimestamps[i].time}, "Type": "${cycleTimestamps[i].location}" }',
+      for (final timestamp in cycleTimestamps) {
+        result.add(
+          {
+            "Time": timestamp.time,
+            "Type": timestamp.location,
+            "Success": timestamp.success,
+          },
         );
-
-        if (i != cycleTimestamps.length - 1) {
-          builder.writeln(',');
-        }
       }
 
       if (cycleTimestamps.isEmpty) {
-        builder.write('{ "Time": 0, "Type": "None" }');
+        result.add(
+          {
+            "Time": 0,
+            "Type": "None",
+            "Success": false,
+          }
+        );
       }
 
-      return builder.toString();
+      return result;
     }
 
     String scouterName = getScouterName();
 
-    return '''
+    return jsonEncode(
 		{
-			"Team": ${teamNum.isEmpty ? "1" : teamNum},
+			"Team": teamNum.isEmpty ? "1" : teamNum,
 			"Match": {
-				"Number": ${matchNum.isEmpty ? "1" : matchNum},
-				"isReplay": $isReplay
+				"Number": matchNum.isEmpty ? "1" : matchNum,
+				"isReplay": isReplay
 			},
 
 			"Driver Station": {
-				"Is Blue": ${driverStation.value.$1},
-				"Number": ${driverStation.value.$2}
+				"Is Blue": driverStation.value.$1,
+				"Number": driverStation.value.$2
 			},
 
-			"Scouter": "$scouterName",
+			"Scouter": scouterName,
 
-			"Cycles": [
-				${expandCycles()}
-			],
+			"Cycles": expandCycles(),
 
-			"Amp": ${canShootIntoAmp.value},
-			"Speaker": ${canShootIntoSpeaker.value},
+			"Amp": canShootIntoAmp.value,
+			"Speaker": canShootIntoSpeaker.value,
 
 			"Speaker Positions": {
-				"sides": ${speakerSides.value},
-				"middle": ${speakerMiddle.value}
+				"sides": speakerSides.value,
+				"middle": speakerMiddle.value
 			},
 
+      "Pickup Locations": {
+        "Ground": canPickupGround.value,
+        "Source": canPickupSource.value,
+      },
+
 			"Distance Shooting": {
-				"Can": ${canDistanceShoot.value},
-				"Misses": ${distanceShootingMisses.value},
-				"Scores": ${distanceShootingScores.value}
+				"Can": canDistanceShoot.value,
+				"Misses": distanceShootingMisses.value,
+				"Scores": distanceShootingScores.value
 			},
 
 			"Auto": {
-				"Can": ${canDoAuto.value},
-				"Succeeded": ${succeededAuto.value},
-				"Scores": ${autoScoresNum.value},
-				"Misses": ${autoMissesNum.value},
-				"Ejects": ${autoEjectsNum.value}
+				"Can": canDoAuto.value,
+				"Scores": autoScoresNum.value,
+				"Misses": autoMissesNum.value,
+				"Ejects": autoEjectsNum.value
 			},
 
 			"Climbing": {
-				"Can": ${climbingTime > 0.4},
-				"Time": $climbingTime
+				"Succeeded": canClimbSuccessfully.value,
+				"Time": climbingTime
 			},
 
 			"Trap": {
-				"Misses": ${trapMissesNum.value},
-				"Score": ${trapScoreNum.value} 
+				"Misses": trapMissesNum.value,
+				"Score": trapScoreNum.value
 			},
 
 			"Misc": {
-				"Parked": ${canPark.value},
-				"Lost Communication": ${disconnected.value},
-				"User Lost Track": ${lostTrack.value}
+				"Parked": canPark.value,
+				"Lost Communication": disconnected.value,
+				"User Lost Track": lostTrack.value,
+        "Disabled": disabled.value,
 			},
 
 			"Penalties": [
 
 			],
 
-			"Notes": "${notes.value}"
+			"Notes": notes.value
 		}
-		''';
+    );
   }
 }
