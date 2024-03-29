@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/widgets/header.dart';
 
 import 'matches_data.dart';
 
@@ -15,10 +18,6 @@ class HomePage extends StatefulWidget {
 	@override
 	State<HomePage> createState() => _HomePage();
 }
-
-List<MatchInfo> allMatches = [
-	const MatchInfo(1, 1816, false, 1),
-];
 
 class _HomePage extends State<HomePage> {
 	@override
@@ -79,43 +78,55 @@ class _HomePage extends State<HomePage> {
 
 					// TODO: Finish this after the scrimmage.
 
-					// const Padding(padding: EdgeInsets.all(18)),
+					const Padding(padding: EdgeInsets.all(18)),
 
-					// const HeaderLabel("Assigned Matches"),
+					const HeaderLabel("Assigned Matches"),
 
-					// const Padding(padding: EdgeInsets.all(4)),
+					const Padding(padding: EdgeInsets.all(4)),
 
-					// Padding(
-					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-					// 	child: SizedBox(
-					// 		height: 250,
+						child: SizedBox(
+							height: 250,
 
-					// 		child: ListView(
-					// 			children: [],
-					// 		),
-					// 	),
-					// ),
+							child: ListView.builder(
+								itemBuilder: (context, index) => matchViewBuilder(context, index, MatchesData.allAssignedMatches),
+								itemCount: MatchesData.allAssignedMatches.length,
+							),
+						),
+					),
 
-					// const Padding(padding: EdgeInsets.all(12)),
+					const Padding(padding: EdgeInsets.all(12)),
 
-					// const HeaderLabel("All Matches"),
+					const HeaderLabel("All Matches"),
 
-					// const Padding(padding: EdgeInsets.all(4)),
+					const Padding(padding: EdgeInsets.all(4)),
 
-					// Padding(
-					// 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-					// 	child: SizedBox(
-					// 		height: 250,
+						child: SizedBox(
+							height: 250,
 
-					// 		child: ListView.builder(
-					// 			itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
-					// 			itemCount: allMatches.length,
-					// 		),
-					// 	),
-					// ),
+							child: ListView.builder(
+								itemBuilder: (context, index) => matchViewBuilder(context, index, MatchesData.allParsedMatches),
+								itemCount: MatchesData.allParsedMatches.length,
+							),
+						),
+					),
+
+					const Padding(padding: EdgeInsets.all(16)),
 				],
+			),
+
+			floatingActionButton: FloatingButton(
+				icon: const Icon(Icons.refresh),
+				onPressed: () {
+					MatchesData.getAllMatchesFromServer();
+					sleep(Durations.medium3);
+					setState(() {});
+				},
 			),
 		);
 	}
@@ -123,55 +134,60 @@ class _HomePage extends State<HomePage> {
 	Widget matchViewBuilder(BuildContext context, int index, List<MatchInfo> matches) {
 		final match = matches[index];
 
-		return GestureDetector(
-			child: Row(
-				children: [
-					Text(
-						match.team.toString(),
-					),
+		return ExpansionTile(
+			leading: Text("${match.matchNum}${match.isBlue ? "B" : "R"}"),
+			title: Text(match.team.toString()),
 
-					const Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
+			shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.5)),
+			collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.5)),
 
-					Text(
-						match.matchNum.toString(),
-					),
+			backgroundColor: match.isBlue
+				? Theme.of(context).colorScheme.inversePrimary.withBlue(255) 
+				: Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
-					const Padding(padding: EdgeInsets.symmetric(horizontal: 8)),
+			collapsedBackgroundColor: match.isBlue
+				? Theme.of(context).colorScheme.inversePrimary.withBlue(255) 
+				: Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
-					SizedBox(
+			// textColor: Theme.of(context).colorScheme.surface,
+			// collapsedTextColor: Theme.of(context).colorScheme.surface,
 
-						child: Container( 
-							width: 25,
-							height: 25,
+			trailing: ElevatedButton(
+				style: ElevatedButton.styleFrom(
+					foregroundColor: Theme.of(context).colorScheme.primary,
+					backgroundColor: Colors.transparent,
+				),
 
-							color: match.isBlue
-								? const Color.fromARGB(255, 0, 0, 255)
-								: const Color.fromARGB(255, 255, 0, 0),
-
-							child: Text(
-								match.driveTeamNum.toString(),
-
-								
-							),
+				onPressed: () {
+					Navigator.pushReplacement(
+						context, 
+						MaterialPageRoute(
+							builder: (context) =>
+								MatchFormPage(
+									matchNum: match.matchNum.toString(),
+									teamNum: match.team.toString(),
+									isBlue: match.isBlue,
+									driverNumber: match.driveTeamNum,
+								),
 						),
-					)
-				],
+					);
+				},
+
+				child: const Icon(Icons.add),
 			),
 
-			onTap: () {
-				Navigator.pushReplacement(
-					context, 
-					MaterialPageRoute(
-						builder: (context) =>
-							MatchFormPage(
-								matchNum: match.matchNum.toString(),
-								teamNum: match.team.toString(),
-								isBlue: match.isBlue,
-								driverNumber: match.driveTeamNum,
-							),
-					),
-				);
-			},
+			children: [
+				Text(
+					match.isBlue ? "Team Color: Blue" : "Team Color: Red",
+				),
+				Text(
+					"Team Number: ${match.team}",
+				),
+				Text(
+					"Drive Team Number: ${match.driveTeamNum}",
+				),
+				const Padding(padding: EdgeInsets.all(1)),
+			],
 		);
 	}
 }

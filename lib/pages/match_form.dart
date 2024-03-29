@@ -137,6 +137,13 @@ class _MatchFormPage extends State<MatchFormPage> {
     super.dispose();
   }
 
+  @override 
+  void initState() {
+	driverStation.value = (widget.isBlue, widget.driverNumber);
+
+	super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final windowSize = MediaQuery.of(context).size;
