@@ -1,5 +1,7 @@
+import 'package:green_scout/pages/admin_assign_matches.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:flutter/material.dart';
@@ -42,8 +44,26 @@ class _AdminPage extends State<AdminPage> {
 
 					const Padding(padding: EdgeInsets.all(24)),
 
-					const SubheaderLabel("Accounts"),
+					const SubheaderLabel("Assign Matches"),
 					const Padding(padding: EdgeInsets.all(2)),
+
+					Padding(
+						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+
+						child: FloatingButton(
+							icon: const Icon(Icons.assignment),
+							color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+
+							onPressed: () {
+								Navigator.push(
+									context, 
+									MaterialPageRoute(
+										builder: (context) => const AdminAssignMatchesPage(), 
+									),
+								);
+							},
+						), 
+					),
 
 					Padding( 
 						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),

@@ -84,11 +84,14 @@ class MyApp extends StatelessWidget {
       ),
 	  // TODO: later
 	  darkTheme: ThemeData(
-		colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen.withGreen(23))
+		colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
+		primaryTextTheme: Typography.blackCupertino
 	  ),
       home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
       //   home: const LoginPageForGuest(),
       routes: navigationLayout,
+	  themeAnimationCurve: Curves.easeInOut,
+	  themeMode: ThemeMode.light,
     );
   }
 }

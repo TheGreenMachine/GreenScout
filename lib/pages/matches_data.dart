@@ -41,41 +41,36 @@ class MatchesData {
 	}
 
 	static void parseMatches() {
+		// This is currently some pre-filled data to test
+		// if calling the "refresh button" does the proper
+		// thing.
+		allParsedMatches.addAll(
+			[
+				const MatchInfo(1, 1816, false, 1),
+				const MatchInfo(1, 2502, false, 2),
+				const MatchInfo(1, 2525, false, 3),
+				const MatchInfo(1, 3021, true, 1),
+				const MatchInfo(1, 12, true, 2),
+				const MatchInfo(1, 19020, true, 3),
+			]
+		);
+
+		allAssignedMatches.addAll(
+			allParsedMatches.sublist(3),
+		);
+
 		String? scheduleJsonString = App.getString(matchScheduleJsonKey);
 		String? assignedJsonString = App.getString(assignedMatchScheduleJsonKey);
 
-		if (scheduleJsonString == null) {
+		if (scheduleJsonString == null || scheduleJsonString == "") {
 			return;
 		}
 
-		if (assignedJsonString == null) {
+		if (assignedJsonString == null || assignedJsonString == "") {
 			return;
 		}
-
-		if (scheduleJsonString != "") {
-			return;
-		}
-
-		if (assignedJsonString != "") {
-			return;
-		} 
 
 		try {
-			allParsedMatches.addAll(
-				[
-					const MatchInfo(1, 1816, false, 1),
-					const MatchInfo(1, 2502, false, 2),
-					const MatchInfo(1, 2525, false, 3),
-					const MatchInfo(1, 3021, true, 1),
-					const MatchInfo(1, 12, true, 2),
-					const MatchInfo(1, 19020, true, 3),
-				]
-			);
-
-			allAssignedMatches.addAll(
-				allParsedMatches.sublist(3),
-			);
-
 			final scheduleJson = jsonDecode(scheduleJsonString);
 			final assignedJson = jsonDecode(assignedJsonString);
 		} catch (e) {

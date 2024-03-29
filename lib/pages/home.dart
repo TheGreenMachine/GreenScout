@@ -7,6 +7,7 @@ import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/subheader.dart';
 
 import 'matches_data.dart';
 
@@ -20,6 +21,67 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
+	List<Widget> createAdminPageButton(BuildContext context) {
+		if (!isAdmin()) {
+			return [];
+		}
+
+		return [
+			const Padding(padding: EdgeInsets.all(4)),
+			const SubheaderLabel("Admin Page"),
+
+			const Padding(padding: EdgeInsets.all(2)),
+
+			Padding(
+				padding: EdgeInsets.symmetric(
+					horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75), 
+					vertical: 2,
+				),
+
+				child: FloatingButton(
+					icon: const Icon(Icons.admin_panel_settings),
+					color: Theme.of(context).colorScheme.primaryContainer.withBlue(255),
+
+					onPressed: () => Navigator.pushReplacement(
+						context,
+						MaterialPageRoute(
+							builder: (context) => const AdminPage(),
+						),
+					),
+				),
+			),
+		];
+	}
+
+	List<Widget> createMatchFormPageButton(BuildContext context) {
+		return [
+			const SubheaderLabel("Create New Match Form"),
+
+			const Padding(padding: EdgeInsets.all(2)),
+
+			Padding(
+				padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+
+				child: FloatingButton(
+					icon: const Icon(Icons.create),
+					color: Theme.of(context).colorScheme.inversePrimary,
+					// onPressed: () => Navigator.push(
+					// 	context,
+					// 	MaterialPageRoute(
+					// 		builder: (context) => const CreateMatchFormPage(),
+					// 	),
+					// ),
+					onPressed: () => Navigator.pushReplacement(
+						context,
+						MaterialPageRoute(
+							builder: (context) => const MatchFormPage(),
+						),
+					),
+				),
+			),
+		];
+	}
+
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
@@ -32,49 +94,13 @@ class _HomePage extends State<HomePage> {
 			),
 			body: ListView(
 				children: [
-					isAdmin() ? Padding(
-						padding: EdgeInsets.symmetric(
-							horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75), 
-							vertical: 15,
-						),
+					...createAdminPageButton(context),
 
-						child: FloatingButton(
-							labelText: "Admin Page",
+					const Padding(padding: EdgeInsets.all(15)),
 
-							icon: const Icon(Icons.admin_panel_settings),
-							color: Theme.of(context).colorScheme.primaryContainer.withBlue(255),
+					...createMatchFormPageButton(context),
 
-							onPressed: () => Navigator.pushReplacement(
-								context,
-								MaterialPageRoute(
-									builder: (context) => const AdminPage(),
-								),
-							),
-						),
-					) : const Padding(padding: EdgeInsets.zero),
-
-					Padding(
-						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75), vertical: 15),
-
-						child: FloatingButton(
-							labelText: "Create New Match Form",
-
-							icon: const Icon(Icons.create),
-							color: Theme.of(context).colorScheme.inversePrimary,
-							// onPressed: () => Navigator.push(
-							// 	context,
-							// 	MaterialPageRoute(
-							// 		builder: (context) => const CreateMatchFormPage(),
-							// 	),
-							// ),
-							onPressed: () => Navigator.pushReplacement(
-								context,
-								MaterialPageRoute(
-									builder: (context) => const MatchFormPage(),
-								),
-							),
-						),
-					),
+					const Padding(padding: EdgeInsets.all(15)),
 
 					// TODO: Finish this after the scrimmage.
 
@@ -122,6 +148,7 @@ class _HomePage extends State<HomePage> {
 
 			floatingActionButton: FloatingButton(
 				icon: const Icon(Icons.refresh),
+				color: Theme.of(context).colorScheme.inversePrimary,
 				onPressed: () {
 					MatchesData.getAllMatchesFromServer();
 					sleep(Durations.medium3);
