@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -16,15 +18,6 @@ class HomePage extends StatefulWidget {
 	@override
 	State<HomePage> createState() => _HomePage();
 }
-
-List<MatchInfo> allMatches = [
-	const MatchInfo(1, 1816, false, 1),
-	const MatchInfo(1, 2502, false, 2),
-	const MatchInfo(1, 2525, false, 3),
-	const MatchInfo(1, 3021, true, 1),
-	const MatchInfo(1, 12, true, 2),
-	const MatchInfo(1, 19020, true, 3),
-];
 
 class _HomePage extends State<HomePage> {
 	@override
@@ -98,8 +91,8 @@ class _HomePage extends State<HomePage> {
 							height: 250,
 
 							child: ListView.builder(
-								itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
-								itemCount: allMatches.length,
+								itemBuilder: (context, index) => matchViewBuilder(context, index, MatchesData.allAssignedMatches),
+								itemCount: MatchesData.allAssignedMatches.length,
 							),
 						),
 					),
@@ -117,14 +110,23 @@ class _HomePage extends State<HomePage> {
 							height: 250,
 
 							child: ListView.builder(
-								itemBuilder: (context, index) => matchViewBuilder(context, index, allMatches),
-								itemCount: allMatches.length,
+								itemBuilder: (context, index) => matchViewBuilder(context, index, MatchesData.allParsedMatches),
+								itemCount: MatchesData.allParsedMatches.length,
 							),
 						),
 					),
 
 					const Padding(padding: EdgeInsets.all(16)),
 				],
+			),
+
+			floatingActionButton: FloatingButton(
+				icon: const Icon(Icons.refresh),
+				onPressed: () {
+					MatchesData.getAllMatchesFromServer();
+					sleep(Durations.medium3);
+					setState(() {});
+				},
 			),
 		);
 	}
@@ -152,8 +154,8 @@ class _HomePage extends State<HomePage> {
 
 			trailing: ElevatedButton(
 				style: ElevatedButton.styleFrom(
-					foregroundColor: Theme.of(context).colorScheme.background,
-					backgroundColor: Theme.of(context).colorScheme.primary,
+					foregroundColor: Theme.of(context).colorScheme.primary,
+					backgroundColor: Colors.transparent,
 				),
 
 				onPressed: () {
@@ -171,7 +173,7 @@ class _HomePage extends State<HomePage> {
 					);
 				},
 
-				child: const Text("+"),
+				child: const Icon(Icons.add),
 			),
 
 			children: [
@@ -187,22 +189,5 @@ class _HomePage extends State<HomePage> {
 				const Padding(padding: EdgeInsets.all(1)),
 			],
 		);
-
-		/*
-			onTap: () {
-				Navigator.pushReplacement(
-					context, 
-					MaterialPageRoute(
-						builder: (context) =>
-							MatchFormPage(
-								matchNum: match.matchNum.toString(),
-								teamNum: match.team.toString(),
-								isBlue: match.isBlue,
-								driverNumber: match.driveTeamNum,
-							),
-					),
-				);
-			},
-		*/
 	}
 }

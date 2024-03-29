@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:green_scout/pages/home.dart';
@@ -9,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'pages/navigation_layout.dart';
 import 'pages/preference_helpers.dart';
 import 'globals.dart';
-import 'package:http/http.dart' as http;
 
 class DevHttpOverrides extends HttpOverrides {
   @override
@@ -35,26 +33,12 @@ void main() async {
     }
 
     if (matches.isNotEmpty) {
-      final path = Uri(
-          scheme: 'https', host: serverHostName, path: 'dataEntry', port: 443);
-
       for (var match in matches) {
-        dynamic err;
-        await http.post(
-          path,
-          headers: {"Certificate": getCertificate()},
-          body: match,
-        ).then((response) {
-          log("Response status: ${response.statusCode}");
-          log("Response body: ${response.body}");
-        }).catchError((error) {
-          err = error;
-          log(error.toString());
-        });
+        final success = App.httpPost("dataEntry", match);
 
-        if (err != null) {
-          return;
-        }
+		if (!success) {
+			return;
+		}
       }
 
       // A little safety check to ensure that we aren't getting
