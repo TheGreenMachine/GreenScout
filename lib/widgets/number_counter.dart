@@ -12,6 +12,8 @@ class NumberCounterButton extends StatefulWidget {
 
     this.lowerBound = 0,
     this.upperBound = 99,
+
+    this.widthRatio = 0.25,
   });
 
   final Reference<int> number;
@@ -21,6 +23,10 @@ class NumberCounterButton extends StatefulWidget {
 
   final int lowerBound;
   final int upperBound;
+
+  // The percentage of the screen the total
+  // element will take up.
+  final double widthRatio;
 
   @override
   State<NumberCounterButton> createState() => _NumberCounterButton();
@@ -113,7 +119,7 @@ class _NumberCounterButton extends State<NumberCounterButton> {
 
   @override
   Widget build(BuildContext context) {
-    const widthRatio = 0.25;
+    final widthRatio = widget.widthRatio;
 
     final width = MediaQuery.of(context).size.width * widthRatio;
     final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;

@@ -84,12 +84,12 @@ class MyApp extends StatelessWidget {
       ),
 	  // TODO: later
 	  darkTheme: ThemeData(
-		colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
-		primaryTextTheme: Typography.blackCupertino
+		  colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
+		  primaryTextTheme: Typography.blackCupertino
 	  ),
-      home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
-      //   home: const LoginPageForGuest(),
-      routes: navigationLayout,
+    home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
+    //   home: const LoginPageForGuest(),
+    routes: navigationLayout,
 	  themeAnimationCurve: Curves.easeInOut,
 	  themeMode: ThemeMode.light,
     );
