@@ -56,6 +56,17 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     return encrypted.base64;
   }
 
+  String encryptPassword64Sync(String plaintext) {
+    // Hack. Force async to sync
+    late String result;
+
+    () async {
+      result = await encryptPassword64(plaintext);
+    }();
+
+    return result;
+  }
+
   String? validateLogin() {
     if (continueButtonPressed) {
       if (userStr.isEmpty) {
@@ -66,42 +77,19 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         return "Password field not filled out";
       }
 
-      final path =
-          Uri(scheme: 'https', host: serverHostName, path: 'login', port: 443);
-
-      log("Using this path: $path");
-
-      // Crappy little hack to get the post request to be 'sync'.
-      () async {
-        String certificate = '';
-        String uuid = '';
-
-        await http.post(
-          path,
-          body: '''
-						{
-							"Username": "$userStr",
-							"EncryptedPassword": "${await encryptPassword64(passwordStr)}"
-						}
-					'''
-              .trim(),
-          headers: {"Content-Type": "application/json"},
-        ).then((value) {
-          log(value.statusCode.toString());
-          log(value.body);
-          for (var entry in value.headers.entries) {
-            log("${entry.key}: ${entry.value}");
+      App.httpGet(
+        "login", 
+        '''
+          {
+            "Username": "$userStr",
+            "EncryptedPassword": "${encryptPassword64Sync(passwordStr)}"
           }
-
-          uuid = value.headers['uuid'] ?? "";
-          certificate = value.headers["certificate"] ?? "";
-        }).catchError((error) {
-          log(error.toString());
-        });
-
-        storeUserUUID(uuid);
-        storeCertificate(certificate);
-      }();
+        ''', 
+        (response) {
+          storeUserUUID(response.headers["uuid"] ?? "");
+          storeCertificate(response.headers["certificate"] ?? "");
+        },
+      );
 
       if (getCertificate().isEmpty) {
         return "Invalid password or username";

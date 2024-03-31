@@ -25,20 +25,23 @@ class MatchesData {
 	static String assignedMatchScheduleJsonKey = "Assigned Matches Schedule";
 
 	static void getAllMatchesFromServer() {
-		final scheduleResult = App.httpGet("schedule");
+    // TODO: Work on this once we finally have what 
+    // type of response we should expect to receive.
 
-		if (scheduleResult != null) {
-			App.setString(matchScheduleJsonKey, scheduleResult);
-		}
+    // final scheduleResult = App.httpGet("schedule");
 
-		final assignedResult = App.httpGet("singleSchedule");
+    // if (scheduleResult != null) {
+    // 	App.setString(matchScheduleJsonKey, scheduleResult);
+    // }
 
-		if (assignedResult != null) {
-			App.setString(assignedMatchScheduleJsonKey, assignedResult);
-		}
+    // final assignedResult = App.httpGet("singleSchedule");
 
-		parseMatches();
-	}
+    // if (assignedResult != null) {
+    // 	App.setString(assignedMatchScheduleJsonKey, assignedResult);
+    // }
+
+    parseMatches();
+  }
 
 	static void parseMatches() {
 		// This is currently some pre-filled data to test

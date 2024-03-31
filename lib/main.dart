@@ -36,9 +36,9 @@ void main() async {
       for (var match in matches) {
         final success = App.httpPost("dataEntry", match);
 
-		if (!success) {
-			return;
-		}
+        if (!success) {
+          return;
+        }
       }
 
       // A little safety check to ensure that we aren't getting

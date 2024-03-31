@@ -13,7 +13,7 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = '127.0.0.1'; //Localhost!!!
 const serverPort = 443;
 
-var internetOff = false;
+var internetOn = true;
 
 class App {
   static SharedPreferences? localStorage;
@@ -71,42 +71,66 @@ class App {
   }
 
   static bool httpPost(String path, String message) {
-	dynamic err;
+    dynamic err;
 
-	// Hack. This forces async to become sync.
-	() async {
-		final uriPath = Uri(
-          scheme: 'https', 
-		  host: serverHostName, 
-		  path: path, 
-		  port: serverPort,
-		);
+    // Hack. This forces async to become sync.
+    () async {
+      final uriPath = Uri(
+        scheme: 'https', 
+        host: serverHostName, 
+        path: path, 
+        port: serverPort,
+      );
 
-		await http.post(
-			uriPath,
-			headers: { "Certificate": getCertificate() },
-			body: message,
-		).then((response) {
-			log("Response Status: ${response.statusCode}");
-			log("Response body: ${response.body}");
-		}).catchError((error) {
-			err = error;
-			log(error.toString());
-		});
-	}();
+      await http.post(
+        uriPath,
+        headers: { "Certificate": getCertificate() },
+        body: message,
+      ).then((response) {
+        log("Response Status: ${response.statusCode}");
+        log("Response body: ${response.body}");
+      }).catchError((error) {
+        err = error;
+        log(error.toString());
+      });
+    }();
 
-	if (err != null) {
-		return false;
-	}
+    // Logic: If there no error, that means we successfully 
+    // sent a post request through the internet
+    internetOn = err == null;
 
-	return true;
+    return internetOn;
   }
 
-  static String? httpGet(String path) {
-	// TODO: Implement this wrapper.
+  static bool httpGet(String path, String? message, Function(http.Response) onGet) {
+    dynamic err;
 
-	// TODO: Implement Internet Off checker.
+    () async {
+      final uriPath = Uri(
+        scheme: 'https', 
+        host: serverHostName, 
+        path: path, 
+        port: serverPort,
+      );
 
-	return null;
+      await http.post(
+        uriPath,
+        headers: { "Certificate": getCertificate() },
+        body: message,
+      ).then((response) {
+        onGet(response);
+        log("Response Status: ${response.statusCode}");
+        log("Response body: ${response.body}");
+      }).catchError((error) {
+        err = error;
+        log(error.toString());
+      });
+    }();
+
+    // Logic: If there no error, that means we successfully 
+    // sent a post request through the internet
+    internetOn = err == null;
+
+    return internetOn;
   }
 }
