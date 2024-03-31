@@ -3,6 +3,7 @@ import "dart:developer";
 import "package:flutter/material.dart";
 import "package:green_scout/pages/home.dart";
 import "package:green_scout/pages/login_as_guest.dart";
+import "package:green_scout/widgets/action_bar.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:encrypt/encrypt.dart';
 
@@ -122,10 +123,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
-        // actions: const [
-        // 	NavigationMenu(),
-        // 	Spacer(),
-        // ],
+        actions: createEmptyActionBar(),
       ),
       body: Column(
         children: [
@@ -133,7 +131,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1 - 0.85)),
+              horizontal: MediaQuery.of(context).size.width * (1 - 0.85),
+            ),
+
             child: FittedBox(
               fit: BoxFit.fill,
               alignment: Alignment.center,
@@ -152,8 +152,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width *
-                  (1 - 0.85) *
-                  MediaQuery.of(context).size.aspectRatio,
+                (1 - 0.85) *
+                MediaQuery.of(context).size.aspectRatio,
               vertical: 5,
             ),
             child: TextFormField(

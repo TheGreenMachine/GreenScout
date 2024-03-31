@@ -3,21 +3,22 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/reference.dart';
+import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
-class AdminAssignMatchesPage extends StatefulWidget {
-	const AdminAssignMatchesPage({super.key});
+class IndividualAdminAssignMatchesPage extends StatefulWidget {
+	const IndividualAdminAssignMatchesPage({super.key});
 
 	@override
-	State<AdminAssignMatchesPage> createState() => _AdminAssignMatchesPage();
+	State<IndividualAdminAssignMatchesPage> createState() => _IndividualAdminAssignMatchesPage();
 }
 
-class MatchRangeInfo {
-  const MatchRangeInfo(
+class IndividualMatchRangeInfo {
+  const IndividualMatchRangeInfo(
     this.start,
     this.end,
     this.isBlue,
@@ -38,7 +39,7 @@ class MatchRangeInfo {
   }
 }
 
-class _AdminAssignMatchesPage extends State<AdminAssignMatchesPage> {
+class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatchesPage> {
   static const noActiveUserSelected = "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";
 
   Map<String, String> users = {
@@ -53,7 +54,7 @@ class _AdminAssignMatchesPage extends State<AdminAssignMatchesPage> {
   bool isBlue = true;
   Reference<int> driverTeamNumber = Reference(1);
 
-  List<MatchRangeInfo> matchesAssigned = [];
+  List<IndividualMatchRangeInfo> matchesAssigned = [];
 
   @override
   void initState() {
@@ -220,7 +221,7 @@ class _AdminAssignMatchesPage extends State<AdminAssignMatchesPage> {
             } 
 
             matchesAssigned.add(
-              MatchRangeInfo(
+              IndividualMatchRangeInfo(
                 int.parse(fromTextController.text),
                 int.parse(toTextController.text),
                 isBlue,
@@ -296,9 +297,7 @@ class _AdminAssignMatchesPage extends State<AdminAssignMatchesPage> {
 			appBar: AppBar(
 				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
-				actions: const [
-					Spacer(),
-				],
+				actions: createEmptyActionBar(),
 			),
 
 			body: ListView(

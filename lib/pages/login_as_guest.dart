@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:green_scout/globals.dart";
 import "package:green_scout/pages/home.dart";
+import "package:green_scout/widgets/action_bar.dart";
 
 import "preference_helpers.dart";
 
@@ -84,10 +85,7 @@ class _LoginPageForGuest extends State<LoginPageForGuest> {
 			appBar: AppBar(
 				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
-				// actions: const [
-				// 	NavigationMenu(),
-				// 	Spacer(),
-				// ],
+        actions: createEmptyActionBar(),
 			),
 			body: Column(
 				children: [

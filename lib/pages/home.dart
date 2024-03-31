@@ -5,6 +5,7 @@ import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/widgets/header.dart';
@@ -72,10 +73,7 @@ class _HomePage extends State<HomePage> {
 		return Scaffold(
 			appBar: AppBar(
 				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-				actions: const [
-					NavigationMenu(),
-					Spacer(),
-				],
+				actions: createDefaultActionBar(),
 			),
 			body: ListView(
 				children: [

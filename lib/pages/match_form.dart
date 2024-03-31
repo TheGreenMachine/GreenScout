@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/reference.dart';
+import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/timer_button.dart';
@@ -173,10 +174,7 @@ class _MatchFormPage extends State<MatchFormPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: const [
-          NavigationMenu(),
-          Spacer(),
-        ],
+        actions: createDefaultActionBar(),
       ),
       body: bodyContent,
     );
