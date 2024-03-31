@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/no_animation_material_page_route.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -43,6 +44,30 @@ class App {
 
   static Future<void> start() async {
     localStorage = await SharedPreferences.getInstance();
+  }
+
+  static void gotoPage(BuildContext context, Widget page, {bool canGoBack = false}) {
+    final navigator = Navigator.of(context);
+
+    if (canGoBack) {
+      navigator.push(
+        NoAnimationMaterialPageRoute(
+          builder: (context) => page,
+        ),
+      );
+
+      return;
+    }
+
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+
+    navigator.pushReplacement(
+      NoAnimationMaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
   }
 
   static bool httpPost(String path, String message) {

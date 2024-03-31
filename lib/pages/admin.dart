@@ -1,6 +1,6 @@
+import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/admin_assign_matches.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -55,12 +55,7 @@ class _AdminPage extends State<AdminPage> {
 							color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
 
 							onPressed: () {
-								Navigator.push(
-									context, 
-									MaterialPageRoute(
-										builder: (context) => const AdminAssignMatchesPage(), 
-									),
-								);
+								App.gotoPage(context, const AdminAssignMatchesPage(), canGoBack: true);
 							},
 						), 
 					),

@@ -1,8 +1,13 @@
 
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/timer_button.dart';
+import 'package:green_scout/reference.dart';
+import 'package:green_scout/widgets/dropdown.dart';
+import 'package:green_scout/widgets/number_counter.dart';
+import 'package:green_scout/widgets/timer_button.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -30,12 +35,6 @@ class MatchFormPage extends StatefulWidget {
 
   @override
   State<MatchFormPage> createState() => _MatchFormPage();
-}
-
-class Reference<T> {
-  Reference(this.value);
-
-  T value;
 }
 
 enum SpeakerPosition {
@@ -390,7 +389,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         createLabelAndCheckBox("Do They Park?", canPark),
         createLabelAndCheckBox("Did They Disconnect?", disconnected),
         createLabelAndCheckBox("Did YOU Lose Track At Any Point?", lostTrack),
-        createLabelAndCheckBox("Did They're Robot Get Disabled?", disabled),
+        createLabelAndCheckBox("Did Their Robot Get Disabled?", disabled),
 
         // createLabelAndCheckBox("Do They Cooperate?", cooperates),
 
@@ -400,7 +399,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+            horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+          ),
+
           child: TextField(
             controller: _notesController,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -431,7 +432,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             // }).catchError((error) { log(error.toString()); });
 
             addToMatchCache(toJson());
-            Navigator.pushReplacementNamed(context, '/home');
+            App.gotoPage(context, const HomePage());
           },
         ),
 
@@ -537,78 +538,13 @@ class _MatchFormPage extends State<MatchFormPage> {
     // into individual stateful widgets so that only those that have anything modified actually update. Currently,
     // how we update for any little change can probably be a very bad thing that might bite us in terms of performance.
 
-    if (number.value <= lowerBound) {
-      number.value = lowerBound;
-    }
-
-    if (number.value >= upperBound) {
-      number.value = upperBound;
-    }
-
-    final incrementButton = SizedBox(
-      width: 65,
-      height: 35,
-      child: TextButton(
-        style: ButtonStyle(
-          textStyle:
-              MaterialStateProperty.all(Theme.of(context).textTheme.labelLarge),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return Theme.of(context).colorScheme.primary;
-            }
-
-            return Theme.of(context).colorScheme.inversePrimary;
-          }),
-          shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        ),
-        onPressed: () {
-          setState(() {
-            number.value = number.value + 1;
-
-            for (var increment in incrementChildren) {
-              increment.value = increment.value + 1;
-            }
-          });
-        },
-        child: Text(number.value.toString()),
-      ),
-    );
-
-    final decrementButton = SizedBox(
-        width: 35,
-        height: 35,
-        child: TextButton(
-          style: ButtonStyle(
-            textStyle: MaterialStateProperty.all(
-                Theme.of(context).textTheme.titleLarge),
-            backgroundColor: MaterialStateProperty.resolveWith((states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Theme.of(context).colorScheme.primary.withRed(255);
-              }
-
-              return Theme.of(context).colorScheme.inversePrimary.withRed(255);
-            }),
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10))),
-            alignment: Alignment.center,
-          ),
-          onPressed: () {
-            setState(() {
-              number.value = number.value - 1;
-
-              for (var decrement in decrementChildren) {
-                decrement.value = decrement.value - 1;
-              }
-            });
-          },
-          child: const Text("-"),
-        ));
-
+    
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-          vertical: 5),
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+        vertical: 5,
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -621,16 +557,15 @@ class _MatchFormPage extends State<MatchFormPage> {
               maxLines: 4,
             ),
           ),
-          SizedBox(
-            width: 105,
-            height: 35,
-            child: Row(
-              children: [
-                decrementButton,
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 2.5)),
-                incrementButton,
-              ],
-            ),
+          
+          NumberCounterButton(
+            number: number,
+
+            lowerBound: lowerBound,
+            upperBound: upperBound,
+
+            incrementChildren: incrementChildren,
+            decrementChildren: decrementChildren,
           ),
         ],
       ),
@@ -643,24 +578,12 @@ class _MatchFormPage extends State<MatchFormPage> {
     Reference<V> inValue,
     V defaultValue,
   ) {
-    List<DropdownMenuItem<V>> items = [];
-
-    for (var entry in entries.entries) {
-      items.add(
-        DropdownMenuItem(
-          value: entry.value,
-          child: Text(
-            entry.key,
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-          vertical: 5),
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+        vertical: 5,
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -668,13 +591,12 @@ class _MatchFormPage extends State<MatchFormPage> {
             label,
             style: Theme.of(context).textTheme.labelLarge,
           ),
-          DropdownButton<V>(
+          Dropdown<V>(
+            entries: entries,
+            inValue: inValue,
+            defaultValue: defaultValue,
+            textStyle: Theme.of(context).textTheme.labelMedium,
             padding: const EdgeInsets.only(left: 5),
-            items: items,
-            value: inValue.value,
-            onChanged: (newValue) => setState(() {
-              inValue.value = newValue ?? defaultValue;
-            }),
           ),
         ],
       ),
@@ -823,8 +745,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                     heroTag: null,
 
                 		backgroundColor: info.success 
-                      ? Theme.of(context).colorScheme.inversePrimary
-                      : Theme.of(context).colorScheme.inversePrimary.withRed(255),
+                    ? Theme.of(context).colorScheme.inversePrimary
+                    : Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
                 		elevation: 0,
                     focusElevation: 0,
@@ -840,8 +762,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
 
                 		child: info.success 
-                      ? const Icon(Icons.check)
-                      : const Icon(Icons.close),
+                    ? const Icon(Icons.check)
+                    : const Icon(Icons.close),
                 	),
                 )
               ],
@@ -879,9 +801,7 @@ class _MatchFormPage extends State<MatchFormPage> {
       return result;
     }
 
-    String scouterName = getScouterName();
-
-    return jsonEncode(
+    final result = jsonEncode(
 		{
 			"Team": teamNum.isEmpty ? "1" : teamNum,
 			"Match": {
@@ -894,7 +814,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 				"Number": driverStation.value.$2
 			},
 
-			"Scouter": scouterName,
+			"Scouter": getScouterName(),
 
 			"Cycles": expandCycles(),
 
@@ -906,10 +826,10 @@ class _MatchFormPage extends State<MatchFormPage> {
 				"middle": speakerMiddle.value
 			},
 
-      "Pickup Locations": {
-        "Ground": canPickupGround.value,
-        "Source": canPickupSource.value,
-      },
+			"Pickup Locations": {
+				"Ground": canPickupGround.value,
+				"Source": canPickupSource.value,
+			},
 
 			"Distance Shooting": {
 				"Can": canDistanceShoot.value,
@@ -948,5 +868,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 			"Notes": notes.value
 		}
     );
+
+    log(result);
+
+    return result;
   }
 }

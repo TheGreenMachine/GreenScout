@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
@@ -42,12 +43,7 @@ class _HomePage extends State<HomePage> {
 					icon: const Icon(Icons.admin_panel_settings),
 					color: Theme.of(context).colorScheme.primaryContainer.withBlue(255),
 
-					onPressed: () => Navigator.pushReplacement(
-						context,
-						MaterialPageRoute(
-							builder: (context) => const AdminPage(),
-						),
-					),
+					onPressed: () => App.gotoPage(context, const AdminPage()),
 				),
 			),
 		];
@@ -65,18 +61,7 @@ class _HomePage extends State<HomePage> {
 				child: FloatingButton(
 					icon: const Icon(Icons.create),
 					color: Theme.of(context).colorScheme.inversePrimary,
-					// onPressed: () => Navigator.push(
-					// 	context,
-					// 	MaterialPageRoute(
-					// 		builder: (context) => const CreateMatchFormPage(),
-					// 	),
-					// ),
-					onPressed: () => Navigator.pushReplacement(
-						context,
-						MaterialPageRoute(
-							builder: (context) => const MatchFormPage(),
-						),
-					),
+          onPressed: () => App.gotoPage(context, const MatchFormPage()),
 				),
 			),
 		];
@@ -186,18 +171,15 @@ class _HomePage extends State<HomePage> {
 				),
 
 				onPressed: () {
-					Navigator.pushReplacement(
-						context, 
-						MaterialPageRoute(
-							builder: (context) =>
-								MatchFormPage(
-									matchNum: match.matchNum.toString(),
-									teamNum: match.team.toString(),
-									isBlue: match.isBlue,
-									driverNumber: match.driveTeamNum,
-								),
-						),
-					);
+          App.gotoPage(
+            context, 
+            MatchFormPage(
+              matchNum: match.matchNum.toString(),
+              teamNum: match.team.toString(),
+              isBlue: match.isBlue,
+              driverNumber: match.driveTeamNum,
+            ),
+          );
 				},
 
 				child: const Icon(Icons.add),

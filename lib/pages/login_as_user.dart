@@ -1,6 +1,8 @@
 import "dart:developer";
 
 import "package:flutter/material.dart";
+import "package:green_scout/pages/home.dart";
+import "package:green_scout/pages/login_as_guest.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:encrypt/encrypt.dart';
 
@@ -118,7 +120,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         setScouterName(_userController.text);
         setLoginStatus(true);
 
-        Navigator.of(context).pushReplacementNamed('/home');
+        App.gotoPage(context, const HomePage());
       }
     });
   }
@@ -140,6 +142,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       body: Column(
         children: [
           const Padding(padding: EdgeInsets.all(12.0)),
+
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1 - 0.85)),
@@ -153,15 +156,18 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(
             padding: EdgeInsets.all(28),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width *
-                    (1 - 0.85) *
-                    MediaQuery.of(context).size.aspectRatio,
-                vertical: 5),
+              horizontal: MediaQuery.of(context).size.width *
+                  (1 - 0.85) *
+                  MediaQuery.of(context).size.aspectRatio,
+              vertical: 5,
+            ),
             child: TextFormField(
               autocorrect: false,
               autofocus: true,
@@ -185,12 +191,15 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width *
-                    (1 - 0.85) *
-                    MediaQuery.of(context).size.aspectRatio,
-                vertical: 5),
+              horizontal: MediaQuery.of(context).size.width *
+                  (1 - 0.85) *
+                  MediaQuery.of(context).size.aspectRatio,
+              vertical: 5,
+            ),
+
             child: TextFormField(
               autocorrect: false,
               autofocus: false,
@@ -222,7 +231,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(padding: EdgeInsets.all(17.5)),
+
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
@@ -240,12 +251,16 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(
             padding: EdgeInsets.all(12),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65)),
+              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65),
+            ),
+
             child: GestureDetector(
               child: Text(
                 "Login As Guest",
@@ -258,11 +273,13 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 ),
               ),
               onTap: () {
-                Navigator.pushNamed(context, '/loginAsGuest');
+                App.gotoPage(context, const LoginPageForGuest(), canGoBack: true);
               },
             ),
           ),
+
           const Spacer(),
+
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: Text(
