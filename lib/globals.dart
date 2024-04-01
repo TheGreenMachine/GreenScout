@@ -133,4 +133,41 @@ class App {
 
     return internetOn;
   }
+
+  static void showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: Theme.of(context).textTheme.labelLarge!.copyWith(color: Theme.of(context).colorScheme.background),
+          textAlign: TextAlign.center,
+        ),
+
+        backgroundColor: Theme.of(context).colorScheme.onBackground,
+        
+      ),
+    );
+  }
+
+  static void promptAction(BuildContext context, String message, String actionMessage, void Function() onPressed) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: Theme.of(context).textTheme.labelLarge!.copyWith(color: Theme.of(context).colorScheme.background),
+          textAlign: TextAlign.left,
+        ),
+
+        backgroundColor: Theme.of(context).colorScheme.onBackground,
+        
+        action: SnackBarAction(
+          textColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
+          label: actionMessage, 
+          onPressed: onPressed,
+        ),
+      ),
+    );
+  }
 }

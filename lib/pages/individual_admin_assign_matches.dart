@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/data_for_admins.dart';
 import 'package:green_scout/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -40,13 +42,7 @@ class IndividualMatchRangeInfo {
 }
 
 class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatchesPage> {
-  static const noActiveUserSelected = "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";
-
-  Map<String, String> users = {
-    "None": noActiveUserSelected,
-  };
-
-  Reference<String> currentUser = Reference(noActiveUserSelected);
+  Reference<String> currentUser = Reference(AdminData.noActiveUserSelected);
 
   final fromTextController = TextEditingController();
   final toTextController = TextEditingController();
@@ -60,15 +56,77 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
   void initState() {
     super.initState();
 
-    // Some example test users
-    // Display Name = Internal User ID
-    users["Mr. Forrest"] = "mrf28";
-    users["John Snow"] = "johns23";
-    users["Sick Burn"] = "adamj29";
+    AdminData.updateUserRoster();
+  }
+
+  @override 
+	Widget build(BuildContext context) {
+		return Scaffold(
+			appBar: AppBar(
+				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
+				actions: createEmptyActionBar(),
+			),
+
+			body: ListView(
+				children: [
+          const Padding(padding: EdgeInsets.all(8)),
+
+          const SubheaderLabel("User"),
+
+          const Padding(padding: EdgeInsets.all(2)),
+
+					Padding(
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2),
+
+            child: Dropdown<String>(
+              padding: const EdgeInsets.only(left: 10),
+
+              isExpanded: true,
+
+              entries: AdminData.users,
+              inValue: currentUser,
+              defaultValue: AdminData.noActiveUserSelected,
+              textStyle: null,
+
+              alignment: Alignment.center,
+              menuMaxHeight: 175,
+
+              setState: () => setState(() {}),
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(12)),
+
+          ...buildAssignmentFields(context),
+				],
+			),
+		);
+	}
+
+  Widget buildSendButton(BuildContext context, double widthPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
+      child: FloatingButton(
+        labelText: "Send To Server",
+        color: Theme.of(context).colorScheme.inversePrimary,
+
+        onPressed: () {
+          // TODO: Implement logic to send this data to the server.
+
+          // Once we're done sending we want to clear it all
+          // anyways.
+          matchesAssigned.clear();
+          App.showMessage(context, "Success!");
+          setState(() {});
+        },
+      ),
+    );
   }
 
   List<Widget> buildAssignmentFields(BuildContext context) {
-    if (currentUser.value == noActiveUserSelected) {
+    if (currentUser.value == AdminData.noActiveUserSelected) {
       return [];
     }
 
@@ -252,6 +310,10 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
         ),
       ),
 
+      const Padding(padding: EdgeInsets.all(16)),
+
+      buildSendButton(context, matchRangeWidthPadding),
+
       const Padding(padding: EdgeInsets.all(32)),
     ];
   } 
@@ -279,7 +341,18 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
         ),
 
         onPressed: () {
-          matchesAssigned.removeAt(index);
+          final data = matchesAssigned.removeAt(index);
+
+          App.promptAction(
+            context, 
+            "Removed Assigned Match",
+            "Undo?",
+            () {
+              matchesAssigned.insert(index, data);
+              setState(() {});
+            }
+          );
+
           setState(() {});
         },
 
@@ -290,47 +363,4 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
       collapsedBackgroundColor: Theme.of(context).colorScheme.inversePrimary,
     );
   }
-
-	@override 
-	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-				actions: createEmptyActionBar(),
-			),
-
-			body: ListView(
-				children: [
-          const Padding(padding: EdgeInsets.all(8)),
-
-          const SubheaderLabel("Users"),
-
-          const Padding(padding: EdgeInsets.all(2)),
-
-					Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2),
-
-            child: Dropdown<String>(
-              padding: const EdgeInsets.only(left: 10),
-
-              entries: users,
-              inValue: currentUser,
-              defaultValue: noActiveUserSelected,
-              textStyle: null,
-
-              alignment: Alignment.center,
-              menuMaxHeight: 175,
-
-              setState: () => setState(() {}),
-            ),
-          ),
-
-          const Padding(padding: EdgeInsets.all(12)),
-
-          ...buildAssignmentFields(context),
-				],
-			),
-		);
-	}
 }

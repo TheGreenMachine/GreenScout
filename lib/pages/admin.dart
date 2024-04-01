@@ -1,4 +1,5 @@
 import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/group_admin_assign_matches.dart';
 import 'package:green_scout/pages/individual_admin_assign_matches.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/widgets/action_bar.dart';
@@ -42,14 +43,14 @@ class _AdminPage extends State<AdminPage> {
 
 					const Padding(padding: EdgeInsets.all(24)),
 
-					const SubheaderLabel("Assign Matches"),
+					const SubheaderLabel("Assign Matches Individually"),
 					const Padding(padding: EdgeInsets.all(2)),
 
 					Padding(
 						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
 						child: FloatingButton(
-							icon: const Icon(Icons.assignment),
+							icon: const Icon(Icons.assignment_ind),
 							color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
 
 							onPressed: () {
@@ -58,26 +59,25 @@ class _AdminPage extends State<AdminPage> {
 						), 
 					),
 
-					const Padding(padding: EdgeInsets.all(12)),
+					const Padding(padding: EdgeInsets.all(16)),
 
-					const SubheaderLabel("Matches"),
+          const SubheaderLabel("Assign Matches To Group"),
 					const Padding(padding: EdgeInsets.all(2)),
 
-					Padding( 
+          Padding(
 						padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
 
-						child: SizedBox( 
-							width: null,
-							height: 230,
+						child: FloatingButton(
+							icon: const Icon(Icons.assignment),
+							color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
 
-							child: ListView(
-								children: const [
-								],
-							),
-						),
+							onPressed: () {
+								App.gotoPage(context, const GroupAdminAssignMatchesPage(), canGoBack: true);
+							},
+						), 
 					),
 
-					const Padding(padding: EdgeInsets.all(24)),
+          const Padding(padding: EdgeInsets.all(40)),
 				],
 			),
 		);
