@@ -78,21 +78,21 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         return "Password field not filled out";
       }
 
-      storeCertificate("");
-
-      App.httpGet(
-        "login", 
-        '''
+      () async {
+        App.httpGet(
+          "login",
+          '''
           {
             "Username": "$userStr",
-            "EncryptedPassword": "${encryptPassword64Sync(passwordStr)}"
+            "EncryptedPassword": "${await encryptPassword64(passwordStr)}"
           }
-        ''', 
-        (response) {
-          storeUserUUID(response.headers["uuid"] ?? "");
-          storeCertificate(response.headers["certificate"] ?? "");
-        },
-      );
+        ''',
+          (response) {
+            storeUserUUID(response.headers["uuid"] ?? "");
+            storeCertificate(response.headers["certificate"] ?? "");
+          },
+        );
+      }();
 
       if (getCertificate().isEmpty) {
         return "Invalid password or username";
@@ -104,6 +104,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   }
 
   void continueButtonOnPressed() {
+    log("continuing");
     setState(() {
       continueButtonPressed = true;
 
@@ -124,18 +125,15 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         actions: createEmptyActionBar(),
       ),
       body: Column(
         children: [
           const Padding(padding: EdgeInsets.all(12.0)),
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * (1 - 0.85),
             ),
-
             child: FittedBox(
               fit: BoxFit.fill,
               alignment: Alignment.center,
@@ -146,16 +144,14 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
-
           const Padding(
             padding: EdgeInsets.all(28),
           ),
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width *
-                (1 - 0.85) *
-                MediaQuery.of(context).size.aspectRatio,
+                  (1 - 0.85) *
+                  MediaQuery.of(context).size.aspectRatio,
               vertical: 5,
             ),
             child: TextFormField(
@@ -181,7 +177,6 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width *
@@ -189,7 +184,6 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                   MediaQuery.of(context).size.aspectRatio,
               vertical: 5,
             ),
-
             child: TextFormField(
               autocorrect: false,
               autofocus: false,
@@ -221,9 +215,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
-
           const Padding(padding: EdgeInsets.all(17.5)),
-
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
@@ -241,16 +233,13 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
-
           const Padding(
             padding: EdgeInsets.all(12),
           ),
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65),
             ),
-
             child: GestureDetector(
               child: Text(
                 "Login As Guest",
@@ -263,13 +252,12 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 ),
               ),
               onTap: () {
-                App.gotoPage(context, const LoginPageForGuest(), canGoBack: true);
+                App.gotoPage(context, const LoginPageForGuest(),
+                    canGoBack: true);
               },
             ),
           ),
-
           const Spacer(),
-
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: Text(

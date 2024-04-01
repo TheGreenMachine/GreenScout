@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
 
-const serverHostName = '127.0.0.1'; //Localhost!!!
+const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
 var internetOn = true;
@@ -46,7 +46,8 @@ class App {
     localStorage = await SharedPreferences.getInstance();
   }
 
-  static void gotoPage(BuildContext context, Widget page, {bool canGoBack = false}) {
+  static void gotoPage(BuildContext context, Widget page,
+      {bool canGoBack = false}) {
     final navigator = Navigator.of(context);
 
     if (canGoBack) {
@@ -76,17 +77,19 @@ class App {
     // Hack. This forces async to become sync.
     () async {
       final uriPath = Uri(
-        scheme: 'https', 
-        host: serverHostName, 
-        path: path, 
+        scheme: 'https',
+        host: serverHostName,
+        path: path,
         port: serverPort,
       );
 
-      await http.post(
+      await http
+          .post(
         uriPath,
-        headers: { "Certificate": getCertificate() },
+        headers: {"Certificate": getCertificate()},
         body: message,
-      ).then((response) {
+      )
+          .then((response) {
         log("Response Status: ${response.statusCode}");
         log("Response body: ${response.body}");
       }).catchError((error) {
@@ -95,29 +98,32 @@ class App {
       });
     }();
 
-    // Logic: If there no error, that means we successfully 
+    // Logic: If there no error, that means we successfully
     // sent a post request through the internet
     internetOn = err == null;
 
     return internetOn;
   }
 
-  static bool httpGet(String path, String? message, Function(http.Response) onGet) {
+  static bool httpGet(
+      String path, String? message, Function(http.Response) onGet) {
     dynamic err;
 
     () async {
       final uriPath = Uri(
-        scheme: 'https', 
-        host: serverHostName, 
-        path: path, 
+        scheme: 'https',
+        host: serverHostName,
+        path: path,
         port: serverPort,
       );
 
-      await http.post(
+      await http
+          .post(
         uriPath,
-        headers: { "Certificate": getCertificate() },
+        headers: {"Certificate": getCertificate()},
         body: message,
-      ).then((response) {
+      )
+          .then((response) {
         onGet(response);
         log("Response Status: ${response.statusCode}");
         log("Response body: ${response.body}");
@@ -127,7 +133,7 @@ class App {
       });
     }();
 
-    // Logic: If there no error, that means we successfully 
+    // Logic: If there no error, that means we successfully
     // sent a post request through the internet
     internetOn = err == null;
 
@@ -139,32 +145,34 @@ class App {
       SnackBar(
         content: Text(
           message,
-          style: Theme.of(context).textTheme.labelLarge!.copyWith(color: Theme.of(context).colorScheme.background),
+          style: Theme.of(context)
+              .textTheme
+              .labelLarge!
+              .copyWith(color: Theme.of(context).colorScheme.background),
           textAlign: TextAlign.center,
         ),
-
         backgroundColor: Theme.of(context).colorScheme.onBackground,
-        
       ),
     );
   }
 
-  static void promptAction(BuildContext context, String message, String actionMessage, void Function() onPressed) {
+  static void promptAction(BuildContext context, String message,
+      String actionMessage, void Function() onPressed) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: Theme.of(context).textTheme.labelLarge!.copyWith(color: Theme.of(context).colorScheme.background),
+          style: Theme.of(context)
+              .textTheme
+              .labelLarge!
+              .copyWith(color: Theme.of(context).colorScheme.background),
           textAlign: TextAlign.left,
         ),
-
         backgroundColor: Theme.of(context).colorScheme.onBackground,
-        
         action: SnackBarAction(
           textColor: Theme.of(context).colorScheme.background,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-          label: actionMessage, 
+          label: actionMessage,
           onPressed: onPressed,
         ),
       ),
