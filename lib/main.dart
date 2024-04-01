@@ -36,9 +36,9 @@ void main() async {
       for (var match in matches) {
         final success = App.httpPost("dataEntry", match);
 
-		if (!success) {
-			return;
-		}
+        if (!success) {
+          return;
+        }
       }
 
       // A little safety check to ensure that we aren't getting
@@ -84,11 +84,14 @@ class MyApp extends StatelessWidget {
       ),
 	  // TODO: later
 	  darkTheme: ThemeData(
-		colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen.withGreen(23))
+		  colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
+		  primaryTextTheme: Typography.blackCupertino
 	  ),
-      home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
-      //   home: const LoginPageForGuest(),
-      routes: navigationLayout,
+    home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
+    //   home: const LoginPageForGuest(),
+    routes: navigationLayout,
+	  themeAnimationCurve: Curves.easeInOut,
+	  themeMode: ThemeMode.light,
     );
   }
 }

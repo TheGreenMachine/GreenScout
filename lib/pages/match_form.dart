@@ -1,6 +1,14 @@
 
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/timer_button.dart';
+import 'package:green_scout/reference.dart';
+import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/widgets/dropdown.dart';
+import 'package:green_scout/widgets/number_counter.dart';
+import 'package:green_scout/widgets/timer_button.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -28,12 +36,6 @@ class MatchFormPage extends StatefulWidget {
 
   @override
   State<MatchFormPage> createState() => _MatchFormPage();
-}
-
-class Reference<T> {
-  Reference(this.value);
-
-  T value;
 }
 
 enum SpeakerPosition {
@@ -73,10 +75,12 @@ enum CycleTimeLocationType {
 class CycleTimeInfo {
   CycleTimeInfo({
     this.time = 0.0,
+    this.success = true,
     this.location = CycleTimeLocationType.none,
   });
 
   double time;
+  bool success;
   CycleTimeLocationType location;
 }
 
@@ -93,6 +97,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   bool cycleStopwatchTimerValue = false;
   bool cycleTimerLocationDisabled = true;
 
+  Reference<bool> canClimbSuccessfully = Reference(false);
   final climbingWatch = Stopwatch();
   double climbingTime = 0.0;
 
@@ -102,12 +107,14 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> canShootIntoSpeaker = Reference(false);
   Reference<bool> canShootIntoAmp = Reference(false);
 
+  Reference<bool> canPickupGround = Reference(false);
+  Reference<bool> canPickupSource = Reference(false);
+
   Reference<bool> canDistanceShoot = Reference(false);
   Reference<int> distanceShootingScores = Reference(0);
   Reference<int> distanceShootingMisses = Reference(0);
 
   Reference<bool> canDoAuto = Reference(false);
-  Reference<bool> succeededAuto = Reference(false);
   Reference<int> autoScoresNum = Reference(0);
   Reference<int> autoMissesNum = Reference(0);
   Reference<int> autoEjectsNum = Reference(0);
@@ -118,6 +125,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> canPark = Reference(false);
   Reference<bool> disconnected = Reference(false);
   Reference<bool> lostTrack = Reference(false);
+  Reference<bool> disabled = Reference(false);
 
   final _notesController = TextEditingController();
   Reference<String> notes = Reference("");
@@ -166,10 +174,7 @@ class _MatchFormPage extends State<MatchFormPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: const [
-          NavigationMenu(),
-          Spacer(),
-        ],
+        actions: createDefaultActionBar(),
       ),
       body: bodyContent,
     );
@@ -303,10 +308,20 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         const Padding(padding: EdgeInsets.all(16)),
 
+
+
+        createSectionHeader("Pickup Locations"),
+
+        createLabelAndCheckBox("Ground", canPickupGround),
+        createLabelAndCheckBox("Source", canPickupSource),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+
         createSectionHeader("Auto Mode"),
 
-        createLabelAndCheckBox("Works?", canDoAuto),
-        createLabelAndCheckBox("Successful?", succeededAuto),
+        createLabelAndCheckBox("Can They Do It?", canDoAuto),
         createLabelAndNumberField("Scores", autoScoresNum),
         createLabelAndNumberField("Misses", autoMissesNum),
         createLabelAndNumberField("Ejects", autoEjectsNum),
@@ -324,6 +339,8 @@ class _MatchFormPage extends State<MatchFormPage> {
         const Padding(padding: EdgeInsets.all(16)),
 
         createSectionHeader("Climbing"),
+
+        createLabelAndCheckBox("Was It Successful?", canClimbSuccessfully),
 
         Padding(
             padding: EdgeInsets.symmetric(
@@ -370,6 +387,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         createLabelAndCheckBox("Do They Park?", canPark),
         createLabelAndCheckBox("Did They Disconnect?", disconnected),
         createLabelAndCheckBox("Did YOU Lose Track At Any Point?", lostTrack),
+        createLabelAndCheckBox("Did Their Robot Get Disabled?", disabled),
 
         // createLabelAndCheckBox("Do They Cooperate?", cooperates),
 
@@ -379,7 +397,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+            horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+          ),
+
           child: TextField(
             controller: _notesController,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -410,7 +430,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             // }).catchError((error) { log(error.toString()); });
 
             addToMatchCache(toJson());
-            Navigator.pushReplacementNamed(context, '/home');
+            App.gotoPage(context, const HomePage());
           },
         ),
 
@@ -512,82 +532,17 @@ class _MatchFormPage extends State<MatchFormPage> {
       List<Reference<int>> decrementChildren = const [],
       int lowerBound = 0,
       int upperBound = 99}) {
-    // TODO: An interesting idea to pursue in the future is to make this and almost every little functio here
+    // TODO: An interesting idea to pursue in the future is to make this and almost every little function here
     // into individual stateful widgets so that only those that have anything modified actually update. Currently,
     // how we update for any little change can probably be a very bad thing that might bite us in terms of performance.
 
-    if (number.value <= lowerBound) {
-      number.value = lowerBound;
-    }
-
-    if (number.value >= upperBound) {
-      number.value = upperBound;
-    }
-
-    final incrementButton = SizedBox(
-      width: 65,
-      height: 35,
-      child: TextButton(
-        style: ButtonStyle(
-          textStyle:
-              MaterialStateProperty.all(Theme.of(context).textTheme.labelLarge),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return Theme.of(context).colorScheme.primary;
-            }
-
-            return Theme.of(context).colorScheme.inversePrimary;
-          }),
-          shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        ),
-        onPressed: () {
-          setState(() {
-            number.value = number.value + 1;
-
-            for (var increment in incrementChildren) {
-              increment.value = increment.value + 1;
-            }
-          });
-        },
-        child: Text(number.value.toString()),
-      ),
-    );
-
-    final decrementButton = SizedBox(
-        width: 35,
-        height: 35,
-        child: TextButton(
-          style: ButtonStyle(
-            textStyle: MaterialStateProperty.all(
-                Theme.of(context).textTheme.titleLarge),
-            backgroundColor: MaterialStateProperty.resolveWith((states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Theme.of(context).colorScheme.primary.withRed(255);
-              }
-
-              return Theme.of(context).colorScheme.inversePrimary.withRed(255);
-            }),
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10))),
-            alignment: Alignment.center,
-          ),
-          onPressed: () {
-            setState(() {
-              number.value = number.value - 1;
-
-              for (var decrement in decrementChildren) {
-                decrement.value = decrement.value - 1;
-              }
-            });
-          },
-          child: const Text("-"),
-        ));
-
+    
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-          vertical: 5),
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+        vertical: 5,
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -600,16 +555,15 @@ class _MatchFormPage extends State<MatchFormPage> {
               maxLines: 4,
             ),
           ),
-          SizedBox(
-            width: 105,
-            height: 35,
-            child: Row(
-              children: [
-                decrementButton,
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 2.5)),
-                incrementButton,
-              ],
-            ),
+          
+          NumberCounterButton(
+            number: number,
+
+            lowerBound: lowerBound,
+            upperBound: upperBound,
+
+            incrementChildren: incrementChildren,
+            decrementChildren: decrementChildren,
           ),
         ],
       ),
@@ -622,24 +576,12 @@ class _MatchFormPage extends State<MatchFormPage> {
     Reference<V> inValue,
     V defaultValue,
   ) {
-    List<DropdownMenuItem<V>> items = [];
-
-    for (var entry in entries.entries) {
-      items.add(
-        DropdownMenuItem(
-          value: entry.value,
-          child: Text(
-            entry.key,
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-          vertical: 5),
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+        vertical: 5,
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -647,13 +589,12 @@ class _MatchFormPage extends State<MatchFormPage> {
             label,
             style: Theme.of(context).textTheme.labelLarge,
           ),
-          DropdownButton<V>(
+          Dropdown<V>(
+            entries: entries,
+            inValue: inValue,
+            defaultValue: defaultValue,
+            textStyle: Theme.of(context).textTheme.labelMedium,
             padding: const EdgeInsets.only(left: 5),
-            items: items,
-            value: inValue.value,
-            onChanged: (newValue) => setState(() {
-              inValue.value = newValue ?? defaultValue;
-            }),
           ),
         ],
       ),
@@ -736,13 +677,18 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   Widget createCycleListView(Color ampColor, Color speakerColor) {
+    const widthRatio = 0.85;
+
+    final paddingWidth = MediaQuery.of(context).size.width * (1.0 - widthRatio);
+    final width = MediaQuery.of(context).size.width * widthRatio;
+
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width *
-              (1.0 - 0.80) *
-              MediaQuery.of(context).size.aspectRatio),
+        horizontal: paddingWidth / 2,
+      ),
+
       child: SizedBox(
-        width: 250,
+        width: width,
         height: 200,
         child: ListView.builder(
           itemCount: math.max(minTimestampsToDisplay, cycleTimestamps.length),
@@ -759,7 +705,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 125,
+                  width: width * 0.435,
                   height: 35,
                   child: FittedBox(
                     fit: BoxFit.contain,
@@ -772,7 +718,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                 ),
 
                 SizedBox(
-                  width: 100,
+                  width: width * 0.425,
                   height: 35,
                   child: Container(
                     alignment: Alignment.center,
@@ -789,22 +735,35 @@ class _MatchFormPage extends State<MatchFormPage> {
                   ),
                 ),
 
-                // SizedBox(
-                // 	width: 25,
-                // 	height: 35,
+                SizedBox(
+                	width: width * 0.10,
+                	height: 35,
 
-                // 	child: FloatingButton(
-                // 		color: Theme.of(context).colorScheme.background,
-                // 		icon: const Icon(Icons.remove_circle_outline_sharp),
+                	child: FloatingActionButton(
+                    heroTag: null,
 
-                // 		shadow: false,
+                		backgroundColor: info.success 
+                    ? Theme.of(context).colorScheme.inversePrimary
+                    : Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
-                // 		onPressed: () =>
-                // 		setState(() {
-                // 			timestamps.removeAt(index);
-                // 		}),
-                // 	),
-                // )
+                		elevation: 0,
+                    focusElevation: 0,
+                    hoverElevation: 0,
+                    disabledElevation: 0,
+                    highlightElevation: 0,
+
+                		onPressed: () =>
+                		setState(() {
+                		  info.success = !info.success;
+                		}),
+
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
+
+                		child: info.success 
+                    ? const Icon(Icons.check)
+                    : const Icon(Icons.close),
+                	),
+                )
               ],
             );
           },
@@ -814,91 +773,102 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   String toJson() {
-    String expandCycles() {
-      StringBuffer builder = StringBuffer();
+    List<dynamic> expandCycles() {
+      List<dynamic> result = [];
 
-      for (int i = 0; i < cycleTimestamps.length; i++) {
-        builder.write(
-          '{ "Time": ${cycleTimestamps[i].time}, "Type": "${cycleTimestamps[i].location}" }',
+      for (final timestamp in cycleTimestamps) {
+        result.add(
+          {
+            "Time": timestamp.time,
+            "Type": timestamp.location,
+            "Success": timestamp.success,
+          },
         );
-
-        if (i != cycleTimestamps.length - 1) {
-          builder.writeln(',');
-        }
       }
 
       if (cycleTimestamps.isEmpty) {
-        builder.write('{ "Time": 0, "Type": "None" }');
+        result.add(
+          {
+            "Time": 0,
+            "Type": "None",
+            "Success": false,
+          }
+        );
       }
 
-      return builder.toString();
+      return result;
     }
 
-    String scouterName = getScouterName();
-
-    return '''
+    final result = jsonEncode(
 		{
-			"Team": ${teamNum.isEmpty ? "1" : teamNum},
+			"Team": teamNum.isEmpty ? "1" : teamNum,
 			"Match": {
-				"Number": ${matchNum.isEmpty ? "1" : matchNum},
-				"isReplay": $isReplay
+				"Number": matchNum.isEmpty ? "1" : matchNum,
+				"isReplay": isReplay
 			},
 
 			"Driver Station": {
-				"Is Blue": ${driverStation.value.$1},
-				"Number": ${driverStation.value.$2}
+				"Is Blue": driverStation.value.$1,
+				"Number": driverStation.value.$2
 			},
 
-			"Scouter": "$scouterName",
+			"Scouter": getScouterName(),
 
-			"Cycles": [
-				${expandCycles()}
-			],
+			"Cycles": expandCycles(),
 
-			"Amp": ${canShootIntoAmp.value},
-			"Speaker": ${canShootIntoSpeaker.value},
+			"Amp": canShootIntoAmp.value,
+			"Speaker": canShootIntoSpeaker.value,
 
 			"Speaker Positions": {
-				"sides": ${speakerSides.value},
-				"middle": ${speakerMiddle.value}
+				"sides": speakerSides.value,
+				"middle": speakerMiddle.value
+			},
+
+			"Pickup Locations": {
+				"Ground": canPickupGround.value,
+				"Source": canPickupSource.value,
 			},
 
 			"Distance Shooting": {
-				"Can": ${canDistanceShoot.value},
-				"Misses": ${distanceShootingMisses.value},
-				"Scores": ${distanceShootingScores.value}
+				"Can": canDistanceShoot.value,
+				"Misses": distanceShootingMisses.value,
+				"Scores": distanceShootingScores.value
 			},
 
 			"Auto": {
-				"Can": ${canDoAuto.value},
-				"Succeeded": ${succeededAuto.value},
-				"Scores": ${autoScoresNum.value},
-				"Misses": ${autoMissesNum.value},
-				"Ejects": ${autoEjectsNum.value}
+				"Can": canDoAuto.value,
+				"Scores": autoScoresNum.value,
+				"Misses": autoMissesNum.value,
+				"Ejects": autoEjectsNum.value
 			},
 
 			"Climbing": {
-				"Can": ${climbingTime > 0.4},
-				"Time": $climbingTime
+				"Succeeded": canClimbSuccessfully.value,
+				"Time": climbingTime
 			},
 
 			"Trap": {
-				"Misses": ${trapMissesNum.value},
-				"Score": ${trapScoreNum.value} 
+				"Misses": trapMissesNum.value,
+				"Score": trapScoreNum.value
 			},
 
 			"Misc": {
-				"Parked": ${canPark.value},
-				"Lost Communication": ${disconnected.value},
-				"User Lost Track": ${lostTrack.value}
+				"Parked": canPark.value,
+				"Lost Communication": disconnected.value,
+				"User Lost Track": lostTrack.value,
+        "Disabled": disabled.value,
 			},
 
 			"Penalties": [
 
 			],
 
-			"Notes": "${notes.value}"
+			"Notes": notes.value
 		}
-		''';
+    );
+
+    log(result);
+
+    return result;
   }
 }

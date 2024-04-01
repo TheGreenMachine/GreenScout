@@ -1,3 +1,4 @@
+import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class NavigationMenu extends StatelessWidget {
 								child: Text(entry.key), 
 								onTap: () {
 									setLoginStatus(false);
-									Navigator.pushReplacementNamed(context, entry.value);
+									App.gotoPage(context, navigationLayout[entry.value]!(context));
 								}
 							)
 						);
@@ -55,7 +56,7 @@ class NavigationMenu extends StatelessWidget {
 							PopupMenuItem(
 								child: Text(entry.key), 
 								onTap: () {
-									Navigator.pushReplacementNamed(context, entry.value);
+									App.gotoPage(context, navigationLayout[entry.value]!(context));
 								}
 							)
 						);

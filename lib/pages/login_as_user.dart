@@ -1,6 +1,9 @@
 import "dart:developer";
 
 import "package:flutter/material.dart";
+import "package:green_scout/pages/home.dart";
+import "package:green_scout/pages/login_as_guest.dart";
+import "package:green_scout/widgets/action_bar.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:encrypt/encrypt.dart';
 
@@ -54,6 +57,17 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     return encrypted.base64;
   }
 
+  String encryptPassword64Sync(String plaintext) {
+    // Hack. Force async to sync
+    late String result;
+
+    () async {
+      result = await encryptPassword64(plaintext);
+    }();
+
+    return result;
+  }
+
   String? validateLogin() {
     if (continueButtonPressed) {
       if (userStr.isEmpty) {
@@ -64,42 +78,21 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         return "Password field not filled out";
       }
 
-      final path =
-          Uri(scheme: 'https', host: serverHostName, path: 'login', port: 443);
+      storeCertificate("");
 
-      log("Using this path: $path");
-
-      // Crappy little hack to get the post request to be 'sync'.
-      () async {
-        String certificate = '';
-        String uuid = '';
-
-        await http.post(
-          path,
-          body: '''
-						{
-							"Username": "$userStr",
-							"EncryptedPassword": "${await encryptPassword64(passwordStr)}"
-						}
-					'''
-              .trim(),
-          headers: {"Content-Type": "application/json"},
-        ).then((value) {
-          log(value.statusCode.toString());
-          log(value.body);
-          for (var entry in value.headers.entries) {
-            log("${entry.key}: ${entry.value}");
+      App.httpGet(
+        "login", 
+        '''
+          {
+            "Username": "$userStr",
+            "EncryptedPassword": "${encryptPassword64Sync(passwordStr)}"
           }
-
-          uuid = value.headers['uuid'] ?? "";
-          certificate = value.headers["certificate"] ?? "";
-        }).catchError((error) {
-          log(error.toString());
-        });
-
-        storeUserUUID(uuid);
-        storeCertificate(certificate);
-      }();
+        ''', 
+        (response) {
+          storeUserUUID(response.headers["uuid"] ?? "");
+          storeCertificate(response.headers["certificate"] ?? "");
+        },
+      );
 
       if (getCertificate().isEmpty) {
         return "Invalid password or username";
@@ -118,7 +111,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         setScouterName(_userController.text);
         setLoginStatus(true);
 
-        Navigator.of(context).pushReplacementNamed('/home');
+        App.gotoPage(context, const HomePage());
       }
     });
   }
@@ -132,17 +125,17 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
-        // actions: const [
-        // 	NavigationMenu(),
-        // 	Spacer(),
-        // ],
+        actions: createEmptyActionBar(),
       ),
       body: Column(
         children: [
           const Padding(padding: EdgeInsets.all(12.0)),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1 - 0.85)),
+              horizontal: MediaQuery.of(context).size.width * (1 - 0.85),
+            ),
+
             child: FittedBox(
               fit: BoxFit.fill,
               alignment: Alignment.center,
@@ -153,15 +146,18 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(
             padding: EdgeInsets.all(28),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width *
-                    (1 - 0.85) *
-                    MediaQuery.of(context).size.aspectRatio,
-                vertical: 5),
+              horizontal: MediaQuery.of(context).size.width *
+                (1 - 0.85) *
+                MediaQuery.of(context).size.aspectRatio,
+              vertical: 5,
+            ),
             child: TextFormField(
               autocorrect: false,
               autofocus: true,
@@ -185,12 +181,15 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width *
-                    (1 - 0.85) *
-                    MediaQuery.of(context).size.aspectRatio,
-                vertical: 5),
+              horizontal: MediaQuery.of(context).size.width *
+                  (1 - 0.85) *
+                  MediaQuery.of(context).size.aspectRatio,
+              vertical: 5,
+            ),
+
             child: TextFormField(
               autocorrect: false,
               autofocus: false,
@@ -222,7 +221,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(padding: EdgeInsets.all(17.5)),
+
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
@@ -240,12 +241,16 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               ),
             ),
           ),
+
           const Padding(
             padding: EdgeInsets.all(12),
           ),
+
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65)),
+              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65),
+            ),
+
             child: GestureDetector(
               child: Text(
                 "Login As Guest",
@@ -258,11 +263,13 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 ),
               ),
               onTap: () {
-                Navigator.pushNamed(context, '/loginAsGuest');
+                App.gotoPage(context, const LoginPageForGuest(), canGoBack: true);
               },
             ),
           ),
+
           const Spacer(),
+
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: Text(

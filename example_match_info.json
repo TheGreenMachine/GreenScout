@@ -10,16 +10,20 @@
     },
     "Scouter": "Tag",
     "Cycles": [
-        { "Time": 0.849, "Type": "Amp" },
-        { "Time": 1.005, "Type": "Amp" },
-        { "Time": 1.158, "Type": "Amp" },
-        { "Time": 1.316, "Type": "Amp" }
+        { "Time": 0.849, "Type": "Amp", "Success": false },
+        { "Time": 1.005, "Type": "Amp", "Success": true  },
+        { "Time": 1.158, "Type": "Amp", "Success": true  },
+        { "Time": 1.316, "Type": "Amp", "Success": true  }
     ],
     "Amp": false,
     "Speaker": true,
     "Speaker Positions": {
         "sides": false,
         "middle": true
+    },
+    "Pickup Locations": {
+        "Ground": true,
+        "Source": false
     },
     "Distance Shooting": {
         "Can": true,
@@ -28,13 +32,12 @@
     },
     "Auto": {
         "Can": true,
-        "Succeeded": false,
         "Scores": 1,
         "Misses": 1,
         "Ejects": 1
     },
     "Climbing": {
-        "Can": true,
+        "Succeeded": true,
         "Time": 0.517
     },
     "Trap": {
@@ -44,7 +47,8 @@
     "Misc": {
         "Parked": false,
         "Lost Communication": false,
-        "User Lost Track": true
+        "User Lost Track": true,
+        "Disabled": false
     },
     "Penalties": [],
     "Notes": ""
