@@ -78,6 +78,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         return "Password field not filled out";
       }
 
+      storeCertificate("");
+
       App.httpGet(
         "login", 
         '''
