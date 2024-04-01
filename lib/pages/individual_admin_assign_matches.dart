@@ -59,6 +59,14 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
     AdminData.updateUserRoster();
   }
 
+  @override
+  void dispose() {
+    fromTextController.dispose();
+    toTextController.dispose();
+
+    super.dispose();
+  }
+
   @override 
 	Widget build(BuildContext context) {
 		return Scaffold(
