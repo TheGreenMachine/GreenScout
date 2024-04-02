@@ -13,10 +13,14 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
-var internetOn = true;
 
 class App {
   static SharedPreferences? localStorage;
+  static var internetOn = true;
+
+  static bool get internetOff {
+    return !internetOn;
+  }
 
   static Future<void> setStringList(String key, List<String> value) async {
     localStorage!.setStringList(key, value);
