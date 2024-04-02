@@ -176,6 +176,9 @@ class _MatchFormPage extends State<MatchFormPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createDefaultActionBar(),
       ),
+
+      drawer: const NavigationLayoutDrawer(),
+     
       body: bodyContent,
     );
   }
