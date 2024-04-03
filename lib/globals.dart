@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/no_animation_material_page_route.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +15,15 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
+class Settings {
+  static const flipNumberCounterKey = "[Settings] Flip Number Counter";
+
+  static Reference<bool> flipNumberCounter = Reference(App.getBool(flipNumberCounterKey) ?? false);
+
+  static void update() {
+    App.setBool(flipNumberCounterKey, flipNumberCounter.value);
+  }
+}
 
 class App {
   static SharedPreferences? localStorage;
@@ -50,8 +61,11 @@ class App {
     localStorage = await SharedPreferences.getInstance();
   }
 
-  static void gotoPage(BuildContext context, Widget page,
-      {bool canGoBack = false}) {
+  static void gotoPage(
+    BuildContext context, 
+    Widget page,
+    {bool canGoBack = false}
+  ) {
     final navigator = Navigator.of(context);
 
     if (canGoBack) {
@@ -75,32 +89,28 @@ class App {
     );
   }
 
-  static bool httpPost(String path, String message) {
+  static Future<bool> httpPost(String path, String message) async {
     dynamic err;
 
-    // Hack. This forces async to become sync.
-    () async {
-      final uriPath = Uri(
-        scheme: 'https',
-        host: serverHostName,
-        path: path,
-        port: serverPort,
-      );
+    final uriPath = Uri(
+      scheme: 'https',
+      host: serverHostName,
+      path: path,
+      port: serverPort,
+    );
 
-      await http
-          .post(
-        uriPath,
-        headers: {"Certificate": getCertificate()},
-        body: message,
-      )
-          .then((response) {
-        log("Response Status: ${response.statusCode}");
-        log("Response body: ${response.body}");
-      }).catchError((error) {
-        err = error;
-        log(error.toString());
-      });
-    }();
+    await http.post(
+      uriPath,
+      headers: {"Certificate": getCertificate()},
+      body: message,
+    ).then((response) {
+      log("Response Status: ${response.statusCode}");
+      log("Response body: ${response.body}");
+    }).catchError((error) {
+      err = error;
+      // internetOn = err == null;
+      log(error.toString());
+    });
 
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
@@ -109,33 +119,32 @@ class App {
     return internetOn;
   }
 
-  static bool httpGet(
-      String path, String? message, Function(http.Response) onGet) {
+  static Future<bool> httpGet(
+    String path, 
+    String? message, 
+    Function(http.Response) onGet,
+  ) async {
     dynamic err;
 
-    () async {
-      final uriPath = Uri(
-        scheme: 'https',
-        host: serverHostName,
-        path: path,
-        port: serverPort,
-      );
+    final uriPath = Uri(
+      scheme: 'https',
+      host: serverHostName,
+      path: path,
+      port: serverPort,
+    );
 
-      await http
-          .post(
-        uriPath,
-        headers: {"Certificate": getCertificate()},
-        body: message,
-      )
-          .then((response) {
-        onGet(response);
-        log("Response Status: ${response.statusCode}");
-        log("Response body: ${response.body}");
-      }).catchError((error) {
-        err = error;
-        log(error.toString());
-      });
-    }();
+    await http.post(
+      uriPath,
+      headers: {"Certificate": getCertificate()},
+      body: message,
+    ).then((response) {
+      onGet(response);
+      log("Response Status: ${response.statusCode}");
+      log("Response body: ${response.body}");
+    }).catchError((error) {
+      err = error;
+      log(error.toString());
+    });
 
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
@@ -181,5 +190,38 @@ class App {
         ),
       ),
     );
+  }
+
+  static void promptAlert(BuildContext context, String title, String? mainMessage, List<(String, void Function()?)> actions) {
+    void defaultAlertCancel() {
+      Navigator.of(context).pop();
+    }
+
+    List<Widget> actionButtons = [];
+
+    for (final action in actions) {
+      actionButtons.add(
+        TextButton(
+          onPressed: action.$2 ?? defaultAlertCancel, 
+          child: Text(action.$1),
+        ),
+      );
+    }
+
+    final alert = AlertDialog(
+      title: Text(title),
+      content: mainMessage != null ? Text(mainMessage) : null,
+      actions: actionButtons,
+    );
+
+    // Hack. Force async to become sync.
+    () async {
+      showDialog(
+        context: context, 
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }();
   }
 }
