@@ -3,14 +3,14 @@ import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+class LeaderboardPage extends StatefulWidget {
+  const LeaderboardPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPage();  
-}
+  State<LeaderboardPage> createState() => _LeaderboardPage();
+} 
 
-class _SettingsPage extends State<SettingsPage> {
+class _LeaderboardPage extends State<LeaderboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,10 +24,7 @@ class _SettingsPage extends State<SettingsPage> {
 
       body: ListView(
         children: [
-          const Padding(padding: EdgeInsets.all(4)),
-          const HeaderLabel("Settings"),
-
-          
+          const HeaderLabel("Leaderboard"),
         ],
       ),
     );

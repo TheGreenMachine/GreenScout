@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
+import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/match_form.dart';
+import 'package:green_scout/pages/settings.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'login_as_guest.dart';
 import 'preference_helpers.dart';
@@ -84,6 +86,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
 
                 buildNavigationButton(context, Icons.home, "Home", const HomePage()),
                 buildNavigationButton(context, Icons.create, "Match Form", const MatchFormPage()),
+                buildNavigationButton(context, Icons.leaderboard, "Leaderboards", const LeaderboardPage()),
 
                 ...buildAdminPanelNavigation(context),
               ],
@@ -92,9 +95,13 @@ class NavigationLayoutDrawer extends StatelessWidget {
 
           Expanded(child: Container()),
 
+          buildNavigationButton(context, Icons.settings, "Settings", const SettingsPage()),
+
           ListTile(
             // subtitle: Text("TODO User / Admin / Super"),
             visualDensity: VisualDensity.comfortable,
+
+            hoverColor: Theme.of(context).colorScheme.inversePrimary,
 
             dense: false,
 

@@ -783,7 +783,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         result.add(
           {
             "Time": timestamp.time,
-            "Type": timestamp.location,
+            "Type": timestamp.location.toString(),
             "Success": timestamp.success,
           },
         );
