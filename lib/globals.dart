@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/no_animation_material_page_route.dart';
@@ -89,7 +88,7 @@ class App {
     );
   }
 
-  static Future<bool> httpPost(String path, String message) async {
+  static Future<bool> httpPost(String path, String message, {bool ignoreOutput = false}) async {
     dynamic err;
 
     final uriPath = Uri(
@@ -104,11 +103,14 @@ class App {
       headers: {"Certificate": getCertificate()},
       body: message,
     ).then((response) {
+      if (ignoreOutput) {
+        return;
+      }
+
       log("Response Status: ${response.statusCode}");
       log("Response body: ${response.body}");
     }).catchError((error) {
       err = error;
-      // internetOn = err == null;
       log(error.toString());
     });
 
