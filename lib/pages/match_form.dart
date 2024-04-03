@@ -804,9 +804,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
     final result = jsonEncode(
 		{
-			"Team": teamNum.isEmpty ? "1" : teamNum,
+			"Team": teamNum.isEmpty ? 1 : int.parse(teamNum),
 			"Match": {
-				"Number": matchNum.isEmpty ? "1" : matchNum,
+				"Number": matchNum.isEmpty ? 1 : int.parse(matchNum),
 				"isReplay": isReplay
 			},
 
