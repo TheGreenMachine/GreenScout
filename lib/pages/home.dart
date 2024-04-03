@@ -75,6 +75,9 @@ class _HomePage extends State<HomePage> {
 				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 				actions: createDefaultActionBar(),
 			),
+
+      drawer: const NavigationLayoutDrawer(),
+
 			body: ListView(
 				children: [
 					...createAdminPageButton(context),

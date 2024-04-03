@@ -79,7 +79,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       }
 
       () async {
-        App.httpGet(
+        storeCertificate("");
+
+        await App.httpGet(
           "login",
           '''
           {
@@ -94,9 +96,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         );
       }();
 
-      if (getCertificate().isEmpty) {
-        return "Invalid password or username";
-      }
+      // if (getCertificate().isEmpty) {
+      //   return "Invalid password or username";
+      // }
     }
 
     continueButtonPressed = false;
@@ -108,7 +110,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     setState(() {
       continueButtonPressed = true;
 
-      if (validateLogin() == null) {
+      if (validateLogin() == null && getCertificate().isNotEmpty) {
         setScouterName(_userController.text);
         setLoginStatus(true);
 

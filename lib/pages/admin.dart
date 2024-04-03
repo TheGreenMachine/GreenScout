@@ -35,6 +35,8 @@ class _AdminPage extends State<AdminPage> {
 				actions: createDefaultActionBar(),
 			),
 
+      drawer: const NavigationLayoutDrawer(),
+     
 			body: ListView(
 				children: [
 					const Padding(padding: EdgeInsets.all(4)),

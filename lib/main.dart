@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:green_scout/pages/home.dart';
@@ -18,6 +19,8 @@ class DevHttpOverrides extends HttpOverrides {
   }
 }
 
+final globalNavigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   HttpOverrides.global = DevHttpOverrides();
 
@@ -28,13 +31,40 @@ void main() async {
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = getMatchCache();
 
+    // This is to test whether or not we have connection. 
+    // It may be wasteful but it shows our users that 
+    // we're connected or not.
+    bool wasOnline = App.internetOn;
+
+    // Essentially a simple ping.
+    // Doesn't request anything other than connecting to the socket.
+    await Socket.connect(serverHostName, serverPort).then((socket) {
+      App.internetOn = true;
+      
+      socket.destroy();
+    }).catchError((error) {
+      App.internetOn = false;
+
+      log("Failed to connect: ${error.toString()}");
+    });
+
+    if (wasOnline && App.internetOff && globalNavigatorKey.currentContext != null) {
+      App.showMessage(globalNavigatorKey.currentContext!, "Lost Internet Connection!");
+      return;
+    }
+
+    if (!wasOnline && App.internetOn && globalNavigatorKey.currentContext != null) {
+      App.showMessage(globalNavigatorKey.currentContext!, "Connected to the Internet!");
+      return;
+    }
+
     if (!loggedInAlready()) {
       return;
     }
 
     if (matches.isNotEmpty) {
       for (var match in matches) {
-        final success = App.httpPost("dataEntry", match);
+        final success = await App.httpPost("dataEntry", match);
 
         if (!success) {
           return;
@@ -62,6 +92,8 @@ class MyApp extends StatelessWidget {
     setAdminStatus(true);
 
     return MaterialApp(
+      navigatorKey: globalNavigatorKey,
+
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -82,16 +114,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
         useMaterial3: true,
       ),
-	  // TODO: later
-	  darkTheme: ThemeData(
-		  colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
-		  primaryTextTheme: Typography.blackCupertino
-	  ),
-    home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
-    //   home: const LoginPageForGuest(),
-    routes: navigationLayout,
-	  themeAnimationCurve: Curves.easeInOut,
-	  themeMode: ThemeMode.light,
+      // TODO: later
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
+        // primaryTextTheme: Typography.blackCupertino
+      ),
+      home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
+      //   home: const LoginPageForGuest(),
+      // routes: navigationLayout,
+      themeAnimationCurve: Curves.easeInOut,
+      themeMode: ThemeMode.light,
+
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -37,7 +37,7 @@ class _NumberCounterButton extends State<NumberCounterButton> {
 
   Widget buildIncrementButton(BuildContext context, double width) {
     return SizedBox(
-      width: width * 0.63,
+      width: width * 0.58,
       height: 35,
       child: TextButton(
         style: ButtonStyle(
@@ -77,7 +77,7 @@ class _NumberCounterButton extends State<NumberCounterButton> {
 
   Widget buildDecrementButton(BuildContext context, double width) {
     return SizedBox(
-      width: width * 0.33,
+      width: width * 0.39,
       height: 35,
       child: TextButton(
         style: ButtonStyle(
@@ -112,7 +112,7 @@ class _NumberCounterButton extends State<NumberCounterButton> {
           });
         },
 
-        child: const Text("-"),
+        child: const Text("-", textAlign: TextAlign.center,),
       ),
     );
   }
@@ -138,7 +138,7 @@ class _NumberCounterButton extends State<NumberCounterButton> {
       child: Row(
         children: [
           buildDecrementButton(context, width),
-          Padding(padding: EdgeInsets.symmetric(horizontal: width * 0.02)),
+          Padding(padding: EdgeInsets.symmetric(horizontal: width * 0.01)),
           buildIncrementButton(context, width),
         ],
       ),
