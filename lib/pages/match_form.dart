@@ -283,7 +283,16 @@ class _MatchFormPage extends State<MatchFormPage> {
           (false, 1),
         ),
 
-        const Padding(padding: EdgeInsets.all(14)),
+        const Padding(padding: EdgeInsets.all(10)),
+
+        createSectionHeader("Auto Mode"),
+
+        createLabelAndCheckBox("Can They Do It?", canDoAuto),
+        createLabelAndNumberField("Scores", autoScoresNum),
+        createLabelAndNumberField("Misses", autoMissesNum),
+        createLabelAndNumberField("Ejects", autoEjectsNum),
+
+        const Padding(padding: EdgeInsets.all(12)),
 
         createSectionHeader("Cycles"),
 
@@ -295,14 +304,25 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         const Padding(padding: EdgeInsets.all(16)),
 
+        createSectionHeader("Distance Shooting"),
+
+        createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
+        createLabelAndNumberField("Scores", distanceShootingScores),
+        createLabelAndNumberField("Misses", distanceShootingMisses),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+
         createSectionHeader("Shooting Info"),
 
         createLabelAndCheckBox("Shoots into Speaker?", canShootIntoSpeaker),
         createLabelAndCheckBox("Shoots into Amp?", canShootIntoAmp),
 
-        const Padding(
-          padding: EdgeInsets.all(16),
-        ),
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+        
 
         createSectionHeader("Shooting Position (Speaker / Subwoofer)"),
 
@@ -322,40 +342,22 @@ class _MatchFormPage extends State<MatchFormPage> {
 
 
 
-        createSectionHeader("Auto Mode"),
-
-        createLabelAndCheckBox("Can They Do It?", canDoAuto),
-        createLabelAndNumberField("Scores", autoScoresNum),
-        createLabelAndNumberField("Misses", autoMissesNum),
-        createLabelAndNumberField("Ejects", autoEjectsNum),
-
-        const Padding(
-          padding: EdgeInsets.all(14),
-        ),
-
-        createSectionHeader("Distance Shooting"),
-
-        createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
-        createLabelAndNumberField("Scores", distanceShootingScores),
-        createLabelAndNumberField("Misses", distanceShootingMisses),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
         createSectionHeader("Climbing"),
 
         createLabelAndCheckBox("Was It Successful?", canClimbSuccessfully),
 
         Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
-            child: TimerButton(
-              height: 85,
-              onEnd: (value) {
-                climbingTime = value;
-              },
-              initialTime: climbingTime,
-              lap: false,
-            )),
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+          child: TimerButton(
+            height: 85,
+            onEnd: (value) {
+              climbingTime = value;
+            },
+            initialTime: climbingTime,
+            lap: false,
+          )
+        ),
 
         // TODO: Reset button. I can't figure out how to make sure the
         // visual of the button to be reset too.
