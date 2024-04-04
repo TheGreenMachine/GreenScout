@@ -137,7 +137,7 @@ class _HomePage extends State<HomePage> {
 				color: Theme.of(context).colorScheme.inversePrimary,
 				onPressed: () {
 					MatchesData.getAllMatchesFromServer();
-					sleep(Durations.medium3);
+					// sleep(Durations.medium3);
 					setState(() {});
 				},
 			),

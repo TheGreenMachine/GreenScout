@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
 
-      title: 'Flutter Demo',
+      title: 'Green Scout',
       theme: ThemeData(
         // This is the theme of your application.
         //
