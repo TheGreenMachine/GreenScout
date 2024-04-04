@@ -36,17 +36,7 @@ void main() async {
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    // Essentially a simple ping.
-    // Doesn't request anything other than connecting to the socket.
-    await Socket.connect(serverHostName, serverPort).then((socket) {
-      App.internetOn = true;
-      
-      socket.destroy();
-    }).catchError((error) {
-      App.internetOn = false;
-
-      log("Failed to connect: ${error.toString()}");
-    });
+    await App.httpPost("/", "", ignoreOutput: true);
 
     if (wasOnline && App.internetOff && globalNavigatorKey.currentContext != null) {
       App.showMessage(globalNavigatorKey.currentContext!, "Lost Internet Connection!");
