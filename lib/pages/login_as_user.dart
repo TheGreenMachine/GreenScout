@@ -57,18 +57,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     return encrypted.base64;
   }
 
-  String encryptPassword64Sync(String plaintext) {
-    // Hack. Force async to sync
-    late String result;
-
-    () async {
-      result = await encryptPassword64(plaintext);
-    }();
-
-    return result;
-  }
-
-  String? validateLogin() {
+  Future<String?> validateLogin() async {
     if (continueButtonPressed) {
       if (userStr.isEmpty) {
         return "Username field not filled out";
@@ -78,23 +67,21 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         return "Password field not filled out";
       }
 
-      () async {
-        storeCertificate("");
+      storeCertificate("");
 
-        await App.httpGet(
-          "login",
-          '''
-          {
-            "Username": "$userStr",
-            "EncryptedPassword": "${await encryptPassword64(passwordStr)}"
-          }
-        ''',
-          (response) {
-            storeUserUUID(response.headers["uuid"] ?? "");
-            storeCertificate(response.headers["certificate"] ?? "");
-          },
-        );
-      }();
+      await App.httpGet(
+        "login",
+        '''
+        {
+          "Username": "$userStr",
+          "EncryptedPassword": "${await encryptPassword64(passwordStr)}"
+        }
+      ''',
+        (response) {
+          storeUserUUID(response.headers["uuid"] ?? "");
+          storeCertificate(response.headers["certificate"] ?? "");
+        },
+      );
 
       // if (getCertificate().isEmpty) {
       //   return "Invalid password or username";
@@ -105,18 +92,19 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     return null;
   }
 
-  void continueButtonOnPressed() {
+  void continueButtonOnPressed() async {
     log("continuing");
-    setState(() {
-      continueButtonPressed = true;
 
-      if (validateLogin() == null && getCertificate().isNotEmpty) {
-        setScouterName(_userController.text);
-        setLoginStatus(true);
+    continueButtonPressed = true;
 
+    if ((await validateLogin()) == null && getCertificate().isNotEmpty) {
+      setScouterName(_userController.text);
+      setLoginStatus(true);
+
+      if (mounted) {
         App.gotoPage(context, const HomePage());
       }
-    });
+    }
   }
 
   @override
