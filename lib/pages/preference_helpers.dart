@@ -18,6 +18,12 @@ void setLoginStatus(bool value) {
   App.setBool("Logged In", value);
 }
 
+void autoSetAdminStatus() {
+  final role = getUserRole();
+
+  setAdminStatus(role == "admin" || role == "super");
+}
+
 bool isAdmin() {
   final admin = App.getBool("Admin");
 
@@ -46,6 +52,16 @@ String getUserUUID() {
 
 void storeUserUUID(String uuid) {
   App.setString("User UUID", uuid);
+}
+
+void storeUserRole(String role) {
+  App.setString("User Role", role);
+}
+
+String getUserRole() {
+  final role = App.getString("User Role");
+
+  return role ?? "None";
 }
 
 String getAccountDataForAdmins() {

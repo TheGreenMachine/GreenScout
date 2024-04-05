@@ -78,6 +78,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         }
       ''',
         (response) {
+          storeUserRole(response.headers["role"] ?? "None");
+          print(getUserRole());
           storeUserUUID(response.headers["uuid"] ?? "");
           storeCertificate(response.headers["certificate"] ?? "");
         },
@@ -98,6 +100,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     if ((await validateLogin()) == null && getCertificate().isNotEmpty) {
       setScouterName(_userController.text);
       setLoginStatus(true);
+
+      autoSetAdminStatus();
 
       if (mounted) {
         App.gotoPage(context, const HomePage());

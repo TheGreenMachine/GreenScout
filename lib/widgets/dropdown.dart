@@ -3,9 +3,9 @@ import 'package:green_scout/reference.dart';
 
 class Dropdown<V> extends StatefulWidget {
   const Dropdown({
-    super.key, 
-    required this.entries, 
-    required this.inValue, 
+    super.key,
+    required this.entries,
+    required this.inValue,
     required this.defaultValue,
     required this.textStyle,
     this.padding,
@@ -50,7 +50,6 @@ class _Dropdown<V> extends State<Dropdown> {
         DropdownMenuItem(
           value: entry.value,
           alignment: widget.alignment,
-
           child: Text(
             entry.key,
             style: widget.textStyle,
@@ -69,10 +68,8 @@ class _Dropdown<V> extends State<Dropdown> {
       style: widget.textStyle,
       isDense: widget.isDense,
       isExpanded: widget.isExpanded,
-
       alignment: widget.alignment,
       borderRadius: BorderRadius.circular(10),
-
       items: items,
       value: widget.inValue.value,
       onChanged: (newValue) => setState(() {

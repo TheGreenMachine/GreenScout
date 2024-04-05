@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
 
 class MatchInfo {
   const MatchInfo(this.matchNum, this.team, this.isBlue, this.driveTeamNum);
@@ -29,7 +30,7 @@ class MatchesData {
       App.setString(matchScheduleJsonKey, response.body);
     });
 
-    await App.httpGet("singleSchedule", "", (response) {
+    await App.httpGet("singleSchedule", getScouterName(), (response) {
       App.setString(assignedMatchScheduleJsonKey, response.body);
     });
 
@@ -91,15 +92,10 @@ class MatchesData {
       for (var range in ranges2D) {
         int beginning = range[0];
         int end = range[1];
-        for (int i = beginning; i <= end; i++) {
-          MapEntry mapinfo = toMatchInformation(range[2]);
-          allAssignedMatches.add(MatchInfo(
-              i,
-              scheduleJson.entries
-                  .elementAt(i + 1)
-                  .value[mapinfo.key ? "Blue" : "Red"][mapinfo.value],
-              mapinfo.key,
-              mapinfo.value));
+
+        for (int i = beginning - 1; i < end; i++) {
+          allAssignedMatches
+              .add(allParsedMatches.elementAt(i * 6 - 1 + range[2] - 1));
         }
       }
     } catch (e) {

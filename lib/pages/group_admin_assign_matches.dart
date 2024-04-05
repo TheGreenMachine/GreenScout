@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/data_for_admins.dart';
+import 'package:green_scout/pages/individual_admin_assign_matches.dart';
 import 'package:green_scout/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -132,11 +133,10 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
         labelText: "Send To Server",
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () {
-          // TODO: Implement logic to send this data to the server.
+          // App.httpPostWithHeaders("/addUser", message, header)
+          // red1User
 
-          // Once we're done sending we want to clear it all
-          // anyways.
-          matchesAssigned.clear();
+          // matchesAssigned.clear();
           App.showMessage(context, "Success!");
           setState(() {});
         },

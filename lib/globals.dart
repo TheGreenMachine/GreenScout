@@ -17,7 +17,8 @@ const serverPort = 443;
 class Settings {
   static const flipNumberCounterKey = "[Settings] Flip Number Counter";
 
-  static Reference<bool> flipNumberCounter = Reference(App.getBool(flipNumberCounterKey) ?? false);
+  static Reference<bool> flipNumberCounter =
+      Reference(App.getBool(flipNumberCounterKey) ?? false);
 
   static void update() {
     App.setBool(flipNumberCounterKey, flipNumberCounter.value);
@@ -60,11 +61,8 @@ class App {
     localStorage = await SharedPreferences.getInstance();
   }
 
-  static void gotoPage(
-    BuildContext context, 
-    Widget page,
-    {bool canGoBack = false}
-  ) {
+  static void gotoPage(BuildContext context, Widget page,
+      {bool canGoBack = false}) {
     final navigator = Navigator.of(context);
 
     if (canGoBack) {
@@ -88,7 +86,8 @@ class App {
     );
   }
 
-  static Future<bool> httpPost(String path, String message, {bool ignoreOutput = false}) async {
+  static Future<bool> httpPost(String path, String message,
+      {bool ignoreOutput = false}) async {
     dynamic err;
 
     final uriPath = Uri(
@@ -98,11 +97,52 @@ class App {
       port: serverPort,
     );
 
-    await http.post(
+    await http
+        .post(
       uriPath,
-      headers: {"Certificate": getCertificate()},
+      headers: {
+        "Certificate": getCertificate(),
+      },
       body: message,
-    ).then((response) {
+    )
+        .then((response) {
+      if (ignoreOutput) {
+        return;
+      }
+
+      log("Response Status: ${response.statusCode}");
+      log("Response body: ${response.body}");
+    }).catchError((error) {
+      err = error;
+      log(error.toString());
+    });
+
+    // Logic: If there no error, that means we successfully
+    // sent a post request through the internet
+    internetOn = err == null;
+
+    return internetOn;
+  }
+
+  static Future<bool> httpPostWithHeaders(
+      String path, String message, MapEntry<String, dynamic> header,
+      {bool ignoreOutput = false}) async {
+    dynamic err;
+
+    final uriPath = Uri(
+      scheme: 'https',
+      host: serverHostName,
+      path: path,
+      port: serverPort,
+    );
+
+    await http
+        .post(
+      uriPath,
+      headers: {"Certificate": getCertificate(), header.key: header.value},
+      body: message,
+    )
+        .then((response) {
       if (ignoreOutput) {
         return;
       }
@@ -122,8 +162,8 @@ class App {
   }
 
   static Future<bool> httpGet(
-    String path, 
-    String? message, 
+    String path,
+    String? message,
     Function(http.Response) onGet,
   ) async {
     dynamic err;
@@ -135,11 +175,13 @@ class App {
       port: serverPort,
     );
 
-    await http.post(
+    await http
+        .post(
       uriPath,
       headers: {"Certificate": getCertificate()},
       body: message,
-    ).then((response) {
+    )
+        .then((response) {
       onGet(response);
       log("Response Status: ${response.statusCode}");
       log("Response body: ${response.body}");
@@ -194,7 +236,8 @@ class App {
     );
   }
 
-  static void promptAlert(BuildContext context, String title, String? mainMessage, List<(String, void Function()?)> actions) {
+  static void promptAlert(BuildContext context, String title,
+      String? mainMessage, List<(String, void Function()?)> actions) {
     void defaultAlertCancel() {
       Navigator.of(context).pop();
     }
@@ -204,7 +247,7 @@ class App {
     for (final action in actions) {
       actionButtons.add(
         TextButton(
-          onPressed: action.$2 ?? defaultAlertCancel, 
+          onPressed: action.$2 ?? defaultAlertCancel,
           child: Text(action.$1),
         ),
       );
@@ -219,7 +262,7 @@ class App {
     // Hack. Force async to become sync.
     () async {
       showDialog(
-        context: context, 
+        context: context,
         builder: (BuildContext context) {
           return alert;
         },

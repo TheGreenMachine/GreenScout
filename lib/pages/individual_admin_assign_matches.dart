@@ -21,17 +21,14 @@ class IndividualAdminAssignMatchesPage extends StatefulWidget {
 }
 
 class IndividualMatchRangeInfo {
-  const IndividualMatchRangeInfo(
-    this.start,
-    this.end,
-    this.isBlue,
-    this.driveTeamNumber,
-  );
+  const IndividualMatchRangeInfo(this.start, this.end, this.isBlue,
+      this.driveTeamNumber, this.scouterName);
 
   final int start;
   final int end;
   final bool isBlue;
   final int driveTeamNumber;
+  final String scouterName;
 
   String toJson() {
     return jsonEncode({
@@ -118,8 +115,9 @@ class _IndividualAdminAssignMatchesPage
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () {
           for (var match in matchesAssigned) {
-            App.httpPost("/addSchedule", match.toJson())
-                .then((success) => print(success));
+            App.httpPostWithHeaders("/addSchedule", match.toJson(),
+                    MapEntry("userInput", match.scouterName))
+                .then((success) => null);
           }
 
           matchesAssigned.clear();
@@ -259,11 +257,11 @@ class _IndividualAdminAssignMatchesPage
 
             matchesAssigned.add(
               IndividualMatchRangeInfo(
-                int.parse(fromTextController.text),
-                int.parse(toTextController.text),
-                isBlue,
-                driverTeamNumber.value,
-              ),
+                  int.parse(fromTextController.text),
+                  int.parse(toTextController.text),
+                  isBlue,
+                  driverTeamNumber.value,
+                  currentUser.value),
             );
 
             setState(() {});

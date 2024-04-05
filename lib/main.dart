@@ -31,20 +31,26 @@ void main() async {
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = getMatchCache();
 
-    // This is to test whether or not we have connection. 
-    // It may be wasteful but it shows our users that 
+    // This is to test whether or not we have connection.
+    // It may be wasteful but it shows our users that
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
     await App.httpPost("/", "", ignoreOutput: true);
 
-    if (wasOnline && App.internetOff && globalNavigatorKey.currentContext != null) {
-      App.showMessage(globalNavigatorKey.currentContext!, "Lost Internet Connection!");
+    if (wasOnline &&
+        App.internetOff &&
+        globalNavigatorKey.currentContext != null) {
+      App.showMessage(
+          globalNavigatorKey.currentContext!, "Lost Internet Connection!");
       return;
     }
 
-    if (!wasOnline && App.internetOn && globalNavigatorKey.currentContext != null) {
-      App.showMessage(globalNavigatorKey.currentContext!, "Connected to the Internet!");
+    if (!wasOnline &&
+        App.internetOn &&
+        globalNavigatorKey.currentContext != null) {
+      App.showMessage(
+          globalNavigatorKey.currentContext!, "Connected to the Internet!");
       return;
     }
 
@@ -78,9 +84,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // We aren't ready to work towards a fully working admin page.
-    setAdminStatus(true);
-
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
 
@@ -106,7 +109,8 @@ class MyApp extends StatelessWidget {
       ),
       // TODO: later
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(brightness: Brightness.dark, seedColor: greenMachineGreen),
+        colorScheme: ColorScheme.fromSeed(
+            brightness: Brightness.dark, seedColor: greenMachineGreen),
         // primaryTextTheme: Typography.blackCupertino
       ),
       home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
