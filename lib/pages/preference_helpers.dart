@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../globals.dart';
 
 void setScouterName(String name) {
@@ -80,13 +82,41 @@ List<String> matchCache = [];
 
 void addToMatchCache(String matchJSON) {
   matchCache.add(matchJSON);
+
+  // So... what we're doing is concatenating the old list
+  // of match cache and then combining it with the new data
+  // we just got. 
+  // 
+  // The reason we're using a set (which is '<String>{}') is because
+  // a set as a structure has the neat property of only allowing one
+  // instance of an item at a time. So, essentially they are a list
+  // which only contains unique elements.
+  App.setStringList(
+    matchCacheKey, 
+    <String>{...(App.getStringList(matchCacheKey) ?? []), ...matchCache}.toList(),
+  );
 }
 
-List<String> getMatchCache() {
+List<String> getImmediateMatchCache() {
   return matchCache;
 }
 
-void resetMatchCache() {
-  print("Resetting cache");
+List<String> getAllTimeMatchCache() {
+  return App.getStringList(matchCacheKey) ?? [];
+}
+
+void resetImmediateMatchCache() {
+  log("Resetting immediate match cache");
   matchCache = [];
+}
+
+void resetAllTimeMatchCache() {
+  log("Resetting all time match cache");
+  App.setStringList(matchCacheKey, []);
+}
+
+void resetMatchCache() {
+  log("Resetting all match cache (all time and immediate)");
+  matchCache = [];
+  App.setStringList(matchCacheKey, []);
 }

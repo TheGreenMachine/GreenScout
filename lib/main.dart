@@ -29,7 +29,7 @@ void main() async {
   await App.start();
 
   Timer.periodic(const Duration(seconds: 15), (timer) async {
-    final matches = getMatchCache();
+    final matches = getImmediateMatchCache();
 
     // This is to test whether or not we have connection.
     // It may be wasteful but it shows our users that
@@ -69,8 +69,8 @@ void main() async {
 
       // A little safety check to ensure that we aren't getting
       // rid of data that just got put into the list.
-      if (matches.length == getMatchCache().length) {
-        resetMatchCache();
+      if (matches.length == getImmediateMatchCache().length) {
+        resetImmediateMatchCache();
       }
     }
   });

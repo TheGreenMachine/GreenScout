@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/no_animation_material_page_route.dart';
@@ -7,6 +8,8 @@ import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:network_info_plus/network_info_plus.dart';
 
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
