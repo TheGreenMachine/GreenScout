@@ -38,11 +38,15 @@ class GroupMatchRangeInfo {
 
   // 1-3 for red, 4-6 for blue
   String toJsonGeneric(int id) {
-    return jsonEncode([
-      start,
-      end,
-      id,
-    ]);
+    return jsonEncode({
+      "Ranges": [
+        [
+          start,
+          end,
+          id,
+        ]
+      ]
+    });
   }
 }
 
@@ -133,10 +137,13 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
         labelText: "Send To Server",
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () {
-          // App.httpPostWithHeaders("/addUser", message, header)
-          // red1User
+          for (var match in matchesAssigned) {
+            for (var i = 0; i < match.userIds.length; i++) {
+              App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i),
+                  MapEntry("userInput", match.userIds[i]));
+            }
+          }
 
-          // matchesAssigned.clear();
           App.showMessage(context, "Success!");
           setState(() {});
         },
