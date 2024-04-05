@@ -94,8 +94,7 @@ class MatchesData {
         int end = range[1];
 
         for (int i = beginning - 1; i < end; i++) {
-          allAssignedMatches
-              .add(allParsedMatches.elementAt(i * 6 - 1 + range[2] - 1));
+          allAssignedMatches.add(allParsedMatches.elementAt(i * 6 + range[2]));
         }
       }
     } catch (e) {
