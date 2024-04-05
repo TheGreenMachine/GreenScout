@@ -13,10 +13,11 @@ import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
 class IndividualAdminAssignMatchesPage extends StatefulWidget {
-	const IndividualAdminAssignMatchesPage({super.key});
+  const IndividualAdminAssignMatchesPage({super.key});
 
-	@override
-	State<IndividualAdminAssignMatchesPage> createState() => _IndividualAdminAssignMatchesPage();
+  @override
+  State<IndividualAdminAssignMatchesPage> createState() =>
+      _IndividualAdminAssignMatchesPage();
 }
 
 class IndividualMatchRangeInfo {
@@ -33,15 +34,20 @@ class IndividualMatchRangeInfo {
   final int driveTeamNumber;
 
   String toJson() {
-    return jsonEncode([
-      start,
-      end,
-      (isBlue ? 3 : 0) + driveTeamNumber,
-    ]);
+    return jsonEncode({
+      "Ranges": [
+        [
+          start,
+          end,
+          (isBlue ? 3 : 0) + driveTeamNumber,
+        ]
+      ]
+    });
   }
 }
 
-class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatchesPage> {
+class _IndividualAdminAssignMatchesPage
+    extends State<IndividualAdminAssignMatchesPage> {
   Reference<String> currentUser = Reference(AdminData.noActiveUserSelected);
 
   final fromTextController = TextEditingController();
@@ -56,7 +62,9 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
   void initState() {
     super.initState();
 
-    AdminData.updateUserRoster();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdminData.updateUserRoster();
+    });
   }
 
   @override
@@ -67,64 +75,53 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
     super.dispose();
   }
 
-  @override 
-	Widget build(BuildContext context) {
-		return Scaffold(
-			appBar: AppBar(
-				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-				actions: createEmptyActionBar(),
-			),
-
-			body: ListView(
-				children: [
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: createEmptyActionBar(),
+      ),
+      body: ListView(
+        children: [
           const Padding(padding: EdgeInsets.all(8)),
-
           const SubheaderLabel("User"),
-
           const Padding(padding: EdgeInsets.all(2)),
-
-					Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2),
-
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal:
+                    MediaQuery.of(context).size.width * (1.0 - 0.65) / 2),
             child: Dropdown<String>(
               padding: const EdgeInsets.only(left: 10),
-
               isExpanded: true,
-
               entries: AdminData.users,
               inValue: currentUser,
               defaultValue: AdminData.noActiveUserSelected,
               textStyle: null,
-
               alignment: Alignment.center,
               menuMaxHeight: 175,
-
               setState: () => setState(() {}),
             ),
           ),
-
           const Padding(padding: EdgeInsets.all(12)),
-
           ...buildAssignmentFields(context),
-				],
-			),
-		);
-	}
+        ],
+      ),
+    );
+  }
 
   Widget buildSendButton(BuildContext context, double widthPadding) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
       child: FloatingButton(
         labelText: "Send To Server",
         color: Theme.of(context).colorScheme.inversePrimary,
-
         onPressed: () {
-          // TODO: Implement logic to send this data to the server.
+          for (var match in matchesAssigned) {
+            App.httpPost("/addSchedule", match.toJson())
+                .then((success) => print(success));
+          }
 
-          // Once we're done sending we want to clear it all
-          // anyways.
           matchesAssigned.clear();
           App.showMessage(context, "Success!");
           setState(() {});
@@ -140,38 +137,33 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
 
     const matchRangeWidthRatio = 0.75;
 
-    final matchRangeWidthPadding = MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
-    final matchRangeWidth = MediaQuery.of(context).size.width * matchRangeWidthRatio;
+    final matchRangeWidthPadding =
+        MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
+    final matchRangeWidth =
+        MediaQuery.of(context).size.width * matchRangeWidthRatio;
 
     return [
       const SubheaderLabel("Match Range"),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
               width: matchRangeWidth * 0.45,
-
               child: Text(
                 "START",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            
             SizedBox(
               width: matchRangeWidth * 0.25,
-
               child: TextField(
                 controller: fromTextController,
                 textAlign: TextAlign.center,
-
                 keyboardType: TextInputType.number,
-                
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(4),
@@ -181,35 +173,27 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
           ],
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(4)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
               width: matchRangeWidth * 0.45,
-
               child: Text(
                 "END",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            
             SizedBox(
               width: matchRangeWidth * 0.25,
-
               child: TextField(
                 controller: toTextController,
                 textAlign: TextAlign.center,
-
                 keyboardType: TextInputType.number,
-                
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(4),
@@ -219,72 +203,59 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
           ],
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(16)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: FloatingToggleButton(
           initialColor: Colors.blue,
           initialIcon: const Text("BLUE"),
           pressedColor: Colors.red,
           pressedIcon: const Text("RED"),
-
           onPressed: (pressed) {
             isBlue = !pressed;
           },
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(4)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
           children: [
             SizedBox(
               width: matchRangeWidth * 0.45,
-
               child: Text(
                 "DRIVE TEAM NUMBER",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-
-            NumberCounterButton(number: driverTeamNumber, lowerBound: 1, upperBound: 3, widthRatio: 0.35,)
+            NumberCounterButton(
+              number: driverTeamNumber,
+              lowerBound: 1,
+              upperBound: 3,
+              widthRatio: 0.35,
+            )
           ],
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(18)),
-
       const SubheaderLabel("Add Match Range To List"),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: FloatingButton(
           icon: const Icon(Icons.add),
-
           color: Theme.of(context).colorScheme.inversePrimary,
-
           onPressed: () {
-            if (
-              fromTextController.text.isEmpty ||
-              toTextController.text.isEmpty
-            ) {
+            if (fromTextController.text.isEmpty ||
+                toTextController.text.isEmpty) {
               return;
-            } 
+            }
 
             matchesAssigned.add(
               IndividualMatchRangeInfo(
@@ -299,74 +270,61 @@ class _IndividualAdminAssignMatchesPage extends State<IndividualAdminAssignMatch
           },
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(4)),
-
-      Padding( 
+      Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
         ),
-
         child: SizedBox(
           width: matchRangeWidth,
           height: 240,
-
           child: ListView.builder(
-            itemBuilder: (context, index) => buildAssignedMatchWidget(context, index, matchRangeWidth),
+            itemBuilder: (context, index) =>
+                buildAssignedMatchWidget(context, index, matchRangeWidth),
             itemCount: matchesAssigned.length,
           ),
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(16)),
-
       buildSendButton(context, matchRangeWidthPadding),
-
       const Padding(padding: EdgeInsets.all(32)),
     ];
-  } 
+  }
 
-  Widget buildAssignedMatchWidget(BuildContext context, int index, double width) {
+  Widget buildAssignedMatchWidget(
+      BuildContext context, int index, double width) {
     final match = matchesAssigned[index];
 
     return ExpansionTile(
-      title: Text("${match.start} - ${match.end}"), 
-
+      title: Text("${match.start} - ${match.end}"),
       leading: Text(
         match.isBlue ? "B" : "R",
         style: Theme.of(context).textTheme.titleMedium,
       ),
-
       subtitle: Text(
         "Drive Team: ${match.driveTeamNumber}",
         style: Theme.of(context).textTheme.labelSmall,
       ),
-      
       trailing: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.redAccent.shade400,
           elevation: 50,
         ),
-
         onPressed: () {
           final data = matchesAssigned.removeAt(index);
 
-          App.promptAction(
-            context, 
-            "Removed Assigned Match",
-            "Undo?",
-            () {
-              matchesAssigned.insert(index, data);
-              setState(() {});
-            }
-          );
+          App.promptAction(context, "Removed Assigned Match", "Undo?", () {
+            matchesAssigned.insert(index, data);
+            setState(() {});
+          });
 
           setState(() {});
         },
-
-        child: const Icon(Icons.close, color: Colors.black87,),
+        child: const Icon(
+          Icons.close,
+          color: Colors.black87,
+        ),
       ),
-
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       collapsedBackgroundColor: Theme.of(context).colorScheme.inversePrimary,
     );

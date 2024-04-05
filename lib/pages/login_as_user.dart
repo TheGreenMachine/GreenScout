@@ -93,8 +93,6 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   }
 
   void continueButtonOnPressed() async {
-    log("continuing");
-
     continueButtonPressed = true;
 
     if ((await validateLogin()) == null && getCertificate().isNotEmpty) {

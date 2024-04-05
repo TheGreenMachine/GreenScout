@@ -1,25 +1,34 @@
+import 'dart:convert';
+
+import 'package:green_scout/globals.dart';
+import 'package:http/http.dart';
+
 class AdminData {
-  static const noActiveUserSelected = "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";
+  static const noActiveUserSelected =
+      "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";
 
   static Map<String, String> users = {
     "None": noActiveUserSelected,
   };
 
-  static void updateUserRoster() {
+  static Future<void> updateUserRoster() async {
     users = {
       "None": noActiveUserSelected,
     };
 
-    // Temporary.
-    // Will need to set up server request here.
+    List respList;
+    await App.httpGet(
+        "/allUsers",
+        "",
+        (response) => {
+              respList = json.decode(response.body),
+              respList.forEach((element) {
+                Iterable<MapEntry> entries;
+                entries = (element as Map).entries;
 
-    // Some example test users
-    // Display Name = Internal User ID
-    users["Mr. Forrest"] = "mrf28";
-    users["John Snow"] = "johns23";
-    users["Sick Burn"] = "adamj29";
-    users["Harold Loungebottom-Bankman"] = "haroldlb32";
-    users["Joshua William Loungebottom-Bankman"] = "joshuawlb32";
+                users[entries.first.value] = entries.last.value;
+              })
+            });
   }
 
   static List<String> getDisplayNames() {
