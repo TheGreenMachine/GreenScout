@@ -68,33 +68,37 @@ class MatchesData {
       for (var entry in scheduleJson.entries) {
         final matchNum = int.parse(entry.key);
         allParsedMatches
-            .add(MatchInfo(matchNum, entry.value["Blue"][0], true, 1));
-        allParsedMatches
-            .add(MatchInfo(matchNum, entry.value["Blue"][1], true, 2));
-        allParsedMatches
-            .add(MatchInfo(matchNum, entry.value["Blue"][2], true, 3));
-        allParsedMatches
             .add(MatchInfo(matchNum, entry.value["Red"][0], false, 1));
         allParsedMatches
             .add(MatchInfo(matchNum, entry.value["Red"][1], false, 2));
         allParsedMatches
             .add(MatchInfo(matchNum, entry.value["Red"][2], false, 3));
+        allParsedMatches
+            .add(MatchInfo(matchNum, entry.value["Blue"][0], true, 1));
+        allParsedMatches
+            .add(MatchInfo(matchNum, entry.value["Blue"][1], true, 2));
+        allParsedMatches
+            .add(MatchInfo(matchNum, entry.value["Blue"][2], true, 3));
       }
 
       Map<String, dynamic> assignedJson = jsonDecode(assignedJsonString);
 
       List<dynamic> ranges = assignedJson['Ranges'];
 
+      log("Ranges: $ranges");
+
       List<List<int>> ranges2D = ranges.map((range) {
         return List<int>.from(range);
       }).toList();
 
       for (var range in ranges2D) {
+        log("Range: $range");
         int beginning = range[0];
         int end = range[1];
 
         for (int i = beginning - 1; i < end; i++) {
-          allAssignedMatches.add(allParsedMatches.elementAt(i * 6 + range[2]));
+          log("$i ${range[2]}");
+          allAssignedMatches.add(allParsedMatches.elementAt(i * 6 + range[2] - 1));
         }
       }
     } catch (e) {
