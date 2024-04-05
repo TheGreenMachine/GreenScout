@@ -85,19 +85,15 @@ class MatchesData {
 
       List<dynamic> ranges = assignedJson['Ranges'];
 
-      log("Ranges: $ranges");
-
       List<List<int>> ranges2D = ranges.map((range) {
         return List<int>.from(range);
       }).toList();
 
       for (var range in ranges2D) {
-        log("Range: $range");
         int beginning = range[0];
         int end = range[1];
 
         for (int i = beginning - 1; i < end; i++) {
-          log("$i ${range[2]}");
           allAssignedMatches.add(allParsedMatches.elementAt(i * 6 + range[2] - 1));
         }
       }
