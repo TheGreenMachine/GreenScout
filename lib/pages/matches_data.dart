@@ -80,12 +80,11 @@ class MatchesData {
             .add(MatchInfo(matchNum, entry.value["Red"][2], false, 3));
       }
 
-      print(assignedJsonString);
+      Map<String, dynamic> assignedJson = jsonDecode(assignedJsonString);
 
-      List<dynamic> jsonList = jsonDecode(assignedJsonString);
+      List<dynamic> ranges = assignedJson['Ranges'];
 
-      // Convert List<dynamic> to List<List<int>>
-      List<List<int>> ranges2D = jsonList.map((range) {
+      List<List<int>> ranges2D = ranges.map((range) {
         return List<int>.from(range);
       }).toList();
 
