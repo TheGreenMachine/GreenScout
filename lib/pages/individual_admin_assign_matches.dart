@@ -113,11 +113,10 @@ class _IndividualAdminAssignMatchesPage
       child: FloatingButton(
         labelText: "Send To Server",
         color: Theme.of(context).colorScheme.inversePrimary,
-        onPressed: () {
+        onPressed: () async {
           for (var match in matchesAssigned) {
-            App.httpPostWithHeaders("/addSchedule", match.toJson(),
-                    MapEntry("userInput", match.scouterName))
-                .then((success) => null);
+            await App.httpPostWithHeaders("/addSchedule", match.toJson(),
+                MapEntry("userInput", match.scouterName));
           }
 
           matchesAssigned.clear();
