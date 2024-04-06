@@ -319,6 +319,17 @@ class _MatchFormPage extends State<MatchFormPage> {
         createLabelAndNumberField("Ejects", autoEjectsNum),
 
         const Padding(padding: EdgeInsets.all(12)),
+        
+        
+        createSectionHeader("Distance Shooting"),
+
+        createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
+        createLabelAndNumberField("Scores", distanceShootingScores),
+        createLabelAndNumberField("Misses", distanceShootingMisses),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
 
         createSectionHeader("Cycles"),
 
@@ -330,15 +341,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         const Padding(padding: EdgeInsets.all(16)),
 
-        createSectionHeader("Distance Shooting"),
-
-        createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
-        createLabelAndNumberField("Scores", distanceShootingScores),
-        createLabelAndNumberField("Misses", distanceShootingMisses),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-        
 
         createSectionHeader("Climbing"),
 
