@@ -36,7 +36,7 @@ class GroupMatchRangeInfo {
   // 0-2 for red, 3-5 for blue
   final List<String> userIds;
 
-  // 1-3 for red, 4-6 for blue
+  // 0-2 for blue, 3-5 for red
   String toJsonGeneric(int id) {
     return jsonEncode({
       "Ranges": [
@@ -139,7 +139,7 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
         onPressed: () {
           for (var match in matchesAssigned) {
             for (var i = 0; i < match.userIds.length; i++) {
-              App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i),
+              App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i + 1),
                   MapEntry("userInput", match.userIds[i]));
             }
           }
@@ -254,12 +254,12 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
                 int.parse(fromTextController.text),
                 int.parse(toTextController.text),
                 [
-                  blue1User.value,
-                  blue2User.value,
-                  blue3User.value,
                   red1User.value,
                   red2User.value,
                   red3User.value,
+                  blue1User.value,
+                  blue2User.value,
+                  blue3User.value,
                 ],
               ),
             );
