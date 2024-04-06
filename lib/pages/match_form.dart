@@ -338,35 +338,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 
         const Padding(padding: EdgeInsets.all(16)),
 
-
-
-        createSectionHeader("Shooting Info"),
-
-        createLabelAndCheckBox("Shoots into Speaker?", canShootIntoSpeaker),
-        createLabelAndCheckBox("Shoots into Amp?", canShootIntoAmp),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
         
-
-        createSectionHeader("Shooting Position (Speaker / Subwoofer)"),
-
-        createLabelAndCheckBox("Middle", speakerMiddle),
-        createLabelAndCheckBox("Sides", speakerSides),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-
-        createSectionHeader("Pickup Locations"),
-
-        createLabelAndCheckBox("Ground", canPickupGround),
-        createLabelAndCheckBox("Source", canPickupSource),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
 
         createSectionHeader("Climbing"),
 
@@ -405,6 +377,36 @@ class _MatchFormPage extends State<MatchFormPage> {
         // ),
 
         const Padding(padding: EdgeInsets.all(16)),
+
+
+
+        createSectionHeader("Shooting Info"),
+
+        createLabelAndCheckBox("Shoots into Speaker?", canShootIntoSpeaker),
+        createLabelAndCheckBox("Shoots into Amp?", canShootIntoAmp),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+        
+
+        createSectionHeader("Shooting Position (Speaker / Subwoofer)"),
+
+        createLabelAndCheckBox("Middle", speakerMiddle),
+        createLabelAndCheckBox("Sides", speakerSides),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
+
+        createSectionHeader("Pickup Locations"),
+
+        createLabelAndCheckBox("Ground", canPickupGround),
+        createLabelAndCheckBox("Source", canPickupSource),
+
+        const Padding(padding: EdgeInsets.all(16)),
+
+
 
         createSectionHeader("Trap"),
 
