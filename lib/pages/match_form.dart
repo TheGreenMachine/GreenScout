@@ -285,6 +285,30 @@ class _MatchFormPage extends State<MatchFormPage> {
           (false, 1),
         ),
 
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+
+          child: FloatingButton(
+            labelText: "Save",
+            icon: const Icon(Icons.save),
+            color: Theme.of(context).colorScheme.inversePrimary,
+            onPressed: () {
+              App.promptAlert(
+                context,
+                "Save?",
+                "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
+                [
+                  ("Yes", () {
+                    addToMatchCache(toJson());
+                    App.gotoPage(context, const HomePage());
+                  }),
+                  ("No", null),
+                ]
+              );
+            },
+          ),
+        ),
+
         const Padding(padding: EdgeInsets.all(10)),
 
         createSectionHeader("Auto Mode"),
@@ -423,23 +447,6 @@ class _MatchFormPage extends State<MatchFormPage> {
         ),
 
         const Padding(padding: EdgeInsets.all(24)),
-
-        FloatingButton(
-          labelText: "Save",
-          icon: const Icon(Icons.save),
-          color: Theme.of(context).colorScheme.inversePrimary,
-          onPressed: () {
-            // final path = Uri(scheme: 'http', host: serverHostName, path: 'dataEntry', port: 3333);
-
-            // http.post(path, headers: {}, body: toJson()).then((response) {
-            // 	log("Response status: ${response.statusCode}");
-            // 	log("Response body: ${response.body}");
-            // }).catchError((error) { log(error.toString()); });
-
-            addToMatchCache(toJson());
-            App.gotoPage(context, const HomePage());
-          },
-        ),
 
         // Extra padding for the bottom
         const Padding(padding: EdgeInsets.all(28)),

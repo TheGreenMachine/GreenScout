@@ -112,9 +112,12 @@ class _HomePage extends State<HomePage> {
 
           const Padding(padding: EdgeInsets.all(15)),
 
-          ...createQRCodeScannerPageButton(context),
+          // TODO: We don't have an proper qr scanner
+          // library to use.
 
-          const Padding(padding: EdgeInsets.all(15)),
+          // ...createQRCodeScannerPageButton(context),
+
+          // const Padding(padding: EdgeInsets.all(15)),
 
           // TODO: Finish this after the scrimmage.
 
