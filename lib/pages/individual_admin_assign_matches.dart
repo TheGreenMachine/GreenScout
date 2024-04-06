@@ -36,7 +36,7 @@ class IndividualMatchRangeInfo {
         [
           start,
           end,
-          (isBlue ? 3 : 0) + driveTeamNumber,
+          (isBlue ? 0 : 3) + driveTeamNumber,
         ]
       ]
     });

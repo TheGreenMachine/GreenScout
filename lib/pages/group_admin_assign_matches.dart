@@ -36,7 +36,7 @@ class GroupMatchRangeInfo {
   // 0-2 for red, 3-5 for blue
   final List<String> userIds;
 
-  // 1-3 for red, 4-6 for blue
+  // 0-2 for blue, 3-5 for red
   String toJsonGeneric(int id) {
     return jsonEncode({
       "Ranges": [
