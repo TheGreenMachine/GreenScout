@@ -76,12 +76,17 @@ void setAccountDataForAdmins(String value) {
   App.setString("Account Data For Admins", value);
 }
 
-const matchCacheKey = "Match JSONS";
-
-List<String> matchCache = [];
+const allTimeMatchCacheKey = "Match JSONS";
+const tempMatchCacheKey = "TEMP Match JSONS";
 
 void addToMatchCache(String matchJSON) {
-  matchCache.add(matchJSON);
+  App.setStringList(
+    tempMatchCacheKey, 
+    [
+      ...(App.getStringList(tempMatchCacheKey) ?? []),
+      matchJSON,
+    ],
+  );
 
   // So... what we're doing is concatenating the old list
   // of match cache and then combining it with the new data
@@ -92,31 +97,31 @@ void addToMatchCache(String matchJSON) {
   // instance of an item at a time. So, essentially they are a list
   // which only contains unique elements.
   App.setStringList(
-    matchCacheKey, 
-    <String>{...(App.getStringList(matchCacheKey) ?? []), ...matchCache}.toList(),
+    allTimeMatchCacheKey, 
+    <String>{...(App.getStringList(allTimeMatchCacheKey) ?? []), ...(App.getStringList(tempMatchCacheKey)!)}.toList(),
   );
 }
 
 List<String> getImmediateMatchCache() {
-  return matchCache;
+  return App.getStringList(tempMatchCacheKey) ?? [];
 }
 
 List<String> getAllTimeMatchCache() {
-  return App.getStringList(matchCacheKey) ?? [];
+  return App.getStringList(allTimeMatchCacheKey) ?? [];
 }
 
 void resetImmediateMatchCache() {
   log("Resetting immediate match cache");
-  matchCache = [];
+  App.setStringList(tempMatchCacheKey, []);
 }
 
 void resetAllTimeMatchCache() {
   log("Resetting all time match cache");
-  App.setStringList(matchCacheKey, []);
+  App.setStringList(allTimeMatchCacheKey, []);
 }
 
 void resetMatchCache() {
   log("Resetting all match cache (all time and immediate)");
-  matchCache = [];
-  App.setStringList(matchCacheKey, []);
+  App.setStringList(tempMatchCacheKey, []);
+  App.setStringList(allTimeMatchCacheKey, []);
 }

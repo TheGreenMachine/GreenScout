@@ -147,9 +147,11 @@ class _MatchFormPage extends State<MatchFormPage> {
 
   @override 
   void initState() {
-	driverStation.value = (widget.isBlue, widget.driverNumber);
+    teamNum = widget.teamNum ?? "0";
+    matchNum = widget.matchNum ?? "0";
+	  driverStation.value = (widget.isBlue, widget.driverNumber);
 
-	super.initState();
+	  super.initState();
   }
 
   @override
@@ -166,8 +168,8 @@ class _MatchFormPage extends State<MatchFormPage> {
     // TODO: Finally create an appropriate Desktop view for the match form data.
     bodyContent = buildMobileView(context);
 
-    _matchController.text = widget.matchNum ?? matchNum;
-    _teamController.text = widget.teamNum ?? teamNum;
+    _matchController.text = matchNum;
+    _teamController.text = teamNum;
 
     _notesController.text = notes.value;
 

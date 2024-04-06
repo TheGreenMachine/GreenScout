@@ -72,33 +72,57 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
         actions: createEmptyActionBar(),
       ),
 
-      body: Column(
-        children: [
-          StreamBuilder(
-            stream: userIpAddress, builder: (context, value) {
-              return buildInfoTile(context, widthPadding, Icons.wifi, "IP Address", value.data ?? "NO IP ADDRESS FOUND");
-            },
-          ),
-          buildInfoTile(context, widthPadding, Icons.perm_identity, "UUID", getUserUUID()),
-          buildInfoTile(context, widthPadding, Icons.data_object, "Certificate", getCertificate()),
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
 
-          const Padding(padding: EdgeInsets.all(8)),
-          const SubheaderLabel("Cached Matches"),
-
-          SizedBox(
-            width: width,
-            // height: MediaQuery.of(context).size.height * 0.85,
-            // height: double.infinity,
-
-            child: ListView.builder(
-              itemBuilder: (context, index) => buildMatchCacheTile(context, index, matches),
-
-              itemCount: matches.length,
-              
-              shrinkWrap: true,
+        child: ListView(
+          children: [
+            StreamBuilder(
+              stream: userIpAddress, builder: (context, value) {
+                return buildInfoTile(context, widthPadding, Icons.wifi, "IP Address", value.data ?? "NO IP ADDRESS FOUND");
+              },
             ),
-          ),
-        ],
+            buildInfoTile(context, widthPadding, Icons.perm_identity, "UUID", getUserUUID()),
+            buildInfoTile(context, widthPadding, Icons.data_object, "Certificate", getCertificate()),
+            buildActionTile(context, widthPadding, Icons.restore, "Reset Lifetime Matches", "Gets rid of all the cached matches stored", () {
+              App.promptAlert(
+                context, 
+                "Clear All Cached Matches?", 
+                "This action is irreversible. Make sure that you know what you are doing.", 
+                [
+                  ("Yes", () {
+                    Navigator.of(context).pop();
+                    resetAllTimeMatchCache();
+                    setState(() {});
+                    App.showMessage(context, "Cleared Lifetime Match Cache");
+                  }),
+                  ("No", null),
+                ],
+              );
+            }),
+
+            const Padding(padding: EdgeInsets.all(8)),
+            const SubheaderLabel("Cached Matches"),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
+              child: SizedBox(
+                width: width,
+                height: MediaQuery.of(context).size.height * 0.45,
+                // height: double.infinity,
+
+                child: ListView.builder(
+                  itemBuilder: (context, index) => buildMatchCacheTile(context, index, matches),
+
+                  itemCount: matches.length,
+                  
+                  shrinkWrap: true,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -110,12 +134,71 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
       final jsonData = jsonDecode(matchJson);
 
       return ExpansionTile(
-        title: Text("${jsonData["Match"]["Number"]} Replay: ${jsonData["Match"]["Replay"]}"),
+        leading: Text(
+          "${jsonData["Match"]["Number"]}${jsonData["Driver Station"]["Is Blue"] ? "B" : "R"}",
+        ),
+        title: Text("Driver Station ${jsonData["Driver Station"]["Number"]}"),
+
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+
+            primary: true,
+            
+            child: Text(
+              matchJson,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(12)),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+
+            child: ElevatedButton(
+              onPressed: () {
+                addToMatchCache(matchJson);
+
+                App.showMessage(context, "Added To Match Sending Queue");
+              }, 
+
+              child: const Text("Force Send To Server"),
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(6)),
+        ],
       );
 
     } catch (e) {
       return const Padding(padding: EdgeInsets.zero);
     }
+  }
+
+  Widget buildActionTile(BuildContext context, double widthPadding, IconData icon, String label, String content, void Function() callback) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge
+        ),
+
+        subtitle: Text(
+          content,
+          style: Theme.of(context).textTheme.labelSmall
+        ),
+
+        hoverColor: Theme.of(context).colorScheme.inversePrimary,
+
+        onTap: callback,
+      )
+    );
   }
 
   Widget buildInfoTile(BuildContext context, double widthPadding, IconData icon, String label, String content) {

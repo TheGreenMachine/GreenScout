@@ -44,10 +44,6 @@ class MatchesData {
   }
 
   static void parseMatches() {
-    // This is currently some pre-filled data to test
-    // if calling the "refresh button" does the proper
-    // thing.
-
     String? scheduleJsonString = App.getString(matchScheduleJsonKey);
     String? assignedJsonString = App.getString(assignedMatchScheduleJsonKey);
 

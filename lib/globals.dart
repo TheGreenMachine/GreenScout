@@ -264,7 +264,7 @@ class App {
 
     // Hack. Force async to become sync.
     () async {
-      showDialog(
+      await showDialog(
         context: context,
         builder: (BuildContext context) {
           return alert;
