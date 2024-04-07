@@ -60,10 +60,6 @@ void main() async {
 
     if (matches.isNotEmpty && App.internetOn) {
       for (var match in matches) {
-        // final success = await App.httpPostWithHeaders("dataEntry", match, const MapEntry(
-        //   "joshtown", "balls",
-        // ));
-
         final _ = await App.httpPost("dataEntry", match);
 
         confirmMatchMangled(match, App.responseSucceeded);
