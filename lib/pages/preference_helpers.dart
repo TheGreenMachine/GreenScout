@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import '../globals.dart';
@@ -108,6 +109,23 @@ List<String> getImmediateMatchCache() {
 
 List<String> getAllTimeMatchCache() {
   return App.getStringList(allTimeMatchCacheKey) ?? [];
+}
+
+void confirmMatchMangled(String jsonStr, bool success) {
+  final allTime = getAllTimeMatchCache().toSet();
+
+  try {
+    final json = jsonDecode(jsonStr);
+    json["Mangled"] = !success;
+
+    allTime.remove(jsonStr);
+    allTime.add(jsonEncode(json));
+  } catch (e) {
+    // Do nothing...
+    log("Captured exception while confirming matches: $e");
+  }
+
+  App.setStringList(allTimeMatchCacheKey, allTime.toList());
 }
 
 void resetImmediateMatchCache() {

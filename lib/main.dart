@@ -58,13 +58,19 @@ void main() async {
       return;
     }
 
-    if (matches.isNotEmpty) {
+    if (matches.isNotEmpty && App.internetOn) {
       for (var match in matches) {
-        final success = await App.httpPost("dataEntry", match);
+        // final success = await App.httpPostWithHeaders("dataEntry", match, const MapEntry(
+        //   "joshtown", "balls",
+        // ));
 
-        if (!success) {
-          return;
-        }
+        final _ = await App.httpPost("dataEntry", match);
+
+        confirmMatchMangled(match, App.responseSucceeded);
+      }
+
+      if (App.internetOff) {
+        return;
       }
 
       // A little safety check to ensure that we aren't getting

@@ -299,6 +299,12 @@ class _MatchFormPage extends State<MatchFormPage> {
                 "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
                 [
                   ("Yes", () {
+                    if (matchNum == "0" || teamNum == "0") {
+                      Navigator.of(context).pop();
+                      App.showMessage(context, "You haven't fillied in the team number or match number.");
+                      return;
+                    }
+
                     addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());
                   }),
@@ -880,6 +886,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 			"Penalties": [
 
 			],
+
+      "Mangled": false,
 
 			"Notes": notes.value
 		}

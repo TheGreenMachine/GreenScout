@@ -31,9 +31,18 @@ class Settings {
 class App {
   static SharedPreferences? localStorage;
   static var internetOn = true;
+  static var responseStatus = false;
 
   static bool get internetOff {
     return !internetOn;
+  }
+
+  static bool get responseFailed {
+    return !responseStatus;
+  }
+
+  static bool get responseSucceeded {
+    return responseStatus;
   }
 
   static Future<void> setStringList(String key, List<String> value) async {
@@ -92,6 +101,7 @@ class App {
   static Future<bool> httpPost(String path, String message,
       {bool ignoreOutput = false}) async {
     dynamic err;
+    dynamic responseErr;
 
     final uriPath = Uri(
       scheme: 'https',
@@ -109,6 +119,11 @@ class App {
       body: message,
     )
         .then((response) {
+      if (response.statusCode == 500) {
+        responseErr = "Encountered Invalid Status Code";
+        log(responseErr);
+      }
+
       if (ignoreOutput) {
         return;
       }
@@ -123,14 +138,16 @@ class App {
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
     internetOn = err == null;
+    responseStatus = responseErr == null;
 
-    return internetOn;
+    return internetOn && responseErr == null;
   }
 
   static Future<bool> httpPostWithHeaders(
       String path, String message, MapEntry<String, dynamic> header,
       {bool ignoreOutput = false}) async {
     dynamic err;
+    dynamic responseErr;
 
     final uriPath = Uri(
       scheme: 'https',
@@ -146,9 +163,15 @@ class App {
       body: message,
     )
         .then((response) {
+      if (response.statusCode == 500) {
+        responseErr = "Encountered Invalid Status Code";
+        log(responseErr);
+      }
+
       if (ignoreOutput) {
         return;
       }
+
 
       log("Response Status: ${response.statusCode}");
       log("Response body: ${response.body}");
@@ -160,8 +183,9 @@ class App {
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
     internetOn = err == null;
+    responseStatus = responseErr == null;
 
-    return internetOn;
+    return internetOn && responseErr == null;
   }
 
   static Future<bool> httpGet(
@@ -170,6 +194,7 @@ class App {
     Function(http.Response) onGet,
   ) async {
     dynamic err;
+    dynamic responseErr;
 
     final uriPath = Uri(
       scheme: 'https',
@@ -185,7 +210,13 @@ class App {
       body: message,
     )
         .then((response) {
-      onGet(response);
+      if (response.statusCode == 500) {
+        responseErr = "Encountered Invalid Status Code";
+        log(responseErr);
+      } else {
+        onGet(response);
+      }
+
       log("Response Status: ${response.statusCode}");
       log("Response body: ${response.body}");
     }).catchError((error) {
@@ -196,8 +227,9 @@ class App {
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
     internetOn = err == null;
+    responseStatus = responseErr == null;
 
-    return internetOn;
+    return internetOn && responseErr == null;
   }
 
   static void showMessage(BuildContext context, String message) {

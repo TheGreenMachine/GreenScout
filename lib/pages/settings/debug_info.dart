@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
@@ -100,6 +101,22 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
                 ],
               );
             }),
+            
+            buildActionTile(context, widthPadding, Icons.restore_from_trash, "Reset Temporary Matches", "Gets rid of all the temporary cached matches stored", () {
+              App.promptAlert(
+                context, 
+                "Clear All Cached Temporary Matches?", 
+                "This action is irreversible. Make sure that you know what you are doing.", 
+                [
+                  ("Yes", () {
+                    Navigator.of(context).pop();
+                    resetImmediateMatchCache();
+                    App.showMessage(context, "Cleared Temporary Match Cache");
+                  }),
+                  ("No", null),
+                ],
+              );
+            }),
 
             const Padding(padding: EdgeInsets.all(8)),
             const SubheaderLabel("Cached Matches"),
@@ -133,6 +150,10 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
     try {
       final jsonData = jsonDecode(matchJson);
 
+      if (jsonData["Mangled"] == true) {
+        throw Exception("Force to catch. Might be bad.");
+      }
+
       return ExpansionTile(
         leading: Text(
           "${jsonData["Match"]["Number"]}${jsonData["Driver Station"]["Is Blue"] ? "B" : "R"}",
@@ -159,6 +180,24 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
 
             child: ElevatedButton(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: matchJson));
+
+                if (mounted) {
+                  App.showMessage(context, "Copied To Clipboard Successfully!");
+                }
+              }, 
+
+              child: const Text("Add To Clipboard"),
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(12)),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+
+            child: ElevatedButton(
               onPressed: () {
                 addToMatchCache(matchJson);
 
@@ -174,7 +213,44 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
       );
 
     } catch (e) {
-      return const Padding(padding: EdgeInsets.zero);
+      return ExpansionTile(
+        leading: const Text("?"),
+
+        title: const Text("Mangled Match Info"),
+
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+
+            primary: true,
+            
+            child: Text(
+              matchJson,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(12)),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+
+            child: ElevatedButton(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: matchJson));
+
+                if (mounted) {
+                  App.showMessage(context, "Copied To Clipboard Successfully!");
+                }
+              }, 
+
+              child: const Text("Add To Clipboard"),
+            ),
+          ),
+        ],
+      );
     }
   }
 
