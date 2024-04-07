@@ -443,7 +443,8 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           child: TextField(
             controller: _notesController,
-            style: Theme.of(context).textTheme.bodyMedium,
+            // Font needs to be 16 to fix IOS safari issue.
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
             onChanged: (value) => notes.value = value,
             maxLines: 10,
             decoration: const InputDecoration(
