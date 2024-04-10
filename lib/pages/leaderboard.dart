@@ -47,7 +47,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
           const Padding(padding: EdgeInsets.all(8)),
 
-          buildRankingsList(context, [RankingInfo(), RankingInfo()]),
+          buildRankingsList(context, [RankingInfo(), RankingInfo(), RankingInfo(), RankingInfo(), RankingInfo()]),
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 18),
@@ -66,21 +66,41 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         child: SizedBox(
           width: width,
 
-          child: Text("Helllo"),
+          child: ListTile(
+            dense: true,
+
+            leading: Text(
+              (index + 1).toString(),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+
+            title: Text(
+              "User",
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+
+            subtitle: Text(
+              "Scouted ${index + 1} ${index > 0 ? "Matches" : "Match"}",
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+
+            trailing: const Icon(Icons.badge),
+            // trailing: Image.asset(name),
+          ),
         ),
       );
     }
 
     double widthRatio = 1.0;
 
-    const ratioThresold = 670;
+    const ratioThresold = 460;
 
     {
       final width = MediaQuery.of(context).size.width;
 
       final percent = clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
 
-      widthRatio = (1.0 - 0.75 * percent);
+      widthRatio = (1.0 - 0.55 * percent);
     }
 
     final width = MediaQuery.of(context).size.width * widthRatio;
