@@ -14,7 +14,18 @@ class LeaderboardPage extends StatefulWidget {
 } 
 
 class RankingInfo {
-  
+  const RankingInfo(
+    this.scouterName,
+    this.points,
+    this.scoutedMatches,
+    this.isStCloudMVP,
+  );
+
+  final String scouterName;
+  final int scoutedMatches;
+  final int points;
+
+  final bool isStCloudMVP;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -24,6 +35,18 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   @override
   void initState() {
     super.initState();
+
+    Timer.periodic(Duration(seconds: 15), (timer) { 
+      rankingsController.add(
+        const [
+          RankingInfo("Harold", 3000, 400, true), 
+          RankingInfo("Joshua", 300, 23, false), 
+          RankingInfo("Mike", 200, 13, false), 
+          RankingInfo("Bobby", 100, 10, false), 
+          RankingInfo("Billy", 1, 1, false),
+        ]
+      );
+    });
 
     rankingsStream = rankingsController.stream;
   }
@@ -46,27 +69,79 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           const HeaderLabel("Leaderboard"),
 
           const Padding(padding: EdgeInsets.all(8)),
+          
+          StreamBuilder(
+            stream: rankingsStream, 
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return buildRankingsList(context, snapshot.requireData);
+              }
 
-          buildRankingsList(context, [RankingInfo(), RankingInfo(), RankingInfo(), RankingInfo(), RankingInfo()]),
-
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18),
-            child: Text("Leaderboards are currently a work in progress. This feature will most likely not be finished until we have successfully made sure that all the core features are functional.", textAlign: TextAlign.center,),
+              return buildUnloadedLeaderboard(context);
+            },
           ),
+
+
+          // buildRankingsList(context, [RankingInfo("Hured", 3000, 400, true), RankingInfo("Joshua", 300, 23, false), RankingInfo("Mike", 200, 13, false), RankingInfo("Bobby", 100, 10, false), RankingInfo("Billy", 1, 1, false)]),
+
+          // const Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 18),
+          //   child: Text("Leaderboards are currently a work in progress. This feature will most likely not be finished until we have successfully made sure that all the core features are functional.", textAlign: TextAlign.center,),
+          // ),
         ],
+      ),
+    );
+  }
+
+  Widget buildFailedLoad(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+
+      child: Text(
+        "Unable To Load Leaderboards\n:(",
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+    );
+  }
+
+  Widget buildUnloadedLeaderboard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 40),
+      child: Text(
+        "Loading Leaderboards...", 
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.displaySmall,
       ),
     );
   }
 
   Widget buildRankingsList(BuildContext context, List<RankingInfo> rankings) {
     Widget buildRankingEntry(BuildContext context, int index, List<RankingInfo> rankings, double width, double widthPadding) {
+      final info = rankings[index];
+
+      Image? getNumberedBadgeAsset(int index) {
+        switch (index) {
+          case 0:
+            return Image.asset("assets/leaderboard/badges/1st place badge.png");
+
+          case 1:
+            return Image.asset("assets/leaderboard/badges/2nd place badge.png");
+          
+          case 2:
+            return Image.asset("assets/leaderboard/badges/3rd place badge.png");
+        }
+
+        return null;
+      }
+
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: widthPadding),
 
         child: SizedBox(
           width: width,
 
-          child: ListTile(
+          child: ExpansionTile(
             dense: true,
 
             leading: Text(
@@ -75,17 +150,49 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             ),
 
             title: Text(
-              "User",
+              info.scouterName,
               style: Theme.of(context).textTheme.labelLarge,
             ),
 
             subtitle: Text(
-              "Scouted ${index + 1} ${index > 0 ? "Matches" : "Match"}",
+              // "Scouted ${info.scoutedMatches} ${info.scoutedMatches > 1 ? "Matches" : "Match"}",
+              "${info.points} ${info.points > 1 ? "Points" : "Point"}",
               style: Theme.of(context).textTheme.labelMedium,
             ),
 
-            trailing: const Icon(Icons.badge),
-            // trailing: Image.asset(name),
+            // trailing: const Icon(Icons.badge),
+            trailing: SizedBox(
+              width: width * 0.40,
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+
+                children: [
+                  info.isStCloudMVP 
+                  ? Image.asset("assets/leaderboard/badges/st cloud mvp badge.png")
+                  : const Padding(padding: EdgeInsets.zero),
+                  getNumberedBadgeAsset(index) ?? const Padding(padding: EdgeInsets.zero),
+                ],
+              ),
+            ),
+
+            children: [
+              Text(
+                "Scouted ${info.scoutedMatches} ${info.scoutedMatches > 1 ? "Matches" : "Match"}",
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+
+              info.isStCloudMVP 
+              ? Padding(
+                padding: const EdgeInsets.only(top: 8),
+
+                child: Text(
+                  "[MVP] Scouted The Most During The St. Cloud Regional",
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              )
+              : const Padding(padding: EdgeInsets.zero),
+            ],
           ),
         ),
       );
