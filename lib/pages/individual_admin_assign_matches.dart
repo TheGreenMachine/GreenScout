@@ -86,18 +86,25 @@ class _IndividualAdminAssignMatchesPage
           const Padding(padding: EdgeInsets.all(2)),
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal:
-                    MediaQuery.of(context).size.width * (1.0 - 0.65) / 2),
-            child: Dropdown<String>(
-              padding: const EdgeInsets.only(left: 10),
-              isExpanded: true,
-              entries: AdminData.users,
-              inValue: currentUser,
-              defaultValue: AdminData.noActiveUserSelected,
-              textStyle: null,
-              alignment: Alignment.center,
-              menuMaxHeight: 175,
-              setState: () => setState(() {}),
+              horizontal:MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
+            ),
+
+            child: StreamBuilder( 
+              stream: AdminData.usersController.stream,
+
+              builder: (context, snapshot) { 
+                return Dropdown<String>(
+                  padding: const EdgeInsets.only(left: 10),
+                  isExpanded: true,
+                  entries: AdminData.users,
+                  inValue: currentUser,
+                  defaultValue: AdminData.noActiveUserSelected,
+                  textStyle: null,
+                  alignment: Alignment.center,
+                  menuMaxHeight: 175,
+                  setState: () => setState(() {}),
+                );
+              },
             ),
           ),
           const Padding(padding: EdgeInsets.all(12)),
@@ -115,8 +122,13 @@ class _IndividualAdminAssignMatchesPage
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () async {
           for (var match in matchesAssigned) {
-            await App.httpPostWithHeaders("/addSchedule", match.toJson(),
+            final success = await App.httpPostWithHeaders("/addSchedule", match.toJson(),
                 MapEntry("userInput", match.scouterName));
+
+            if (!success) {
+              App.showMessage(context, "Failed To Send To Server!");
+              return;
+            }
           }
 
           matchesAssigned.clear();

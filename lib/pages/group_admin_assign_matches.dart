@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/data_for_admins.dart';
-import 'package:green_scout/pages/individual_admin_assign_matches.dart';
 import 'package:green_scout/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -136,11 +134,16 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
       child: FloatingButton(
         labelText: "Send To Server",
         color: Theme.of(context).colorScheme.inversePrimary,
-        onPressed: () {
+        onPressed: () async {
           for (var match in matchesAssigned) {
             for (var i = 0; i < match.userIds.length; i++) {
-              App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i + 1),
+              final success = await App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i + 1),
                   MapEntry("userInput", match.userIds[i]));
+
+              if (!success) {
+                App.showMessage(context, "Failed To Send To Server!");
+                return;
+              }
             }
           }
 
@@ -347,26 +350,33 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75) / 2,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            message,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * (0.75) * 0.55,
-            child: Dropdown<String>(
-              isExpanded: true,
-              entries: AdminData.users,
-              inValue: user,
-              defaultValue: AdminData.noActiveUserSelected,
-              textStyle: null,
-              alignment: AlignmentDirectional.center,
-              setState: () => setState(() {}),
-            ),
-          ),
-        ],
+
+      child: StreamBuilder( 
+        stream: AdminData.usersController.stream,
+
+        builder: (context, snapshot) { 
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                message,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * (0.75) * 0.55,
+                child: Dropdown<String>(
+                  isExpanded: true,
+                  entries: AdminData.users,
+                  inValue: user,
+                  defaultValue: AdminData.noActiveUserSelected,
+                  textStyle: null,
+                  alignment: AlignmentDirectional.center,
+                  setState: () => setState(() {}),
+                ),
+              ),
+            ],
+          ); 
+        },
       ),
     );
   }

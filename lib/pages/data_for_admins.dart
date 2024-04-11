@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:green_scout/globals.dart';
@@ -6,6 +7,8 @@ import 'package:http/http.dart';
 class AdminData {
   static const noActiveUserSelected =
       "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";
+
+  static StreamController<Map<String, String>> usersController = StreamController();
 
   static Map<String, String> users = {
     "None": noActiveUserSelected,
@@ -16,19 +19,22 @@ class AdminData {
       "None": noActiveUserSelected,
     };
 
-    List respList;
     await App.httpGet(
-        "/allUsers",
-        "",
-        (response) => {
-              respList = json.decode(response.body),
-              respList.forEach((element) {
-                Iterable<MapEntry> entries;
-                entries = (element as Map).entries;
+      "/allUsers",
+      "",
+      (response) {
+        final respList = jsonDecode(response.body);
 
-                users[entries.first.value] = entries.last.value;
-              })
-            });
+        respList.forEach((element) {
+          Iterable<MapEntry> entries;
+          entries = (element as Map).entries;
+
+          users[entries.first.value] = entries.last.value;
+        });
+
+        usersController.add(users);
+      }
+    );
   }
 
   static List<String> getDisplayNames() {

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
@@ -36,16 +39,29 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   void initState() {
     super.initState();
 
-    Timer.periodic(Duration(seconds: 15), (timer) { 
-      rankingsController.add(
-        const [
-          RankingInfo("Harold", 3000, 400, true), 
-          RankingInfo("Joshua", 300, 23, false), 
-          RankingInfo("Mike", 200, 13, false), 
-          RankingInfo("Bobby", 100, 10, false), 
-          RankingInfo("Billy", 1, 1, false),
-        ]
-      );
+    // Timer.periodic(Duration(seconds: 15), (timer) { 
+    //   rankingsController.add(
+    //     const [
+    //       RankingInfo("Harold", 3000, 400, true), 
+    //       RankingInfo("Joshua", 300, 23, false), 
+    //       RankingInfo("Mike", 200, 13, false), 
+    //       RankingInfo("Bobby", 100, 10, false), 
+    //       RankingInfo("Billy", 1, 1, false),
+    //     ]
+    //   );
+    // });
+
+    App.httpGet('leaderboard', '', (response) {
+      final responseJson = jsonDecode(response.body);
+
+      final responseArray = responseJson as List<dynamic>;
+      List<RankingInfo> rankings = [];
+
+      for (final personInfo in responseArray) {
+        rankings.add(RankingInfo(personInfo["Name"], personInfo["Score"], 0, false));
+      }
+
+      rankingsController.add(rankings);
     });
 
     rankingsStream = rankingsController.stream;
@@ -215,7 +231,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
     return SizedBox(
       width: width,
-      height: 500,
+      height: MediaQuery.of(context).size.height * 0.8,
 
       child: ListView.builder(
         itemBuilder: (context, index) => buildRankingEntry(context, index, rankings, width, widthPadding),
