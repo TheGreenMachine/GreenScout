@@ -18,7 +18,7 @@ class Dropdown<V> extends StatefulWidget {
   });
 
   final Map<String, V> entries;
-  final Reference<V> inValue;
+  final Reference<V>? inValue;
   final V defaultValue;
 
   final TextStyle? textStyle;
@@ -71,9 +71,13 @@ class _Dropdown<V> extends State<Dropdown> {
       alignment: widget.alignment,
       borderRadius: BorderRadius.circular(10),
       items: items,
-      value: widget.inValue.value,
+      value: widget.inValue != null ? (widget.inValue!.value) : null,
       onChanged: (newValue) => setState(() {
-        widget.inValue.value = newValue ?? widget.defaultValue;
+        if (widget.inValue == null) {
+          return;
+        }
+
+        widget.inValue!.value = newValue ?? widget.defaultValue;
 
         if (widget.setState != null) {
           widget.setState!();

@@ -351,32 +351,26 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75) / 2,
       ),
 
-      child: StreamBuilder( 
-        stream: AdminData.usersController.stream,
-
-        builder: (context, snapshot) { 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                message,
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * (0.75) * 0.55,
-                child: Dropdown<String>(
-                  isExpanded: true,
-                  entries: AdminData.users,
-                  inValue: user,
-                  defaultValue: AdminData.noActiveUserSelected,
-                  textStyle: null,
-                  alignment: AlignmentDirectional.center,
-                  setState: () => setState(() {}),
-                ),
-              ),
-            ],
-          ); 
-        },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            message,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * (0.75) * 0.55,
+            child: Dropdown<String>(
+              isExpanded: true,
+              entries: AdminData.users,
+              inValue: user,
+              defaultValue: AdminData.noActiveUserSelected,
+              textStyle: null,
+              alignment: AlignmentDirectional.center,
+              setState: () => setState(() {}),
+            ),
+          ),
+        ],
       ),
     );
   }

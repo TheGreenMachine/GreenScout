@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:green_scout/globals.dart';
 import 'package:http/http.dart';
@@ -15,12 +16,13 @@ class AdminData {
   };
 
   static Future<void> updateUserRoster() async {
+    usersController = StreamController();
     users = {
       "None": noActiveUserSelected,
     };
 
     await App.httpGet(
-      "/allUsers",
+      "allUsers",
       "",
       (response) {
         final respList = jsonDecode(response.body);
@@ -33,6 +35,9 @@ class AdminData {
         });
 
         usersController.add(users);
+        usersController.done.then((value) {
+          usersController.close();
+        });
       }
     );
   }
