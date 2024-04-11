@@ -267,8 +267,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           ],
         ),
 
-        // TODO: Add an optional menu that appears when the user needs to properly
-        // input a driver station value. (are they blue and what number are they).
         const Padding(padding: EdgeInsets.all(4)),
 
         createLabelAndDropdown<(bool, int)>(
@@ -283,36 +281,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           },
           driverStation,
           (false, 1),
-        ),
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
-
-          child: FloatingButton(
-            labelText: "Save",
-            icon: const Icon(Icons.save),
-            color: Theme.of(context).colorScheme.inversePrimary,
-            onPressed: () {
-              App.promptAlert(
-                context,
-                "Save?",
-                "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
-                [
-                  ("Yes", () {
-                    if (matchNum == "0" || teamNum == "0") {
-                      Navigator.of(context).pop();
-                      App.showMessage(context, "You haven't fillied in the team number or match number.");
-                      return;
-                    }
-
-                    addToMatchCache(toJson());
-                    App.gotoPage(context, const HomePage());
-                  }),
-                  ("No", null),
-                ]
-              );
-            },
-          ),
         ),
 
         const Padding(padding: EdgeInsets.all(10)),
@@ -458,6 +426,36 @@ class _MatchFormPage extends State<MatchFormPage> {
         ),
 
         const Padding(padding: EdgeInsets.all(24)),
+
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+
+          child: FloatingButton(
+            labelText: "Save",
+            icon: const Icon(Icons.save),
+            color: Theme.of(context).colorScheme.inversePrimary,
+            onPressed: () {
+              App.promptAlert(
+                context,
+                "Save?",
+                "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
+                [
+                  ("Yes", () {
+                    if (matchNum == "0" || teamNum == "0") {
+                      Navigator.of(context).pop();
+                      App.showMessage(context, "You haven't fillied in the team number or match number.");
+                      return;
+                    }
+
+                    addToMatchCache(toJson());
+                    App.gotoPage(context, const HomePage());
+                  }),
+                  ("No", null),
+                ]
+              );
+            },
+          ),
+        ),
 
         // Extra padding for the bottom
         const Padding(padding: EdgeInsets.all(28)),
