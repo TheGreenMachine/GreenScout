@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';
-import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
@@ -20,6 +23,43 @@ class MatchFormPage2 extends StatefulWidget {
 
   @override
   State<MatchFormPage2> createState() => _MatchFormPage2();
+}
+
+enum CycleTimeLocation2 {
+  amp,
+  speaker,
+  shuttle,
+  distance,
+
+  none;
+
+  @override
+  String toString() {
+    return switch(this) {
+      amp => "Amp",
+      speaker => "Speaker",
+      shuttle => "Shuttle",
+      distance => "Distance",
+
+      none => "None",
+
+      // This is left just in case we need to add something new...
+      // ignore: unreachable_switch_case
+      _ => "Unknown",
+    };
+  }
+}
+
+class CycleTimeInfo2 {
+  CycleTimeInfo2({
+    this.time = 0.0,
+    this.success = false,
+    this.location = CycleTimeLocation2.none,
+  });
+
+  double time;
+  bool success;
+  CycleTimeLocation2 location;
 }
 
 class _MatchFormPage2 extends State<MatchFormPage2> {
@@ -40,6 +80,10 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   double climbingTime = 0.0;
   bool climbingTimerActive = false;
 
+  Stopwatch cycleStopwatch = Stopwatch();
+  bool cycleTimerActive = false;
+  List<CycleTimeInfo2> cycles = [];
+
   Reference<bool> shootingPositionMiddle = Reference(false);
   Reference<bool> shootingPositionSides = Reference(false);
 
@@ -49,30 +93,34 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   Reference<int> trapScores = Reference(0);
   Reference<int> trapMisses = Reference(0);
 
+  Reference<bool> endgamePark = Reference(false);
+  Reference<bool> scouterLostTrack = Reference(false);
+  Reference<bool> disconnectOrDisabled = Reference(false);
+
+  TextEditingController matchNumberController = TextEditingController();
+  TextEditingController teamNumberController = TextEditingController();
+  TextEditingController notesController = TextEditingController();
+
+  bool isReplay = false;
+  Reference<String> matchNum = Reference("");
+  Reference<String> teamNum = Reference("");
+  String notes = "";
+
   @override
   Widget build(BuildContext context) {
     if (climbingTimerActive) {
-      climbingStopwatch.start();
-
-      Timer.periodic(
-        const Duration(milliseconds: 150), 
-        (timer) { 
-          if (!timer.isActive) {
-            return;
-          }
-
-          if (!climbingTimerActive) {
-            timer.cancel();
-            climbingStopwatch.stop();
-          }
-
-          setState(() {
-            climbingTime = climbingStopwatch.elapsedMilliseconds.toDouble() / 1000;
-          });
-        },
-      );
-
+      startClimbingStopwatch();
     }
+
+    if (cycleTimerActive) {
+      startCycleStopwatch();
+    } else {
+      endCycleStopwatch();
+    }
+
+    matchNumberController.text = matchNum.value;
+    teamNumberController.text = teamNum.value;
+    notesController.text = notes;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,6 +143,48 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     );
   }
 
+  void startClimbingStopwatch() {
+    if (climbingStopwatch.isRunning) {
+      return;
+    }
+
+    climbingStopwatch.start();
+
+    Timer.periodic(
+      const Duration(milliseconds: 150), 
+      (timer) { 
+        if (!timer.isActive) {
+          return;
+        }
+
+        if (!climbingTimerActive) {
+          timer.cancel();
+          climbingStopwatch.stop();
+        }
+
+        setState(() {
+          climbingTime = climbingStopwatch.elapsedMilliseconds.toDouble() / 1000;
+        });
+      },
+    );
+  }
+
+  void startCycleStopwatch() {
+    if (cycleStopwatch.isRunning) {
+      return;
+    }
+
+    cycleStopwatch.start();
+  }
+
+  void endCycleStopwatch() {
+    if (!cycleStopwatch.isRunning) {
+      return;
+    }
+
+    cycleStopwatch.stop();
+  }
+
   Widget buildNavigationRail(BuildContext context) {
     var climberTimerIcon = Icon(
       Icons.timer,
@@ -104,17 +194,50 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
       : null,
     );
 
+    var cycleTimerIcon = Icon(
+      cycleTimerActive ? Icons.stop : Icons.play_arrow,
+
+      color: cycleTimerActive
+      ? Colors.red.shade800
+      : null,
+    );
+
     return NavigationRail(
       destinations: [
-        const NavigationRailDestination(icon: Icon(Icons.amp_stories), label: Text("Amp")),
-        const NavigationRailDestination(icon: Icon(Icons.speaker), label: Text("Speaker")),
-        const NavigationRailDestination(icon: Icon(Icons.airport_shuttle), label: Text("Shuttle")),
-        const NavigationRailDestination(icon: Icon(Icons.social_distance), label: Text("Distance")),
+        NavigationRailDestination(
+          icon: cycleTimerIcon, 
+
+          // Might want to make text flip flop between "Start" and "Stop".
+          label: const Text("Cycles"),
+        ),
+
+        NavigationRailDestination(
+          icon: Icon(Icons.amp_stories, color: cycleTimerActive ? Colors.blue.shade600 : null,),
+          disabled: !cycleTimerActive, 
+          label: const Text("Amp"),
+        ),
+
+        NavigationRailDestination(
+          icon: Icon(Icons.speaker, color: cycleTimerActive ? Colors.blue.shade600 : null,),
+          disabled: !cycleTimerActive, 
+          label: const Text("Speaker"),
+        ),
+
+        NavigationRailDestination(
+          icon: Icon(Icons.airport_shuttle, color: cycleTimerActive ? Colors.blue.shade600 : null,),
+          disabled: !cycleTimerActive, 
+          label: const Text("Shuttle"),
+        ),
+
+        NavigationRailDestination(
+          icon: Icon(Icons.social_distance, color: cycleTimerActive ? Colors.blue.shade600 : null,),
+          disabled: !cycleTimerActive, 
+          label: const Text("Distance"),
+        ),
 
         NavigationRailDestination(
           icon: climberTimerIcon,
-          label: Text('Climbing'),
-          indicatorColor: Color.fromARGB(255, 255, 0, 0),
+          label: const Text('Climbing'),
         ),
       ], 
       selectedIndex: null,
@@ -124,8 +247,40 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 
       onDestinationSelected: (index) {
         setState(() {
-          if (index == 4) {
-            climbingTimerActive = !climbingTimerActive;
+          switch (index) {
+            // Cycle timer index. Make sure to update when moving around stuff!
+            case 0:
+              cycleTimerActive = !cycleTimerActive;
+              break;
+            
+            // Cycle buttons for type of shot. Make sure to update when moving around stuff!
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+              cycles.add(
+                CycleTimeInfo2(
+                  time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
+                  success: true,
+
+                  // Make sure to update this when modifying the previous cases above.
+                  location: switch (index) {
+                    1 => CycleTimeLocation2.amp,
+                    2 => CycleTimeLocation2.speaker,
+                    3 => CycleTimeLocation2.shuttle,
+                    4 => CycleTimeLocation2.distance,
+
+                    _ => CycleTimeLocation2.none,
+                  },
+                ),
+              );
+
+              break;
+            
+            // Climbing timer index. Make sure to update when moving around stuff!
+            case 5:
+              climbingTimerActive = !climbingTimerActive;
+              break;
           }
         });
       },
@@ -143,18 +298,14 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     final centeredWidth = MediaQuery.of(context).size.width * centeredWidthRatio;
     final centeredWidthPadding = MediaQuery.of(context).size.width * (1.0 - centeredWidthRatio) / 2;
 
-    const textBoxHeightRatio = 0.1;
-
-    final textBoxHeight = MediaQuery.of(context).size.height * textBoxHeightRatio;
-
     return Expanded(
       child: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(8)),
 
-          buildTextNumberContainer(context, centeredWidthPadding, 3, "Match #", Reference(""), TextEditingController()),
+          buildTextNumberContainer(context, centeredWidthPadding, 3, "Match #", matchNum, matchNumberController),
           const Padding(padding: EdgeInsets.all(5)),
-          buildTextNumberContainer(context, centeredWidthPadding, 5, "Team #", Reference(""), TextEditingController()),
+          buildTextNumberContainer(context, centeredWidthPadding, 5, "Team #", teamNum, teamNumberController),
           const Padding(padding: EdgeInsets.all(5)),
 
           Padding(
@@ -168,6 +319,8 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 
               initialIcon: const Icon(Icons.close),
               pressedIcon: const Icon(Icons.check),
+
+              onPressed: (value) => isReplay = value,
             ),
           ),
 
@@ -202,35 +355,9 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.25,
 
-                child: ListView(
-                  children: [
-                    // Example data until I set up the system.
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 1),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 1),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 3),
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 0),
-                    buildCycleTile(context, 2),
-                    buildCycleTile(context, 1),
-                    buildCycleTile(context, 0),
-                  ],
+                child: ListView.builder(
+                  itemBuilder: (context, index) => buildCycleTile(context, index),
+                  itemCount: cycles.length,
                 ),
               ),
             ],
@@ -332,6 +459,80 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndCheckBox("Ground", pickupGround),
           createLabelAndCheckBox("Source", pickupSource),
 
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Misc."),
+
+          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
+          createLabelAndCheckBox("Did Their Robot Get Disconnected Or Disabled?", disconnectOrDisabled),
+          createLabelAndCheckBox("Did You Lose Track At Any Point?", scouterLostTrack),
+
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Notes"),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+
+            child: TextField(
+              controller: notesController,
+              // Font needs to be 16 to fix IOS safari issue.
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
+              onChanged: (value) => notes = value,
+              maxLines: 10,
+
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                ),
+                // contentPadding: EdgeInsets.symmetric(vertical: 125),
+                isDense: false,
+              ),
+            ),
+          ),  
+
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(12)),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+
+            child: FloatingButton(
+              labelText: "Save",
+              icon: const Icon(Icons.save),
+              color: Theme.of(context).colorScheme.inversePrimary,
+              onPressed: () {
+                App.promptAlert(
+                  context,
+                  "Save?",
+                  "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
+                  [
+                    ("Yes", () {
+                      if (
+                        matchNum.value == "0" || 
+                        teamNum.value == "0" ||
+                        matchNum.value.isEmpty ||
+                        teamNum.value.isEmpty
+                      ) {
+                        Navigator.of(context).pop();
+                        App.showMessage(context, "You haven't fillied in the team number or match number.");
+                        return;
+                      }
+
+                      addToMatchCache(toJson());
+                      App.gotoPage(context, const HomePage());
+                    }),
+                    ("No", null),
+                  ]
+                );
+              },
+            ),
+          ),
 
           const Padding(padding: EdgeInsets.all(16)),
         ],
@@ -340,32 +541,50 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   }
   
   Widget buildCycleTile(BuildContext context, int index) {
-    return ListTile(
-      title: Text("1.45 seconds"),
-      subtitle: switch (index) {
-        0 => Text("AMP"),
-        1 => Text("SPEAKER"),
-        2 => Text("SHUTTLE"),
-        3 => Text("DISTANCE"),
-        _ => Text("ERROR"),
-      },
+    final info = cycles[index];
 
-      leading: switch (index) {
-        0 => Icon(Icons.amp_stories),
-        1 => Icon(Icons.speaker),
-        2 => Icon(Icons.airport_shuttle),
-        3 => Icon(Icons.social_distance),
-        _ => Icon(Icons.error),
+    return ListTile(
+      title: Text("${info.time.toStringAsPrecision(3)} seconds"),
+
+      subtitle: Text(info.location.toString()),
+
+      leading: switch (info.location) {
+        CycleTimeLocation2.amp => const Icon(Icons.amp_stories),
+        CycleTimeLocation2.speaker => const Icon(Icons.speaker),
+        CycleTimeLocation2.shuttle => const Icon(Icons.airport_shuttle),
+        CycleTimeLocation2.distance => const Icon(Icons.social_distance),
+        _ => const Icon(Icons.error),
       },
 
       onLongPress: () {
-        App.showMessage(context, "TODO: Removed Tile");
+        App.promptAlert(
+          context, 
+          "Do You Want To Delete This Cycle Record?", 
+          "time: ${info.time}, location: ${info.location}, success: ${info.success}", 
+          [
+            ("Yes", () {
+              Navigator.of(context).pop();
+
+              setState(() => cycles.removeAt(index));
+
+              App.promptAction(
+                context, 
+                "Deleted Cycle Record", 
+                "Undo?", 
+                () { 
+                  setState(() => cycles.insert(index, info));
+                },
+              );
+            }),
+            ("No", null),
+          ],
+        );
       },
 
       trailing: FloatingActionButton(
         heroTag: null,
 
-        backgroundColor: false 
+        backgroundColor: info.success 
         ? Theme.of(context).colorScheme.inversePrimary
         : Theme.of(context).colorScheme.inversePrimary.withRed(255),
 
@@ -377,12 +596,12 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 
         onPressed: () =>
         setState(() {
-          // info.success = !info.success;
+          info.success = !info.success;
         }),
 
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 
-        child: false
+        child: info.success
         ? const Icon(Icons.check)
         : const Icon(Icons.close),
       ),
@@ -400,11 +619,11 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
         height: 48,
 
         child: TextField(
-          controller: null,
+          controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: false),
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
-          // onChanged: (value) => matchNum = value,
+          onChanged: (value) => assigned.value = value,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(digitLimit),
@@ -430,7 +649,7 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
-        vertical: 5,
+        vertical: 8,
       ),
 
       child: Row(
@@ -456,12 +675,12 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     return Padding(
       padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
-          vertical: 5),
+          vertical: 8),
 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
+          Expanded(
             child: Text(
               question,
               style: Theme.of(context).textTheme.labelLarge,
@@ -488,13 +707,13 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
-        vertical: 5,
+        vertical: 8,
       ),
 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
+          Expanded(
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge,
@@ -515,5 +734,110 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
         ],
       ),
     );
+  }
+
+  String toJson() {
+    List<dynamic> expandCycles() {
+      List<dynamic> result = [];
+
+      for (final timestamp in cycles) {
+        result.add(
+          {
+            "Time": timestamp.time,
+            "Type": timestamp.location.toString(),
+            "Success": timestamp.success,
+          },
+        );
+      }
+
+      if (cycles.isEmpty) {
+        result.add(
+          {
+            "Time": 0,
+            "Type": "None",
+            "Success": false,
+          }
+        );
+      }
+
+      return result;
+    }
+
+    final result = jsonEncode(
+		{
+			"Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
+			"Match": {
+				"Number": matchNum.value.isEmpty ? 1 : int.parse(matchNum.value),
+				"isReplay": isReplay
+			},
+
+			"Driver Station": {
+				"Is Blue": driverStation.value.$1,
+				"Number": driverStation.value.$2
+			},
+
+			"Scouter": getScouterName(),
+
+			"Cycles": expandCycles(),
+      
+      // TODO: Remove this.
+			"Amp": false,
+      // TODO: Remove this.
+			"Speaker": false,
+
+			"Speaker Positions": {
+				"sides": shootingPositionSides.value,
+				"middle": shootingPositionMiddle.value
+			},
+
+			"Pickup Locations": {
+				"Ground": pickupGround.value,
+				"Source": pickupSource.value,
+			},
+
+			"Distance Shooting": {
+				"Can": canDistanceShoot.value,
+				"Misses": distanceMisses.value,
+				"Scores": distanceScores.value
+			},
+
+			"Auto": {
+				"Can": canDoAuto.value,
+				"Scores": autoScores.value,
+				"Misses": autoMisses.value,
+				"Ejects": autoEjects.value
+			},
+
+			"Climbing": {
+				"Succeeded": canClimbSuccessfully.value,
+				"Time": climbingTime
+			},
+
+			"Trap": {
+				"Misses": trapMisses.value,
+				"Score": trapScores.value
+			},
+
+			"Misc": {
+				"Parked": endgamePark.value,
+        // TODO: Remove one of these. Because having both is redundant.
+				"Lost Communication": disconnectOrDisabled.value,
+				"User Lost Track": scouterLostTrack.value,
+        "Disabled": disconnectOrDisabled.value,
+			},
+
+			"Penalties": [
+
+			],
+
+      "Mangled": false,
+
+			"Notes": notes
+		}
+    );
+
+    log(result);
+
+    return result;
   }
 }

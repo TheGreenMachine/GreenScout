@@ -5,6 +5,7 @@ import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/data_for_admins.dart';
 import 'package:green_scout/pages/match_form.dart';
+import 'package:green_scout/pages/match_form_2.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/pages/qr_scanner.dart';
@@ -68,7 +69,7 @@ class _HomePage extends State<HomePage> {
         child: FloatingButton(
           icon: const Icon(Icons.create),
           color: Theme.of(context).colorScheme.inversePrimary,
-          onPressed: () => App.gotoPage(context, const MatchFormPage()),
+          onPressed: () => App.gotoPage(context, const MatchFormPage2()),
         ),
       ),
     ];
