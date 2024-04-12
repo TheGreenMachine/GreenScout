@@ -72,10 +72,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   Reference<int> autoMisses = Reference(0);
   Reference<int> autoEjects = Reference(0);
 
-  Reference<bool> canDistanceShoot = Reference(false);
-  Reference<int> distanceScores = Reference(0);
-  Reference<int> distanceMisses = Reference(0);
-
   Stopwatch climbingStopwatch = Stopwatch();
   double climbingTime = 0.0;
   bool climbingTimerActive = false;
@@ -339,36 +335,67 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
             (false, 1),
           ),
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_//_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
-          ExpansionTile(
-            title: Text(
-              "Cycles",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+          const SubheaderLabel("Auto Mode"),
 
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.25,
+          createLabelAndCheckBox("Can Do It?", canDoAuto),
+          createLabelAndNumberField("Scores", autoScores),
+          createLabelAndNumberField("Misses", autoMisses),
+          createLabelAndNumberField("Ejects", autoEjects),
 
-                child: ListView.builder(
-                  itemBuilder: (context, index) => buildCycleTile(context, index),
-                  itemCount: cycles.length,
-                ),
+          const Padding(padding: EdgeInsets.all(5)),
+          // //_//_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
+
+          Padding( 
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+
+            child: ExpansionTile(
+              title: Text(
+                "Cycles",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-            ],
+
+              collapsedBackgroundColor: Colors.grey.shade200,
+
+              children: [
+                SizedBox(
+                  width: centeredWidth,
+                  height: MediaQuery.of(context).size.height * 0.25,
+
+                  child: ListView.builder(
+                    itemBuilder: (context, index) => buildCycleTile(context, index),
+                    itemCount: cycles.length,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const Padding(padding: EdgeInsets.all(8)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          //_//_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Climbing"),
           
+          Expanded(
+            child: Text(
+              "${climbingTime.toStringAsPrecision(3)} secs",
+              style: Theme.of(context).textTheme.labelLarge,
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(1.2)),
+
+          createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
+
+          const Padding(padding: EdgeInsets.all(4)),
+
           Padding(
             padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
 
@@ -401,67 +428,36 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
             ),
           ),
 
-          createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
-
-          const Padding(padding: EdgeInsets.all(4)),
-
-          Text(
-            "It Takes Them ${climbingTime.toStringAsPrecision(3)} Seconds To Climb",
-            style: Theme.of(context).textTheme.labelLarge,
-            textAlign: TextAlign.center,
-          ),
-
           const Padding(padding: EdgeInsets.all(6)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
-
-          const SubheaderLabel("Auto Mode"),
-
-          createLabelAndCheckBox("Can Do It?", canDoAuto),
-          createLabelAndNumberField("Scores", autoScores),
-          createLabelAndNumberField("Misses", autoMisses),
-          createLabelAndNumberField("Ejects", autoEjects),
-
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
-          
-          const SubheaderLabel("Distance Shooting"),
-
-          createLabelAndCheckBox("Can Do It?", canDistanceShoot),
-          createLabelAndNumberField("Scores", distanceScores),
-          createLabelAndNumberField("Misses", distanceMisses),
-
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          //_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Trap"),
 
           createLabelAndNumberField("Scores", trapScores),
           createLabelAndNumberField("Misses", trapMisses),
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
 
           createLabelAndCheckBox("Middle", shootingPositionMiddle),
           createLabelAndCheckBox("Sides", shootingPositionSides),
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Pickup Locations"),
 
           createLabelAndCheckBox("Ground", pickupGround),
           createLabelAndCheckBox("Source", pickupSource),
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Misc."),
 
@@ -469,9 +465,9 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndCheckBox("Did Their Robot Get Disconnected Or Disabled?", disconnectOrDisabled),
           createLabelAndCheckBox("Did You Lose Track At Any Point?", scouterLostTrack),
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
-          const Padding(padding: EdgeInsets.all(3)),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_const Divider(height: 0.25,),
+          const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Notes"),
 
@@ -495,8 +491,8 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
             ),
           ),  
 
-          const Padding(padding: EdgeInsets.all(3)),
-          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(5)),
+          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(12)),
 
           Padding(
@@ -796,9 +792,9 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 			},
 
 			"Distance Shooting": {
-				"Can": canDistanceShoot.value,
-				"Misses": distanceMisses.value,
-				"Scores": distanceScores.value
+				"Can": false,
+				"Misses": 0,
+				"Scores": 0
 			},
 
 			"Auto": {

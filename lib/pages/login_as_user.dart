@@ -244,7 +244,11 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 ),
               ),
               onTap: () {
-                App.gotoPage(context, const LoginPageForGuest(),
+                setScouterName("Guest");
+                setAdminStatus(false);
+                setLoginStatus(true);
+
+                App.gotoPage(context, const HomePage(),
                     canGoBack: true);
               },
             ),
