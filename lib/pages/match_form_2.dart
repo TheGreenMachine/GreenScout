@@ -336,7 +336,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           ),
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_//_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Auto Mode"),
@@ -347,54 +346,46 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndNumberField("Ejects", autoEjects),
 
           const Padding(padding: EdgeInsets.all(5)),
-          // //_//_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
-          Padding( 
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
-
-            child: ExpansionTile(
-              title: Text(
-                "Cycles",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-
-              collapsedBackgroundColor: Colors.grey.shade200,
-
-              children: [
-                SizedBox(
-                  width: centeredWidth,
-                  height: MediaQuery.of(context).size.height * 0.25,
-
-                  child: ListView.builder(
-                    itemBuilder: (context, index) => buildCycleTile(context, index),
-                    itemCount: cycles.length,
-                  ),
-                ),
-              ],
+          ExpansionTile(
+            title: Text(
+              "Cycles",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
+
+            collapsedBackgroundColor: Colors.grey.shade200,
+
+            children: [
+              SizedBox(
+                width: centeredWidth,
+                height: MediaQuery.of(context).size.height * 0.25,
+
+                child: ListView.builder(
+                  itemBuilder: (context, index) => buildCycleTile(context, index),
+                  itemCount: cycles.length,
+                ),
+              ),
+            ],
           ),
 
           const Padding(padding: EdgeInsets.all(8)),
-          //_//_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Climbing"),
           
-          Expanded(
-            child: Text(
-              "${climbingTime.toStringAsPrecision(3)} secs",
-              style: Theme.of(context).textTheme.labelLarge,
-              textAlign: TextAlign.center,
-            ),
+          Text(
+            "${climbingTime.toStringAsPrecision(3)} secs",
+            style: Theme.of(context).textTheme.labelLarge,
+            textAlign: TextAlign.center,
           ),
 
-          const Padding(padding: EdgeInsets.all(1.2)),
+          const Padding(padding: EdgeInsets.all(4)),
 
           createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
 
-          const Padding(padding: EdgeInsets.all(4)),
+          const Padding(padding: EdgeInsets.all(1.2)),
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
@@ -429,7 +420,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           ),
 
           const Padding(padding: EdgeInsets.all(6)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Trap"),
@@ -438,7 +428,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndNumberField("Misses", trapMisses),
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
@@ -447,7 +436,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndCheckBox("Sides", shootingPositionSides),
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Pickup Locations"),
@@ -456,7 +444,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndCheckBox("Source", pickupSource),
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Misc."),
@@ -466,7 +453,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           createLabelAndCheckBox("Did You Lose Track At Any Point?", scouterLostTrack),
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(5)),
 
           const SubheaderLabel("Notes"),
@@ -492,7 +478,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           ),  
 
           const Padding(padding: EdgeInsets.all(5)),
-          //_const Divider(height: 0.25,),
           const Padding(padding: EdgeInsets.all(12)),
 
           Padding(
