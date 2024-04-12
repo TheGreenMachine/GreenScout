@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/globals.dart';
@@ -23,12 +25,55 @@ class MatchFormPage2 extends StatefulWidget {
 class _MatchFormPage2 extends State<MatchFormPage2> {
   Reference<(bool, int)> driverStation = Reference((false, 1));
 
+  Reference<bool> canClimbSuccessfully = Reference(false);
+
+  Reference<bool> canDoAuto = Reference(false);
+  Reference<int> autoScores = Reference(0);
+  Reference<int> autoMisses = Reference(0);
+  Reference<int> autoEjects = Reference(0);
+
   Reference<bool> canDistanceShoot = Reference(false);
   Reference<int> distanceScores = Reference(0);
   Reference<int> distanceMisses = Reference(0);
 
+  Stopwatch climbingStopwatch = Stopwatch();
+  double climbingTime = 0.0;
+  bool climbingTimerActive = false;
+
+  Reference<bool> shootingPositionMiddle = Reference(false);
+  Reference<bool> shootingPositionSides = Reference(false);
+
+  Reference<bool> pickupGround = Reference(false);
+  Reference<bool> pickupSource = Reference(false);
+
+  Reference<int> trapScores = Reference(0);
+  Reference<int> trapMisses = Reference(0);
+
   @override
   Widget build(BuildContext context) {
+    if (climbingTimerActive) {
+      climbingStopwatch.start();
+
+      Timer.periodic(
+        const Duration(milliseconds: 150), 
+        (timer) { 
+          if (!timer.isActive) {
+            return;
+          }
+
+          if (!climbingTimerActive) {
+            timer.cancel();
+            climbingStopwatch.stop();
+          }
+
+          setState(() {
+            climbingTime = climbingStopwatch.elapsedMilliseconds.toDouble() / 1000;
+          });
+        },
+      );
+
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -51,22 +96,39 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   }
 
   Widget buildNavigationRail(BuildContext context) {
+    var climberTimerIcon = Icon(
+      Icons.timer,
+
+      color: climbingTimerActive
+      ? Theme.of(context).colorScheme.primary
+      : null,
+    );
+
     return NavigationRail(
-      destinations: const [
-        NavigationRailDestination(icon: Icon(Icons.amp_stories), label: Text("Amp")),
-        NavigationRailDestination(icon: Icon(Icons.speaker), label: Text("Speaker")),
-        NavigationRailDestination(icon: Icon(Icons.airport_shuttle), label: Text("Shuttle")),
-        NavigationRailDestination(icon: Icon(Icons.social_distance), label: Text("Distance")),
+      destinations: [
+        const NavigationRailDestination(icon: Icon(Icons.amp_stories), label: Text("Amp")),
+        const NavigationRailDestination(icon: Icon(Icons.speaker), label: Text("Speaker")),
+        const NavigationRailDestination(icon: Icon(Icons.airport_shuttle), label: Text("Shuttle")),
+        const NavigationRailDestination(icon: Icon(Icons.social_distance), label: Text("Distance")),
 
         NavigationRailDestination(
-          icon: Icon(Icons.timer),
+          icon: climberTimerIcon,
           label: Text('Climbing'),
+          indicatorColor: Color.fromARGB(255, 255, 0, 0),
         ),
       ], 
       selectedIndex: null,
       labelType: NavigationRailLabelType.all,
       
       backgroundColor: Theme.of(context).colorScheme.surface,
+
+      onDestinationSelected: (index) {
+        setState(() {
+          if (index == 4) {
+            climbingTimerActive = !climbingTimerActive;
+          }
+        });
+      },
     );
   }
 
@@ -76,7 +138,7 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     final width = MediaQuery.of(context).size.width * widthRatio;
     final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
-    const centeredWidthRatio = 0.75;
+    const centeredWidthRatio = 0.85;
 
     final centeredWidth = MediaQuery.of(context).size.width * centeredWidthRatio;
     final centeredWidthPadding = MediaQuery.of(context).size.width * (1.0 - centeredWidthRatio) / 2;
@@ -178,62 +240,100 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           const Divider(height: 2,),
           const Padding(padding: EdgeInsets.all(3)),
 
+          const SubheaderLabel("Climbing"),
+          
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+
+            child: FloatingActionButton(
+              elevation: 0.0,
+              focusElevation: 0.0,
+              disabledElevation: 0.0,
+              hoverElevation: 0.0,
+              highlightElevation:  0.0,
+
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
+
+              onPressed: () {
+                App.promptAlert(
+                  context, 
+                  "Reset Climbing Time?", 
+                  "Are you Sure?", 
+                  [
+                    ("Yes", () {
+                      setState(() => climbingTime = 0.0);
+                      climbingStopwatch.reset();
+                      Navigator.of(context).pop();
+                      App.showMessage(context, "Reset Climbing Time");
+                    }),
+                    ("No", null),
+                  ],
+                );
+              },
+              child: const Text("Reset Time"),
+            ),
+          ),
+
+          createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
+
+          const Padding(padding: EdgeInsets.all(4)),
+
+          Text(
+            "It Takes Them ${climbingTime.toStringAsPrecision(3)} Seconds To Climb",
+            style: Theme.of(context).textTheme.labelLarge,
+            textAlign: TextAlign.center,
+          ),
+
+          const Padding(padding: EdgeInsets.all(6)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Auto Mode"),
+
+          createLabelAndCheckBox("Can Do It?", canDoAuto),
+          createLabelAndNumberField("Scores", autoScores),
+          createLabelAndNumberField("Misses", autoMisses),
+          createLabelAndNumberField("Ejects", autoEjects),
+
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+          
           const SubheaderLabel("Distance Shooting"),
 
           createLabelAndCheckBox("Can Do It?", canDistanceShoot),
           createLabelAndNumberField("Scores", distanceScores),
           createLabelAndNumberField("Misses", distanceMisses),
 
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
-          const Text("SHWHWKOIW"),
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Trap"),
+
+          createLabelAndNumberField("Scores", trapScores),
+          createLabelAndNumberField("Misses", trapMisses),
+
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
+
+          createLabelAndCheckBox("Middle", shootingPositionMiddle),
+          createLabelAndCheckBox("Sides", shootingPositionSides),
+
+          const Padding(padding: EdgeInsets.all(3)),
+          const Divider(height: 2,),
+          const Padding(padding: EdgeInsets.all(3)),
+
+          const SubheaderLabel("Pickup Locations"),
+
+          createLabelAndCheckBox("Ground", pickupGround),
+          createLabelAndCheckBox("Source", pickupSource),
+
+
+          const Padding(padding: EdgeInsets.all(16)),
         ],
       ),
     );
