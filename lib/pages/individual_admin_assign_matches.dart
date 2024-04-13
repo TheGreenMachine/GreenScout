@@ -50,7 +50,7 @@ class _IndividualAdminAssignMatchesPage
   final fromTextController = TextEditingController();
   final toTextController = TextEditingController();
 
-  bool isBlue = true;
+  Reference<bool> isBlue = Reference(true);
   Reference<int> driverTeamNumber = Reference(1);
 
   List<IndividualMatchRangeInfo> matchesAssigned = [];
@@ -222,9 +222,11 @@ class _IndividualAdminAssignMatchesPage
           initialIcon: const Text("BLUE"),
           pressedColor: Colors.red,
           pressedIcon: const Text("RED"),
-          onPressed: (pressed) {
-            isBlue = !pressed;
-          },
+          // onPressed: (pressed) {
+          //   isBlue = !pressed;
+          // },
+
+          inValue: isBlue,
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
@@ -270,7 +272,7 @@ class _IndividualAdminAssignMatchesPage
               IndividualMatchRangeInfo(
                   int.parse(fromTextController.text),
                   int.parse(toTextController.text),
-                  isBlue,
+                  isBlue.value,
                   driverTeamNumber.value,
                   currentUser.value),
             );

@@ -89,12 +89,12 @@ class _MatchFormPage extends State<MatchFormPage> {
   String matchNum = "";
   final _teamController = TextEditingController();
   String teamNum = "";
-  bool isReplay = false;
+  Reference<bool> isReplay = Reference(false);
 
   Reference<(bool, int)> driverStation = Reference((false, 1));
 
   final cycleWatch = Stopwatch();
-  bool cycleStopwatchTimerValue = false;
+  Reference<bool> cycleStopwatchTimerValue = Reference(false);
   bool cycleTimerLocationDisabled = true;
 
   Reference<bool> canClimbSuccessfully = Reference(false);
@@ -261,7 +261,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                 // pressedIcon: const Text("YES"),
                 onPressed: (_) {},
 
-                initialValue: isReplay,
+                inValue: isReplay,
               ),
             ),
           ],
@@ -507,7 +507,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             initialIcon: const Icon(Icons.public_off_sharp),
             pressedIcon: const Icon(Icons.public),
             onPressed: (_) {},
-            initialValue: isReplay,
+            inValue: isReplay,
           ),
         ),
       ],
@@ -659,18 +659,22 @@ class _MatchFormPage extends State<MatchFormPage> {
             pressedIcon: const Icon(Icons.timer),
             initialColor: Theme.of(context).colorScheme.primaryContainer,
             pressedColor: Theme.of(context).colorScheme.inversePrimary,
-            onPressed: (pressed) => setState(() {
-              cycleTimerLocationDisabled = !pressed;
-              cycleStopwatchTimerValue = !cycleStopwatchTimerValue;
+            onPressed: (pressed) {
+              setState(() {
+                cycleTimerLocationDisabled = !pressed;
+                cycleStopwatchTimerValue.value = !cycleStopwatchTimerValue.value;
 
-              // cycleWatch.reset();
-              cycleWatch.start();
+                // cycleWatch.reset();
+                cycleWatch.start();
 
-              if (!pressed) {
-                cycleWatch.stop();
-              }
-            }),
-            initialValue: cycleStopwatchTimerValue,
+                if (!pressed) {
+                  cycleWatch.stop();
+                }
+              });
+              
+              return null;
+            },
+            inValue: cycleStopwatchTimerValue,
           ),
         ),
         SizedBox(
@@ -827,7 +831,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 			"Team": teamNum.isEmpty ? 1 : int.parse(teamNum),
 			"Match": {
 				"Number": matchNum.isEmpty ? 1 : int.parse(matchNum),
-				"isReplay": isReplay
+				"isReplay": isReplay.value
 			},
 
 			"Driver Station": {

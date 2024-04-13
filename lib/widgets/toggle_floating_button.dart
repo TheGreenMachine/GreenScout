@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/reference.dart';
 
 class FloatingToggleButton extends StatefulWidget {
 	const FloatingToggleButton(
@@ -10,7 +11,7 @@ class FloatingToggleButton extends StatefulWidget {
 			this.pressedColor, 
 			this.pressedIcon,
 			this.onPressed,
-			this.initialValue = false,
+			required this.inValue,
 			this.disabled = false,
 		}
 	);
@@ -25,7 +26,7 @@ class FloatingToggleButton extends StatefulWidget {
 
 	final void Function(bool)? onPressed;
 
-	final bool initialValue;
+	final Reference<bool> inValue;
 	final bool disabled;
 
 	@override
@@ -33,22 +34,18 @@ class FloatingToggleButton extends StatefulWidget {
 }
 
 class _FloatingToggleButton extends State<FloatingToggleButton> {
-	bool? wasClicked;
-
 	void onPressed() {
 		setState(() { 
-			wasClicked = !wasClicked!;
+			widget.inValue.value = !widget.inValue.value;
 
 			if (widget.onPressed != null && !widget.disabled) {
-				widget.onPressed!(wasClicked!);
+				widget.onPressed!(widget.inValue.value);
 			}
 		});
 	}
 
 	@override 
 	Widget build(BuildContext context) {
-		wasClicked ??= widget.initialValue;
-
 		Color? color;
 
 		if (widget.disabled) {
@@ -61,7 +58,7 @@ class _FloatingToggleButton extends State<FloatingToggleButton> {
 				ensuredColor.blue ~/ 2,
 			);
 		} else {
-			color = wasClicked! ? widget.pressedColor : widget.initialColor;
+			color = widget.inValue.value ? widget.pressedColor : widget.initialColor;
 		}
 
 		Widget? icon;
@@ -69,15 +66,15 @@ class _FloatingToggleButton extends State<FloatingToggleButton> {
 		if (widget.disabled) {
 			icon = widget.initialIcon;
 		} else {
-			icon = wasClicked! ? widget.pressedIcon : widget.initialIcon;
+			icon = widget.inValue.value ? widget.pressedIcon : widget.initialIcon;
 		}
 
 		if (widget.disabled) {
-			if (wasClicked! && widget.onPressed != null) {
+			if (widget.inValue.value && widget.onPressed != null) {
 				widget.onPressed!(false);
 			}
 
-			wasClicked = false;
+			widget.inValue.value = false;
 		}
 
 		return FloatingActionButton(
@@ -90,11 +87,14 @@ class _FloatingToggleButton extends State<FloatingToggleButton> {
 			child: Column(
 				mainAxisAlignment: MainAxisAlignment.center,
 				children: [
-					widget.labelText != null ? Text(
+					widget.labelText != null 
+          ? Text(
 						widget.labelText ?? "",
 						textAlign: TextAlign.center,
 						style: Theme.of(context).textTheme.labelMedium,
-					) : const Padding(padding: EdgeInsets.zero),
+					) 
+          : const Padding(padding: EdgeInsets.zero),
+
 					icon ?? const Padding(padding: EdgeInsets.zero),
 				],
 			),

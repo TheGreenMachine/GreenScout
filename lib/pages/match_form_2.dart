@@ -106,7 +106,8 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   TextEditingController teamNumberController = TextEditingController();
   TextEditingController notesController = TextEditingController();
 
-  bool isReplay = false;
+  Reference<bool> isReplay = Reference(false);
+  Reference<bool> isRescout = Reference(false);
   Reference<String> matchNum = Reference("");
   Reference<String> teamNum = Reference("");
   String notes = "";
@@ -346,7 +347,9 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
               initialIcon: const Icon(Icons.close),
               pressedIcon: const Icon(Icons.check),
 
-              onPressed: (value) => isReplay = value,
+              // onPressed: (value) => isReplay.value = value,
+
+              inValue: isReplay,
             ),
           ),
 
@@ -511,7 +514,46 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           const Padding(padding: EdgeInsets.all(12)),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+
+            child: FloatingToggleButton(
+              initialColor: Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              pressedColor: Theme.of(context).colorScheme.inversePrimary,
+
+              labelText: "Rescouting?",
+              initialIcon: const Icon(Icons.close),
+              pressedIcon: const Icon(Icons.check),
+
+              inValue: isRescout,
+
+              onPressed: (pressed) {
+                if (pressed) {
+                  App.promptAlert(
+                    context, 
+                    "Are you sure you're rescouting this match?", 
+                    "This flag when submitted with \"Save\" is irreversible.", 
+                    [
+                      ("Yes", () {
+                        isRescout.value = pressed;
+                        Navigator.of(context).pop();
+                      }),
+                      ("No", () {
+                        setState(() { isRescout.value = false; });
+                        Navigator.of(context).pop();
+                      }),
+                    ],
+                  );
+                } else {
+                  // isRescout.value = pressed;
+                }
+              },
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.all(4)),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
 
             child: FloatingButton(
               labelText: "Save",
