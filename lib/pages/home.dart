@@ -69,7 +69,7 @@ class _HomePage extends State<HomePage> {
         child: FloatingButton(
           icon: const Icon(Icons.create),
           color: Theme.of(context).colorScheme.inversePrimary,
-          onPressed: () => App.gotoPage(context, const MatchFormPage2()),
+          onPressed: () => App.gotoPage(context, Settings.useOldLayout.value ? const MatchFormPage() : const MatchFormPage2()),
         ),
       ),
     ];
@@ -113,14 +113,12 @@ class _HomePage extends State<HomePage> {
 
           const Padding(padding: EdgeInsets.all(15)),
 
-          // TODO: We don't have an proper qr scanner
+          // TODO: We don't have a proper qr scanner
           // library to use.
 
           // ...createQRCodeScannerPageButton(context),
 
           // const Padding(padding: EdgeInsets.all(15)),
-
-          // TODO: Finish this after the scrimmage.
 
           const Padding(padding: EdgeInsets.all(18)),
 
@@ -206,7 +204,14 @@ class _HomePage extends State<HomePage> {
         onPressed: () {
           App.gotoPage(
             context,
-            MatchFormPage(
+            Settings.useOldLayout.value 
+            ? MatchFormPage(
+              matchNum: match.matchNum.toString(),
+              teamNum: match.team.toString(),
+              isBlue: match.isBlue,
+              driverNumber: match.driveTeamNum,
+            )
+            : MatchFormPage2(
               matchNum: match.matchNum.toString(),
               teamNum: match.team.toString(),
               isBlue: match.isBlue,

@@ -19,7 +19,16 @@ import 'package:green_scout/widgets/toggle_floating_button.dart';
 class MatchFormPage2 extends StatefulWidget {
   const MatchFormPage2({
     super.key,
+    this.matchNum,
+    this.teamNum,
+    this.isBlue,
+    this.driverNumber,
   });
+  
+  final String? matchNum;
+  final String? teamNum;
+  final bool? isBlue;
+  final int? driverNumber;
 
   @override
   State<MatchFormPage2> createState() => _MatchFormPage2();
@@ -103,6 +112,16 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
   String notes = "";
 
   @override
+  void initState() {
+    super.initState();
+
+    matchNum.value = widget.matchNum ?? "0";
+    teamNum.value = widget.teamNum ?? "0";
+
+    driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? 1);
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (climbingTimerActive) {
       startClimbingStopwatch();
@@ -118,6 +137,17 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     teamNumberController.text = teamNum.value;
     notesController.text = notes;
 
+    Widget mainContent = buildMainContent(context);
+    Widget navigationRail = buildNavigationRail(context);
+
+    Widget leftWidget = Settings.sideBarLeftSided.value 
+    ? navigationRail
+    : mainContent;
+
+    Widget rightWidget = Settings.sideBarLeftSided.value
+    ? mainContent 
+    : navigationRail;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -129,11 +159,11 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 
       body: Row(
         children: [
-          buildMainContent(context),
+          leftWidget,
 
           const VerticalDivider(width: 0.1, thickness: 0,),
 
-          buildNavigationRail(context),
+          rightWidget,
         ],
       ),
     );
@@ -760,11 +790,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 			"Scouter": getScouterName(),
 
 			"Cycles": expandCycles(),
-      
-      // TODO: Remove this.
-			"Amp": false,
-      // TODO: Remove this.
-			"Speaker": false,
 
 			"Speaker Positions": {
 				"sides": shootingPositionSides.value,
@@ -774,12 +799,6 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 			"Pickup Locations": {
 				"Ground": pickupGround.value,
 				"Source": pickupSource.value,
-			},
-
-			"Distance Shooting": {
-				"Can": false,
-				"Misses": 0,
-				"Scores": 0
 			},
 
 			"Auto": {
@@ -801,10 +820,8 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
 
 			"Misc": {
 				"Parked": endgamePark.value,
-        // TODO: Remove one of these. Because having both is redundant.
-				"Lost Communication": disconnectOrDisabled.value,
+				"Lost Communication Or Disabled": disconnectOrDisabled.value,
 				"User Lost Track": scouterLostTrack.value,
-        "Disabled": disconnectOrDisabled.value,
 			},
 
 			"Penalties": [

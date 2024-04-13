@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/globals.dart';
 import 'package:green_scout/reference.dart';
 
 class NumberCounterButton extends StatefulWidget {
@@ -132,14 +133,25 @@ class _NumberCounterButton extends State<NumberCounterButton> {
       widget.number.value = widget.upperBound;
     }
 
+    Widget decrementButton = buildDecrementButton(context, width);
+    Widget incrementButton = buildIncrementButton(context, width);
+
+    Widget leftWidget = Settings.flipNumberCounter.value 
+    ? incrementButton
+    : decrementButton;
+
+    Widget rightWidget = Settings.flipNumberCounter.value
+    ? decrementButton
+    : incrementButton;
+
     return SizedBox(
       width: width,
       height: 35,
       child: Row(
         children: [
-          buildDecrementButton(context, width),
+          leftWidget,
           Padding(padding: EdgeInsets.symmetric(horizontal: width * 0.01)),
-          buildIncrementButton(context, width),
+          rightWidget,
         ],
       ),
     );

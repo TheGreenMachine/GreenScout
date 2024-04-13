@@ -18,18 +18,9 @@
 		{ "Time": 9.452, "Type": "Speaker" }
 	],
 
-	"Amp": false,
-	"Speaker": false,
-
 	"Speaker Positions": {
 		"sides": true,
 		"middle": false
-	},
-
-	"Distance Shooting": {
-		"Can": true,
-		"Misses": 0,
-		"Scores": 0
 	},
 
 	"Auto": {
@@ -51,7 +42,7 @@
 
 	"Misc": {
 		"Parked": true,
-		"Lost Communication": false,
+		"Lost Communication Or Disabled": false,
 		"User Lost Track": true
 	},
 
@@ -59,6 +50,8 @@
 		"Illegal auto",
 		"Pinning"
 	],
+
+	"Mangled": false,
 
 	"Notes": ""
 }

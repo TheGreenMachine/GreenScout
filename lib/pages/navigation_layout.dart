@@ -86,7 +86,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                 const SubheaderLabel("Pages"),
 
                 buildNavigationButton(context, Icons.home, "Home", const HomePage()),
-                buildNavigationButton(context, Icons.create, "Match Form", const MatchFormPage2()),
+                buildNavigationButton(context, Icons.create, "Match Form", Settings.useOldLayout.value ? const MatchFormPage() : const MatchFormPage2()),
                 buildNavigationButton(context, Icons.leaderboard, "Leaderboards", const LeaderboardPage()),
 
                 ...buildAdminPanelNavigation(context),

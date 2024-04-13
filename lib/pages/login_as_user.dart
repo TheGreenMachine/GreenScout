@@ -1,6 +1,7 @@
 import "dart:developer";
 
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:green_scout/pages/home.dart";
 import "package:green_scout/pages/login_as_guest.dart";
 import "package:green_scout/widgets/action_bar.dart";
@@ -19,6 +20,9 @@ class LoginPageForUsers extends StatefulWidget {
   @override
   State<LoginPageForUsers> createState() => _LoginPageForUsers();
 }
+
+// TODO: Redo this whole login screen. 
+// It's sooooo bad....
 
 class _LoginPageForUsers extends State<LoginPageForUsers> {
   final _userController = TextEditingController();
@@ -154,6 +158,11 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               controller: _userController,
               onChanged: (value) => userStr = value,
               onFieldSubmitted: (_) => continueButtonOnPressed(),
+
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("[a-zA-Z0-9]")),
+              ],
+
               textAlign: TextAlign.start,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.account_box_sharp),
@@ -226,7 +235,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(20),
           ),
           Padding(
             padding: EdgeInsets.symmetric(
@@ -250,6 +259,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
                 App.gotoPage(context, const HomePage(),
                     canGoBack: true);
+
+                App.showMessage(context, "Logged In As Guest!");
               },
             ),
           ),

@@ -39,18 +39,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   void initState() {
     super.initState();
 
-    // Timer.periodic(Duration(seconds: 15), (timer) { 
-    //   rankingsController.add(
-    //     const [
-    //       RankingInfo("Harold", 3000, 400, true), 
-    //       RankingInfo("Joshua", 300, 23, false), 
-    //       RankingInfo("Mike", 200, 13, false), 
-    //       RankingInfo("Bobby", 100, 10, false), 
-    //       RankingInfo("Billy", 1, 1, false),
-    //     ]
-    //   );
-    // });
-
     App.httpGet('leaderboard', '', (response) {
       final responseJson = jsonDecode(response.body);
 

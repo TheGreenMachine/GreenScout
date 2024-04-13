@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/globals.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/settings/debug_info.dart';
+import 'package:green_scout/pages/settings/match_form_layout.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 
@@ -57,7 +58,7 @@ class _SettingsPage extends State<SettingsPage> {
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Settings"),
 
-          
+          buildSettingTile(context, widthPadding, Icons.format_list_bulleted_outlined, "Match Form Layout", const SettingsMatchFormLayoutPage()),
           buildSettingTile(context, widthPadding, Icons.developer_board, "Debug Info", const SettingsDebugInfoPage()),
         ],
       ),
