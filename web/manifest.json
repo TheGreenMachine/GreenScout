@@ -1,11 +1,11 @@
 {
-    "name": "green_scouting",
-    "short_name": "green_scouting",
+    "name": "GreenScout",
+    "short_name": "GreenScout",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "FRC Team 1816, \"The Green Machine\"'s Scouting app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
