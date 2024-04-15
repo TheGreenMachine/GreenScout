@@ -255,7 +255,17 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               onTap: () {
                 setScouterName("Guest");
                 setAdminStatus(false);
-                setLoginStatus(true);
+
+                // The reasoning for this is simple: When 
+                // logging in as a guest, you're unlikely to
+                // want to encourage the user to stay as a guest.
+                // 
+                // This is because if they're a guest they can't
+                // really sent data to the server.
+                setLoginStatus(false);
+
+                storeCertificate("");
+                storeUserUUID("");
 
                 App.gotoPage(context, const HomePage(),
                     canGoBack: true);

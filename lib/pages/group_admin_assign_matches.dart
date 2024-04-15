@@ -147,6 +147,7 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
             }
           }
 
+          matchesAssigned.clear();
           App.showMessage(context, "Success!");
           setState(() {});
         },

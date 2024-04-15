@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/no_animation_material_page_route.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:network_info_plus/network_info_plus.dart';
 
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
@@ -21,6 +19,7 @@ class Settings {
   static const flipNumberCounterKey = "[Settings] Flip Number Counter";
   static const sideBarLeftSidedKey = "[Settings] Side Bar On Left Side";
   static const useOldLayoutKey = "[Settings] Use Old Match Form Layout";
+  static const enableMatchRescoutingKey = "[Settings] Enable Match Rescouting";
  
   static Reference<bool> flipNumberCounter =
       Reference(App.getBool(flipNumberCounterKey) ?? false);
@@ -30,11 +29,15 @@ class Settings {
   
   static Reference<bool> useOldLayout = 
       Reference(App.getBool(useOldLayoutKey) ?? false);
+    
+  static Reference<bool> enableMatchRescouting =
+      Reference(App.getBool(enableMatchRescoutingKey) ?? false);
 
   static void update() {
     App.setBool(flipNumberCounterKey, flipNumberCounter.value);
     App.setBool(sideBarLeftSidedKey, sideBarLeftSided.value);
     App.setBool(useOldLayoutKey, useOldLayout.value);
+    App.setBool(enableMatchRescoutingKey, enableMatchRescouting.value);
   }
 }
 

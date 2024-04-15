@@ -6,6 +6,7 @@ import 'package:green_scout/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/subheader.dart';
 
 class SettingsMatchFormLayoutPage extends StatefulWidget {
   const SettingsMatchFormLayoutPage({
@@ -68,6 +69,12 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
           // I didn't think about how much more work this might cause me.
           // I don't want to maintain two different match form layouts right now...
           // createLabelAndCheckBox("Use Old Match Form Layout?", Settings.useOldLayout),
+
+          const Padding(padding: EdgeInsets.all(20)),
+          const SubheaderLabel("Advanced Features"),
+          const Padding(padding: EdgeInsets.all(6)),
+
+          createLabelAndCheckBox("Enable Match Rescouting?", Settings.enableMatchRescouting),
         ],
       ),
     );

@@ -483,7 +483,9 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           ),
           const Padding(padding: EdgeInsets.all(5)),
           const Padding(padding: EdgeInsets.all(12)),
-          Padding(
+
+          Settings.enableMatchRescouting.value 
+          ? Padding(
             padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
             child: FloatingToggleButton(
               initialColor:
@@ -518,12 +520,12 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
                       ),
                     ],
                   );
-                } else {
-                  // isRescout.value = pressed;
                 }
               },
             ),
-          ),
+          )
+          : const Padding(padding: EdgeInsets.zero),
+
           const Padding(padding: EdgeInsets.all(4)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
