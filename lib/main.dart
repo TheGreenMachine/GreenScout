@@ -55,6 +55,8 @@ void main() async {
     }
 
     if (!loggedInAlready()) {
+      // Just in case some cache is left over and they decided to log out.
+      resetImmediateMatchCache();
       return;
     }
 

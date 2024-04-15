@@ -77,13 +77,13 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         "login",
         '''
         {
-          "Username": "$userStr",
+          "Username": "${_userController.text.toLowerCase()}",
           "EncryptedPassword": "${await encryptPassword64(passwordStr)}"
         }
       ''',
         (response) {
           storeUserRole(response.headers["role"] ?? "None");
-          print(getUserRole());
+          log(getUserRole());
           storeUserUUID(response.headers["uuid"] ?? "");
           storeCertificate(response.headers["certificate"] ?? "");
         },
@@ -102,7 +102,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     continueButtonPressed = true;
 
     if ((await validateLogin()) == null && getCertificate().isNotEmpty) {
-      setScouterName(_userController.text);
+      setScouterName(_userController.text.toLowerCase());
       setLoginStatus(true);
 
       autoSetAdminStatus();
@@ -115,7 +115,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
   @override
   Widget build(BuildContext context) {
-    _userController.text = userStr;
+    _userController.text = userStr.toLowerCase();
     _passwordController.text = passwordStr;
 
     return Scaffold(
