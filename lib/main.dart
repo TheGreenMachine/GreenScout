@@ -54,7 +54,7 @@ void main() async {
         App.internetOff &&
         globalNavigatorKey.currentContext != null) {
       App.showMessage(
-          globalNavigatorKey.currentContext!, "Lost Internet Connection!");
+          globalNavigatorKey.currentContext!, "Lost Server Connection!");
       return;
     }
 
@@ -62,7 +62,7 @@ void main() async {
         App.internetOn &&
         globalNavigatorKey.currentContext != null) {
       App.showMessage(
-          globalNavigatorKey.currentContext!, "Connected to the Internet!");
+          globalNavigatorKey.currentContext!, "Connected to the Server!");
 
       return;
     }
