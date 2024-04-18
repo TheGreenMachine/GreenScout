@@ -76,9 +76,9 @@ class _HomePage extends State<HomePage> {
   }
 
   List<Widget> createQRCodeScannerPageButton(BuildContext context) {
-    // if (!kIsWeb) {
-    //   return [];
-    // }
+    if (!kIsWeb) {
+      return [];
+    }
 
     return [
       const SubheaderLabel("Scan QR Code (Match Data)"),

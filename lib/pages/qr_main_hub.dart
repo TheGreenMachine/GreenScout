@@ -26,18 +26,6 @@ class _QRCodeMainHubPage extends State<QRCodeMainHubPage> {
   @override
   Widget build(BuildContext context) {
     final matches = getAllTimeMatchCache();
-    var otherMatches = <String>[];
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(matches);
-    otherMatches.addAll(otherMatches.toList());
-
 
     double widthRatio = 1.0;
 
@@ -74,13 +62,13 @@ class _QRCodeMainHubPage extends State<QRCodeMainHubPage> {
               labelText: "Scan & Store",
               color: Theme.of(context).colorScheme.inversePrimary,
               onPressed: () {
-                App.gotoPage(context, const QRScannerPage());
+                App.gotoPage(context, const QRScannerPage(), canGoBack: true);
               },
             ),
           ),
 
           const SubheaderLabel("Saved Matches To QR"),
-          buildScrolllableQRCodeGenerators(context, widthPadding, width, otherMatches),
+          buildScrolllableQRCodeGenerators(context, widthPadding, width, matches),
         ],
       ),
     );

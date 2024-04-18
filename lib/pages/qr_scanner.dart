@@ -1,6 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/globals.dart';
+import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/pages/qr_main_hub.dart';
+import 'package:green_scout/widgets/action_bar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QRScannerPage extends StatefulWidget {
@@ -14,19 +18,22 @@ class _QRScannerPage extends State<QRScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
+        actions: createEmptyActionBar(),
+      ),
+
       body: MobileScanner(onDetect: (capture) { 
-        log("Got something! $capture"); 
         final barcodes = capture.barcodes;
 
         for (final barcode in barcodes) {
-          if (barcode.displayValue != null) {
-            log("We got ${barcode.displayValue!}");
-          }
-
-          log(barcode.toString());
-          
           if (barcode.rawValue != null) {
             log("We've gotten ${barcode.rawValue!}");
+            addToMatchCache(barcode.rawValue!);
+
+            App.gotoPage(context, const QRCodeMainHubPage());
+            App.showMessage(context, "Successfully Scanned QR Code!");
           }
         }
       })
