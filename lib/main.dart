@@ -24,21 +24,21 @@ final globalNavigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   HttpOverrides.global = DevHttpOverrides();
 
-  WidgetsFlutterBinding.ensureInitialized();
-
   await App.start();
+
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Start up check to ensure that we're logged out when 
   // the certificate becomes invalid on the server.
-  await App.httpPost("certificateValid", '');
+  // await App.httpPost("certificateValid", '');
 
-  if (App.responseFailed) {
-    log("Certfifcate: ${getCertificate()}");
+  // if (App.responseFailed) {
+  //   log("Certfifcate: ${getCertificate()}");
 
-    setLoginStatus(false);
-    storeCertificate("");
-    storeUserUUID("");
-  }
+  //   setLoginStatus(false);
+  //   storeCertificate("");
+  //   storeUserUUID("");
+  // }
 
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = getImmediateMatchCache();
@@ -48,7 +48,7 @@ void main() async {
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    await App.httpPost("/", "", ignoreOutput: true);
+    await App.httpPost("/", "", ignoreOutput: false);
 
     if (wasOnline &&
         App.internetOff &&

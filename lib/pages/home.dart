@@ -80,6 +80,8 @@ class _HomePage extends State<HomePage> {
       return [];
     }
 
+    return [];
+
     return [
       const SubheaderLabel("Scan QR Code (Match Data)"),
       const Padding(padding: EdgeInsets.all(2)),
