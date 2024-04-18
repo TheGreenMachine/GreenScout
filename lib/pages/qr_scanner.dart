@@ -1,48 +1,35 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/globals.dart';
-import 'package:green_scout/pages/match_form.dart';
-import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
-class QRCodeScannerPage extends StatefulWidget {
-  const QRCodeScannerPage({super.key});
+class QRScannerPage extends StatefulWidget {
+  const QRScannerPage({super.key});
 
   @override
-  State<QRCodeScannerPage> createState() => _QRCodeScannerPage();
+  State<QRScannerPage> createState() => _QRScannerPage();
 }
 
-class _QRCodeScannerPage extends State<QRCodeScannerPage> {
+class _QRScannerPage extends State<QRScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: createDefaultActionBar(),
-      ),
+      body: MobileScanner(onDetect: (capture) { 
+        log("Got something! $capture"); 
+        final barcodes = capture.barcodes;
 
-      drawer: const NavigationLayoutDrawer(),
+        for (final barcode in barcodes) {
+          if (barcode.displayValue != null) {
+            log("We got ${barcode.displayValue!}");
+          }
 
-      body: ListView(
-        children: [
-          SizedBox(
-            width: 400,
-            height: 400,
-
-            child: ElevatedButton(
-              onPressed: () async {
-                final res = Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MatchFormPage()));
-                
-                log("Got Result: $res");
-              },
-
-              child: Text("What?"),
-            ),
-          ),
-        ],
-      ),
+          log(barcode.toString());
+          
+          if (barcode.rawValue != null) {
+            log("We've gotten ${barcode.rawValue!}");
+          }
+        }
+      })
     );
   }
 }

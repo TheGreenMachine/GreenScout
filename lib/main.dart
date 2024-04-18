@@ -28,6 +28,18 @@ void main() async {
 
   await App.start();
 
+  // Start up check to ensure that we're logged out when 
+  // the certificate becomes invalid on the server.
+  await App.httpPost("certificateValid", '');
+
+  if (App.responseFailed) {
+    log("Certfifcate: ${getCertificate()}");
+
+    setLoginStatus(false);
+    storeCertificate("");
+    storeUserUUID("");
+  }
+
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = getImmediateMatchCache();
 
@@ -51,6 +63,7 @@ void main() async {
         globalNavigatorKey.currentContext != null) {
       App.showMessage(
           globalNavigatorKey.currentContext!, "Connected to the Internet!");
+
       return;
     }
 

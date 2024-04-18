@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/globals.dart';
@@ -363,7 +365,13 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
             (false, 1),
           ),
           const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+          // This is to allow an out for the ios users out there.
+          defaultTargetPlatform == TargetPlatform.iOS 
+          ? buildSaveButton(context, centeredWidthPadding)
+          : const Padding(padding: EdgeInsets.zero,),
+
+          const Padding(padding: EdgeInsets.all(8)),
           const SubheaderLabel("Auto Mode"),
           createLabelAndCheckBox("Can Do It?", canDoAuto),
           createLabelAndNumberField("Scores", autoScores),
@@ -527,42 +535,50 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
           : const Padding(padding: EdgeInsets.zero),
 
           const Padding(padding: EdgeInsets.all(4)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
-            child: FloatingButton(
-              labelText: "Save",
-              icon: const Icon(Icons.save),
-              color: Theme.of(context).colorScheme.inversePrimary,
-              onPressed: () {
-                App.promptAlert(
-                    context,
-                    "Save?",
-                    "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
-                    [
-                      (
-                        "Yes",
-                        () {
-                          if (matchNum.value == "0" ||
-                              teamNum.value == "0" ||
-                              matchNum.value.isEmpty ||
-                              teamNum.value.isEmpty) {
-                            Navigator.of(context).pop();
-                            App.showMessage(context,
-                                "You haven't fillied in the team number or match number.");
-                            return;
-                          }
 
-                          addToMatchCache(toJson());
-                          App.gotoPage(context, const HomePage());
-                        }
-                      ),
-                      ("No", null),
-                    ]);
-              },
-            ),
-          ),
+          defaultTargetPlatform == TargetPlatform.iOS 
+          ? const Padding(padding: EdgeInsets.zero,)
+          : buildSaveButton(context, centeredWidthPadding),
+
           const Padding(padding: EdgeInsets.all(16)),
         ],
+      ),
+    );
+  }
+
+  Widget buildSaveButton(BuildContext context, double widthPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding),
+      child: FloatingButton(
+        labelText: "Save",
+        icon: const Icon(Icons.save),
+        color: Theme.of(context).colorScheme.inversePrimary,
+        onPressed: () {
+          App.promptAlert(
+              context,
+              "Save?",
+              "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
+              [
+                (
+                  "Yes",
+                  () {
+                    if (matchNum.value == "0" ||
+                        teamNum.value == "0" ||
+                        matchNum.value.isEmpty ||
+                        teamNum.value.isEmpty) {
+                      Navigator.of(context).pop();
+                      App.showMessage(context,
+                          "You haven't fillied in the team number or match number.");
+                      return;
+                    }
+
+                    addToMatchCache(toJson());
+                    App.gotoPage(context, const HomePage());
+                  }
+                ),
+                ("No", null),
+              ]);
+        },
       ),
     );
   }
@@ -573,13 +589,22 @@ class _MatchFormPage2 extends State<MatchFormPage2> {
     return ListTile(
       title: Text("${info.time.toStringAsPrecision(3)} seconds"),
       subtitle: Text(info.location.toString()),
-      leading: switch (info.location) {
-        CycleTimeLocation2.amp => const Icon(Icons.amp_stories),
-        CycleTimeLocation2.speaker => const Icon(Icons.speaker),
-        CycleTimeLocation2.shuttle => const Icon(Icons.airport_shuttle),
-        CycleTimeLocation2.distance => const Icon(Icons.social_distance),
-        _ => const Icon(Icons.error),
-      },
+      leading: FloatingButton( 
+        icon: switch (info.location) {
+          CycleTimeLocation2.amp => const Icon(Icons.amp_stories),
+          CycleTimeLocation2.speaker => const Icon(Icons.speaker),
+          CycleTimeLocation2.shuttle => const Icon(Icons.airport_shuttle),
+          CycleTimeLocation2.distance => const Icon(Icons.social_distance),
+          _ => const Icon(Icons.error),
+        },
+
+        onPressed: () {
+          // This loops around. We just avoid the 'none' cycle time location.
+          info.location = CycleTimeLocation2.values[(info.location.index + 1) % (CycleTimeLocation2.values.length - 1)]; 
+
+          setState(() {});
+        },
+      ),
       onLongPress: () {
         App.promptAlert(
           context,

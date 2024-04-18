@@ -8,7 +8,7 @@ import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/match_form_2.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/pages/qr_scanner.dart';
+import 'package:green_scout/pages/qr_main_hub.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
@@ -76,9 +76,9 @@ class _HomePage extends State<HomePage> {
   }
 
   List<Widget> createQRCodeScannerPageButton(BuildContext context) {
-    if (!kIsWeb) {
-      return [];
-    }
+    // if (!kIsWeb) {
+    //   return [];
+    // }
 
     return [
       const SubheaderLabel("Scan QR Code (Match Data)"),
@@ -89,7 +89,7 @@ class _HomePage extends State<HomePage> {
         child: FloatingButton(
           icon: const Icon(Icons.qr_code_scanner),
           color: Theme.of(context).colorScheme.inversePrimary,
-          onPressed: () => App.gotoPage(context, const QRCodeScannerPage()),
+          onPressed: () => App.gotoPage(context, const QRCodeMainHubPage()),
         ),
       ),
     ];
@@ -116,9 +116,9 @@ class _HomePage extends State<HomePage> {
           // TODO: We don't have a proper qr scanner
           // library to use.
 
-          // ...createQRCodeScannerPageButton(context),
+          ...createQRCodeScannerPageButton(context),
 
-          // const Padding(padding: EdgeInsets.all(15)),
+          const Padding(padding: EdgeInsets.all(15)),
 
           const Padding(padding: EdgeInsets.all(18)),
 
