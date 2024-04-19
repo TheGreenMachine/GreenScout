@@ -86,7 +86,7 @@ class _IndividualAdminAssignMatchesPage
           const Padding(padding: EdgeInsets.all(2)),
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal:MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
+              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
             ),
 
             child: StreamBuilder( 
@@ -218,10 +218,10 @@ class _IndividualAdminAssignMatchesPage
           horizontal: matchRangeWidthPadding,
         ),
         child: FloatingToggleButton(
-          initialColor: Colors.blue,
-          initialIcon: const Text("BLUE"),
-          pressedColor: Colors.red,
-          pressedIcon: const Text("RED"),
+          pressedColor: Colors.blue,
+          pressedIcon: const Text("BLUE"),
+          initialColor: Colors.red,
+          initialIcon: const Text("RED"),
           // onPressed: (pressed) {
           //   isBlue = !pressed;
           // },
