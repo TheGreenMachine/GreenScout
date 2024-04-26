@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/main.dart';
-import 'package:green_scout/no_animation_material_page_route.dart';
+import 'package:green_scout/utils/no_animation_material_page_route.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,11 +14,33 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
+class BoolSettingOption {
+  BoolSettingOption(
+    this.optionStr,
+    bool defaultValue,
+  ) : ref = Reference(
+    App.getBool(optionStr) ?? defaultValue
+  );
+
+  String optionStr;
+  Reference<bool> ref;
+
+  void update() {
+    App.setBool(optionStr, ref.value);
+  }
+}
+
 class Settings {
   static const flipNumberCounterKey = "[Settings] Flip Number Counter";
   static const sideBarLeftSidedKey = "[Settings] Side Bar On Left Side";
   static const useOldLayoutKey = "[Settings] Use Old Match Form Layout";
   static const enableMatchRescoutingKey = "[Settings] Enable Match Rescouting";
+
+  static BoolSettingOption flipNumberCounterA = 
+      BoolSettingOption(
+        "[Settings] Flip Number Counter", 
+        false,
+      );
  
   static Reference<bool> flipNumberCounter =
       Reference(App.getBool(flipNumberCounterKey) ?? false);
