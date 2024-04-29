@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/settings/debug_info.dart';
 import 'package:green_scout/pages/settings/match_form_layout.dart';

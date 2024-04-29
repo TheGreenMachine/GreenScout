@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/data_for_admins.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';

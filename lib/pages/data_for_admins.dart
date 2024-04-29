@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:green_scout/globals.dart';
-import 'package:http/http.dart';
+import 'package:green_scout/utils/app_state.dart';
 
 class AdminData {
   static const noActiveUserSelected =

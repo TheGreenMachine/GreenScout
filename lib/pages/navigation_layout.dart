@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/leaderboard.dart';
@@ -9,7 +9,6 @@ import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/match_form_2.dart';
 import 'package:green_scout/pages/settings.dart';
 import 'package:green_scout/widgets/subheader.dart';
-import 'login_as_guest.dart';
 import 'preference_helpers.dart';
 
 // The main area to place all relevent navigation.

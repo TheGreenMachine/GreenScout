@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:green_scout/globals.dart";
+import "package:green_scout/utils/app_state.dart";
 import "package:green_scout/pages/home.dart";
 import "package:green_scout/widgets/action_bar.dart";
 

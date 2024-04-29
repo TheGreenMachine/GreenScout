@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 
 class InternetIndicator extends StatefulWidget {
   const InternetIndicator({super.key});

@@ -4,7 +4,7 @@ import 'dart:developer';
 
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/number_counter.dart';
@@ -14,7 +14,7 @@ import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'navigation_layout.dart';
 import '../widgets/toggle_floating_button.dart';
 import 'dart:math' as math;

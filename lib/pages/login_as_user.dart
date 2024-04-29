@@ -3,12 +3,11 @@ import "dart:developer";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:green_scout/pages/home.dart";
-import "package:green_scout/pages/login_as_guest.dart";
 import "package:green_scout/widgets/action_bar.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:encrypt/encrypt.dart';
 
-import "../globals.dart";
+import "package:green_scout/utils/app_state.dart";
 
 import "preference_helpers.dart";
 

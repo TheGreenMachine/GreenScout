@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 
 // The amount of milliseconds the imter should wait until calling the next
 // callback
