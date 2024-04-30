@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/reference.dart';
 
 class FloatingToggleButton extends StatefulWidget {
 	const FloatingToggleButton(

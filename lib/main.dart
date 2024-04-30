@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'pages/navigation_layout.dart';
 import 'pages/preference_helpers.dart';
-import 'globals.dart';
+import 'utils/app_state.dart';
 
 class DevHttpOverrides extends HttpOverrides {
   @override
@@ -16,7 +16,10 @@ class DevHttpOverrides extends HttpOverrides {
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
-  }}
+  }
+}
+
+const appTitle = "Green Scout";
 
 final globalNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -105,7 +108,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
 
-      title: 'Green Scout',
+      title: appTitle,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
         useMaterial3: true,
@@ -113,8 +116,8 @@ class MyApp extends StatelessWidget {
       // TODO: later
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-            brightness: Brightness.dark, seedColor: greenMachineGreen),
-        // primaryTextTheme: Typography.blackCupertino
+          brightness: Brightness.dark, seedColor: greenMachineGreen,
+        ),
       ),
       home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
       //   home: const LoginPageForGuest(),

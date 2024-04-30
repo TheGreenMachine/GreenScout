@@ -5,7 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/subheader.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import '../globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 
 void setScouterName(String name) {
   App.setString("Scouter", name);

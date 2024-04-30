@@ -3,10 +3,8 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/display_qr_code.dart';
-import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/pages/qr_scanner.dart';

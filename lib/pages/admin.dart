@@ -1,4 +1,4 @@
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/data_for_admins.dart';
 import 'package:green_scout/pages/group_admin_assign_matches.dart';
 import 'package:green_scout/pages/individual_admin_assign_matches.dart';

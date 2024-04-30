@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:green_scout/globals.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';

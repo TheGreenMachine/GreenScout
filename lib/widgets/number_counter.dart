@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:green_scout/globals.dart';
-import 'package:green_scout/reference.dart';
+import 'package:green_scout/utils/app_state.dart';
+import 'package:green_scout/utils/reference.dart';
 
 class NumberCounterButton extends StatefulWidget {
   const NumberCounterButton({
