@@ -48,7 +48,7 @@ void main() async {
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    await App.httpPost("/", "", ignoreOutput: false);
+    await App.httpPost("/", "", ignoreOutput: true);
 
     if (wasOnline &&
         App.internetOff &&
