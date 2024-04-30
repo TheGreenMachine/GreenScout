@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
@@ -62,7 +62,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
     final width = MediaQuery.of(context).size.width * widthRatio;
     final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
-    final matches = getAllTimeMatchCache();
+    final matches = MainAppData.allTimeMatchCache;
 
     return Scaffold(
       appBar: AppBar(
@@ -81,8 +81,8 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
                 return buildInfoTile(context, widthPadding, Icons.wifi, "IP Address", value.data ?? "NO IP ADDRESS FOUND");
               },
             ),
-            buildInfoTile(context, widthPadding, Icons.perm_identity, "UUID", getUserUUID()),
-            buildInfoTile(context, widthPadding, Icons.data_object, "Certificate", getCertificate()),
+            buildInfoTile(context, widthPadding, Icons.perm_identity, "UUID", MainAppData.userUUID),
+            buildInfoTile(context, widthPadding, Icons.data_object, "Certificate", MainAppData.userCertificate),
             buildActionTile(context, widthPadding, Icons.restore, "Reset Lifetime Matches", "Gets rid of all the cached matches stored", () {
               App.promptAlert(
                 context, 
@@ -91,7 +91,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
                 [
                   ("Yes", () {
                     Navigator.of(context).pop();
-                    resetAllTimeMatchCache();
+                    MainAppData.resetAllTimeMatchCache();
                     setState(() {});
                     App.showMessage(context, "Cleared Lifetime Match Cache");
                   }),
@@ -108,7 +108,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
                 [
                   ("Yes", () {
                     Navigator.of(context).pop();
-                    resetImmediateMatchCache();
+                    MainAppData.resetImmediateMatchCache();
                     App.showMessage(context, "Cleared Temporary Match Cache");
                   }),
                   ("No", null),
@@ -197,7 +197,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
 
             child: ElevatedButton(
               onPressed: () {
-                addToMatchCache(matchJson);
+                MainAppData.addToMatchCache(matchJson);
 
                 App.showMessage(context, "Added To Match Sending Queue");
               }, 

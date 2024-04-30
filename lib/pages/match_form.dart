@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -571,7 +571,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                       return;
                     }
 
-                    addToMatchCache(toJson());
+                    MainAppData.addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());
                   }
                 ),
@@ -811,7 +811,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Is Blue": driverStation.value.$1,
         "Number": driverStation.value.$2
       },
-      "Scouter": getScouterName(),
+      "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
       "Speaker Positions": {
         "sides": shootingPositionSides.value,
