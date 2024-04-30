@@ -52,7 +52,7 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
               "Left": true,
               "Right": false,
             }, 
-            Settings.sideBarLeftSided, 
+            Settings.sideBarLeftSided.ref, 
             false,
           ),
 
@@ -62,7 +62,7 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
               "Left": false,
               "Right": true,
             },
-            Settings.flipNumberCounter,
+            Settings.flipNumberCounter.ref,
             false,
           ),
 
@@ -74,7 +74,7 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
           const SubheaderLabel("Advanced Features"),
           const Padding(padding: EdgeInsets.all(6)),
 
-          createLabelAndCheckBox("Enable Match Rescouting?", Settings.enableMatchRescouting),
+          createLabelAndCheckBox("Enable Match Rescouting?", Settings.enableMatchRescouting.ref),
         ],
       ),
     );

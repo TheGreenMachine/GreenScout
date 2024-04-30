@@ -1,537 +1,730 @@
-
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/home.dart';
+import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
-import 'package:green_scout/widgets/number_counter.dart';
-import 'package:green_scout/widgets/timer_button.dart';
 import 'package:green_scout/widgets/floating_button.dart';
-import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:green_scout/utils/app_state.dart';
-import 'navigation_layout.dart';
-import '../widgets/toggle_floating_button.dart';
-import 'dart:math' as math;
+import 'package:green_scout/widgets/toggle_floating_button.dart';
 
 class MatchFormPage extends StatefulWidget {
   const MatchFormPage({
     super.key,
     this.matchNum,
     this.teamNum,
-    this.isBlue = false,
-    this.driverNumber = 1,
+    this.isBlue,
+    this.driverNumber,
   });
 
   final String? matchNum;
   final String? teamNum;
-
-  final bool isBlue;
-  final int driverNumber;
+  final bool? isBlue;
+  final int? driverNumber;
 
   @override
   State<MatchFormPage> createState() => _MatchFormPage();
 }
 
-enum SpeakerPosition {
-  top,
-  middle,
-  bottom;
-
-  @override
-  String toString() {
-    return switch (this) {
-      SpeakerPosition.top => "top",
-      SpeakerPosition.middle => "middle",
-      SpeakerPosition.bottom => "bottom",
-
-      // ignore: unreachable_switch_case
-      _ => "unknown",
-    };
-  }
-}
-
-enum CycleTimeLocationType {
-  speaker,
+enum CycleTimeLocation2 {
   amp,
+  speaker,
+  shuttle,
+  distance,
 
   none;
 
   @override
   String toString() {
     return switch (this) {
-      CycleTimeLocationType.speaker => "Speaker",
-      CycleTimeLocationType.amp => "Amp",
-      _ => "None",
+      amp => "Amp",
+      speaker => "Speaker",
+      shuttle => "Shuttle",
+      distance => "Distance",
+      none => "None",
+
+      // This is left just in case we need to add something new...
+      // ignore: unreachable_switch_case
+      _ => "Unknown",
     };
   }
 }
 
-class CycleTimeInfo {
-  CycleTimeInfo({
+class CycleTimeInfo2 {
+  CycleTimeInfo2({
     this.time = 0.0,
-    this.success = true,
-    this.location = CycleTimeLocationType.none,
+    this.success = false,
+    this.location = CycleTimeLocation2.none,
   });
 
   double time;
   bool success;
-  CycleTimeLocationType location;
+  CycleTimeLocation2 location;
 }
 
 class _MatchFormPage extends State<MatchFormPage> {
-  final _matchController = TextEditingController();
-  String matchNum = "";
-  final _teamController = TextEditingController();
-  String teamNum = "";
-  Reference<bool> isReplay = Reference(false);
-
   Reference<(bool, int)> driverStation = Reference((false, 1));
 
-  final cycleWatch = Stopwatch();
-  Reference<bool> cycleStopwatchTimerValue = Reference(false);
-  bool cycleTimerLocationDisabled = true;
-
   Reference<bool> canClimbSuccessfully = Reference(false);
-  final climbingWatch = Stopwatch();
-  double climbingTime = 0.0;
-
-  Reference<bool> speakerSides = Reference(false);
-  Reference<bool> speakerMiddle = Reference(false);
-
-  Reference<bool> canShootIntoSpeaker = Reference(false);
-  Reference<bool> canShootIntoAmp = Reference(false);
-
-  Reference<bool> canPickupGround = Reference(false);
-  Reference<bool> canPickupSource = Reference(false);
-
-  Reference<bool> canDistanceShoot = Reference(false);
-  Reference<int> distanceShootingScores = Reference(0);
-  Reference<int> distanceShootingMisses = Reference(0);
 
   Reference<bool> canDoAuto = Reference(false);
-  Reference<int> autoScoresNum = Reference(0);
-  Reference<int> autoMissesNum = Reference(0);
-  Reference<int> autoEjectsNum = Reference(0);
+  Reference<int> autoScores = Reference(0);
+  Reference<int> autoMisses = Reference(0);
+  Reference<int> autoEjects = Reference(0);
 
-  Reference<int> trapMissesNum = Reference(0);
-  Reference<int> trapScoreNum = Reference(0);
+  Stopwatch climbingStopwatch = Stopwatch();
+  double climbingTime = 0.0;
+  bool climbingTimerActive = false;
 
-  Reference<bool> canPark = Reference(false);
-  Reference<bool> disconnected = Reference(false);
-  Reference<bool> lostTrack = Reference(false);
-  Reference<bool> disabled = Reference(false);
+  Stopwatch cycleStopwatch = Stopwatch();
+  bool cycleTimerActive = false;
+  List<CycleTimeInfo2> cycles = [];
 
-  final _notesController = TextEditingController();
-  Reference<String> notes = Reference("");
+  Reference<bool> shootingPositionMiddle = Reference(false);
+  Reference<bool> shootingPositionSides = Reference(false);
 
-  List<CycleTimeInfo> cycleTimestamps = [];
-  int minTimestampsToDisplay = 10;
+  Reference<bool> pickupGround = Reference(false);
+  Reference<bool> pickupSource = Reference(false);
 
-  final bufferTimeMs = 450;
+  Reference<int> trapScores = Reference(0);
+  Reference<int> trapMisses = Reference(0);
+
+  Reference<bool> endgamePark = Reference(false);
+  Reference<bool> scouterLostTrack = Reference(false);
+  Reference<bool> disconnectOrDisabled = Reference(false);
+
+  TextEditingController matchNumberController = TextEditingController();
+  TextEditingController teamNumberController = TextEditingController();
+  TextEditingController notesController = TextEditingController();
+
+  Reference<bool> isReplay = Reference(false);
+  Reference<bool> isRescout = Reference(false);
+  Reference<String> matchNum = Reference("");
+  Reference<String> teamNum = Reference("");
+  String notes = "";
 
   @override
-  void dispose() {
-    _matchController.dispose();
-    _teamController.dispose();
-
-    _notesController.dispose();
-
-    super.dispose();
-  }
-
-  @override 
   void initState() {
-    teamNum = widget.teamNum ?? "0";
-    matchNum = widget.matchNum ?? "0";
-	  driverStation.value = (widget.isBlue, widget.driverNumber);
+    super.initState();
 
-	  super.initState();
+    matchNum.value = widget.matchNum ?? "0";
+    teamNum.value = widget.teamNum ?? "0";
+
+    driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? 1);
   }
 
   @override
   Widget build(BuildContext context) {
-    final windowSize = MediaQuery.of(context).size;
+    if (climbingTimerActive) {
+      startClimbingStopwatch();
+    }
 
-    const mobileViewWidth = 450.0;
+    if (cycleTimerActive) {
+      startCycleStopwatch();
+    } else {
+      endCycleStopwatch();
+    }
 
-    Widget bodyContent;
-    if (windowSize.width > mobileViewWidth) {
-      bodyContent = buildDesktopView(context);
-    } else {}
+    matchNumberController.text = matchNum.value;
+    teamNumberController.text = teamNum.value;
+    notesController.text = notes;
 
-    // TODO: Finally create an appropriate Desktop view for the match form data.
-    bodyContent = buildMobileView(context);
+    Widget mainContent = buildMainContent(context);
+    Widget navigationRail = buildNavigationRail(context);
 
-    _matchController.text = matchNum;
-    _teamController.text = teamNum;
+    Widget leftWidget =
+        Settings.sideBarLeftSided.value() ? navigationRail : mainContent;
 
-    _notesController.text = notes.value;
+    Widget rightWidget =
+        Settings.sideBarLeftSided.value() ? mainContent : navigationRail;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createDefaultActionBar(),
       ),
-
       drawer: const NavigationLayoutDrawer(),
-     
-      body: bodyContent,
+      body: Row(
+        children: [
+          leftWidget,
+          const VerticalDivider(
+            width: 0.1,
+            thickness: 0,
+          ),
+          rightWidget,
+        ],
+      ),
     );
   }
 
-  Widget buildMobileView(BuildContext context) {
-    final ampColor = Theme.of(context).colorScheme.inversePrimary.withRed(255);
-    final speakerColor =
-        Theme.of(context).colorScheme.inversePrimary.withBlue(255);
+  void startClimbingStopwatch() {
+    if (climbingStopwatch.isRunning) {
+      return;
+    }
 
-    return ListView(
-      children: [
-        const Padding(padding: EdgeInsets.all(8)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              children: [
-                SizedBox(
-                  width: 150,
-                  height: 35,
-                  child: TextField(
-                    controller: _matchController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: false),
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                    onChanged: (value) => matchNum = value,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(2),
-                    ],
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: "Match #",
-                      floatingLabelAlignment: FloatingLabelAlignment.center,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      labelStyle: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
-                SizedBox(
-                  width: 150,
-                  height: 35,
-                  child: TextFormField(
-                    controller: _teamController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: false),
-                    style: Theme.of(context).textTheme.titleMedium,
-                    onChanged: (value) => teamNum = value,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(5),
-                    ],
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: "Team #",
-                      floatingLabelAlignment: FloatingLabelAlignment.center,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      labelStyle: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 6.5)),
-            SizedBox(
-              width: 75,
-              height: 70,
-              child: FloatingToggleButton(
-                labelText: "Replay?",
-                initialColor: greenMachineGreen.withRed(255),
-                pressedColor: greenMachineGreen,
-                initialIcon: const Icon(Icons.public_off_sharp),
-                // initialIcon: const Text("NO"),
-                pressedIcon: const Icon(Icons.public),
-                // pressedIcon: const Text("YES"),
-                onPressed: (_) {},
+    climbingStopwatch.start();
 
-                inValue: isReplay,
-              ),
-            ),
-          ],
+    Timer.periodic(
+      const Duration(milliseconds: 150),
+      (timer) {
+        if (!timer.isActive) {
+          return;
+        }
+
+        if (!climbingTimerActive) {
+          timer.cancel();
+          climbingStopwatch.stop();
+        }
+
+        setState(() {
+          climbingTime =
+              climbingStopwatch.elapsedMilliseconds.toDouble() / 1000;
+        });
+      },
+    );
+  }
+
+  void startCycleStopwatch() {
+    if (cycleStopwatch.isRunning) {
+      return;
+    }
+
+    cycleStopwatch.start();
+  }
+
+  void endCycleStopwatch() {
+    if (!cycleStopwatch.isRunning) {
+      return;
+    }
+
+    cycleStopwatch.stop();
+  }
+
+  Widget buildNavigationRail(BuildContext context) {
+    var climberTimerIcon = Icon(
+      Icons.timer,
+      color: climbingTimerActive ? Theme.of(context).colorScheme.primary : null,
+    );
+
+    var cycleTimerIcon = Icon(
+      cycleTimerActive ? Icons.stop : Icons.play_arrow,
+      color: cycleTimerActive ? Colors.red.shade800 : null,
+    );
+
+    return NavigationRail(
+      destinations: [
+        NavigationRailDestination(
+          icon: cycleTimerIcon,
+
+          // Might want to make text flip flop between "Start" and "Stop".
+          label: const Text("Cycles"),
         ),
-
-        const Padding(padding: EdgeInsets.all(4)),
-
-        createLabelAndDropdown<(bool, int)>(
-          "Driver Station",
-          {
-            "Blue 1": (true, 1),
-            "Blue 2": (true, 2),
-            "Blue 3": (true, 3),
-            "Red 1": (false, 1),
-            "Red 2": (false, 2),
-            "Red 3": (false, 3),
-          },
-          driverStation,
-          (false, 1),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.amp_stories,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Amp"),
         ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.speaker,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Speaker"),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.airport_shuttle,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Shuttle"),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.social_distance,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Distance"),
+        ),
+        NavigationRailDestination(
+          icon: climberTimerIcon,
+          label: const Text('Climbing'),
+        ),
+      ],
+      selectedIndex: null,
+      labelType: NavigationRailLabelType.all,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      onDestinationSelected: (index) {
+        setState(() {
+          switch (index) {
+            // Cycle timer index. Make sure to update when moving around stuff!
+            case 0:
+              cycleTimerActive = !cycleTimerActive;
+              break;
 
-        const Padding(padding: EdgeInsets.all(10)),
+            // Cycle buttons for type of shot. Make sure to update when moving around stuff!
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+              cycles.add(
+                CycleTimeInfo2(
+                  time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
+                  success: true,
 
-        createSectionHeader("Auto Mode"),
+                  // Make sure to update this when modifying the previous cases above.
+                  location: switch (index) {
+                    1 => CycleTimeLocation2.amp,
+                    2 => CycleTimeLocation2.speaker,
+                    3 => CycleTimeLocation2.shuttle,
+                    4 => CycleTimeLocation2.distance,
+                    _ => CycleTimeLocation2.none,
+                  },
+                ),
+              );
 
-        createLabelAndCheckBox("Can They Do It?", canDoAuto),
-        createLabelAndNumberField("Scores", autoScoresNum),
-        createLabelAndNumberField("Misses", autoMissesNum),
-        createLabelAndNumberField("Ejects", autoEjectsNum),
+              break;
 
-        const Padding(padding: EdgeInsets.all(12)),
-        
-        
-        createSectionHeader("Distance Shooting"),
+            // Climbing timer index. Make sure to update when moving around stuff!
+            case 5:
+              climbingTimerActive = !climbingTimerActive;
+              break;
+          }
+        });
+      },
+    );
+  }
 
-        createLabelAndCheckBox("Can They Do It?", canDistanceShoot),
-        createLabelAndNumberField("Scores", distanceShootingScores),
-        createLabelAndNumberField("Misses", distanceShootingMisses),
+  Widget buildMainContent(BuildContext context) {
+    const widthRatio = 0.98;
 
-        const Padding(padding: EdgeInsets.all(16)),
+    final width = MediaQuery.of(context).size.width * widthRatio;
+    final widthPadding =
+        MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
+    const centeredWidthRatio = 0.85;
 
+    final centeredWidth =
+        MediaQuery.of(context).size.width * centeredWidthRatio;
+    final centeredWidthPadding =
+        MediaQuery.of(context).size.width * (1.0 - centeredWidthRatio) / 2;
 
-        createSectionHeader("Cycles"),
+    return Expanded(
+      child: ListView(
+        children: [
+          const Padding(padding: EdgeInsets.all(8)),
+          buildTextNumberContainer(context, centeredWidthPadding, 3, "Match #",
+              matchNum, matchNumberController),
+          const Padding(padding: EdgeInsets.all(5)),
+          buildTextNumberContainer(context, centeredWidthPadding, 5, "Team #",
+              teamNum, teamNumberController),
+          const Padding(padding: EdgeInsets.all(5)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            child: FloatingToggleButton(
+              initialColor:
+                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
-        createCycleTimers(ampColor, speakerColor),
+              labelText: "Is Replay?",
 
-        const Padding(padding: EdgeInsets.all(4)),
+              initialIcon: const Icon(Icons.close),
+              pressedIcon: const Icon(Icons.check),
 
-        createCycleListView(ampColor, speakerColor),
+              // onPressed: (value) => isReplay.value = value,
 
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-        createSectionHeader("Climbing"),
-
-        createLabelAndCheckBox("Was It Successful?", canClimbSuccessfully),
-
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
-          child: TimerButton(
-            height: 85,
-            onEnd: (value) {
-              climbingTime = value;
+              inValue: isReplay,
+            ),
+          ),
+          createLabelAndDropdown<(bool, int)>(
+            "Driver Station",
+            {
+              "Red 1": (false, 1),
+              "Red 2": (false, 2),
+              "Red 3": (false, 3),
+              "Blue 1": (true, 1),
+              "Blue 2": (true, 2),
+              "Blue 3": (true, 3),
             },
-            initialTime: climbingTime,
-            lap: false,
-          )
-        ),
-
-        // TODO: Reset button. I can't figure out how to make sure the
-        // visual of the button to be reset too.
-
-        // const Padding(padding: EdgeInsets.all(3)),
-
-        // Padding(
-        // 	padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65)),
-
-        // 	child: FloatingButton(
-        // 		color: Theme.of(context).colorScheme.primaryContainer.withRed(255),
-
-        // 		onPressed: () => setState(() {
-        // 			climbingTime = 0.0;
-        // 		}),
-
-        // 		icon: const Icon(Icons.restore),
-        // 	),
-        // ),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-
-        createSectionHeader("Shooting Info"),
-
-        createLabelAndCheckBox("Shoots into Speaker?", canShootIntoSpeaker),
-        createLabelAndCheckBox("Shoots into Amp?", canShootIntoAmp),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-        
-
-        createSectionHeader("Shooting Position (Speaker / Subwoofer)"),
-
-        createLabelAndCheckBox("Middle", speakerMiddle),
-        createLabelAndCheckBox("Sides", speakerSides),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-
-        createSectionHeader("Pickup Locations"),
-
-        createLabelAndCheckBox("Ground", canPickupGround),
-        createLabelAndCheckBox("Source", canPickupSource),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-
-
-        createSectionHeader("Trap"),
-
-        createLabelAndNumberField("Misses", trapMissesNum),
-        createLabelAndNumberField("Scores", trapScoreNum),
-
-        const Padding(padding: EdgeInsets.all(16)),
-
-        createSectionHeader("Misc."),
-
-        createLabelAndCheckBox("Do They Park?", canPark),
-        createLabelAndCheckBox("Did They Disconnect?", disconnected),
-        createLabelAndCheckBox("Did YOU Lose Track At Any Point?", lostTrack),
-        createLabelAndCheckBox("Did Their Robot Get Disabled?", disabled),
-
-        // createLabelAndCheckBox("Do They Cooperate?", cooperates),
-
-        const Padding(padding: EdgeInsets.all(24)),
-
-        createSectionHeader("Notes"),
-
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
+            driverStation,
+            (false, 1),
           ),
+          const Padding(padding: EdgeInsets.all(5)),
 
-          child: TextField(
-            controller: _notesController,
-            // Font needs to be 16 to fix IOS safari issue.
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
-            onChanged: (value) => notes.value = value,
-            maxLines: 10,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(1.0)),
+          // This is to allow an out for the ios users out there.
+          defaultTargetPlatform == TargetPlatform.iOS 
+          ? buildSaveButton(context, centeredWidthPadding)
+          : const Padding(padding: EdgeInsets.zero,),
+
+          const Padding(padding: EdgeInsets.all(8)),
+          const SubheaderLabel("Auto Mode"),
+          createLabelAndCheckBox("Can Do It?", canDoAuto),
+          createLabelAndNumberField("Scores", autoScores),
+          createLabelAndNumberField("Misses", autoMisses),
+          createLabelAndNumberField("Ejects", autoEjects),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(5)),
+          ExpansionTile(
+            title: Text(
+              "Cycles",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            collapsedBackgroundColor: Colors.grey.shade200,
+            children: [
+              SizedBox(
+                width: centeredWidth,
+                height: MediaQuery.of(context).size.height * 0.25,
+                child: ListView.builder(
+                  itemBuilder: (context, index) =>
+                      buildCycleTile(context, index),
+                  itemCount: cycles.length,
+                ),
               ),
-              // contentPadding: EdgeInsets.symmetric(vertical: 125),
-              isDense: false,
+            ],
+          ),
+          const Padding(padding: EdgeInsets.all(8)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Climbing"),
+          Text(
+            "${climbingTime.toStringAsPrecision(3)} secs",
+            style: Theme.of(context).textTheme.labelLarge,
+            textAlign: TextAlign.center,
+          ),
+          const Padding(padding: EdgeInsets.all(4)),
+          createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
+          const Padding(padding: EdgeInsets.all(1.2)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            child: FloatingActionButton(
+              elevation: 0.0,
+              focusElevation: 0.0,
+              disabledElevation: 0.0,
+              hoverElevation: 0.0,
+              highlightElevation: 0.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(1)),
+              onPressed: () {
+                App.promptAlert(
+                  context,
+                  "Reset Climbing Time?",
+                  "Are you Sure?",
+                  [
+                    (
+                      "Yes",
+                      () {
+                        setState(() => climbingTime = 0.0);
+                        climbingStopwatch.reset();
+                        Navigator.of(context).pop();
+                        App.showMessage(context, "Reset Climbing Time");
+                      }
+                    ),
+                    ("No", null),
+                  ],
+                );
+              },
+              child: const Text("Reset Time"),
             ),
           ),
-        ),
+          const Padding(padding: EdgeInsets.all(6)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Trap"),
+          createLabelAndNumberField("Scores", trapScores),
+          createLabelAndNumberField("Misses", trapMisses),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
+          createLabelAndCheckBox("Middle", shootingPositionMiddle),
+          createLabelAndCheckBox("Sides", shootingPositionSides),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Pickup Locations"),
+          createLabelAndCheckBox("Ground", pickupGround),
+          createLabelAndCheckBox("Source", pickupSource),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Misc."),
+          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
+          createLabelAndCheckBox(
+              "Did Their Robot Get Disconnected Or Disabled?",
+              disconnectOrDisabled),
+          createLabelAndCheckBox(
+              "Did You Lose Track At Any Point?", scouterLostTrack),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(5)),
+          const SubheaderLabel("Notes"),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            child: TextField(
+              controller: notesController,
+              // Font needs to be 16 to fix IOS safari issue.
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 16),
+              onChanged: (value) => notes = value,
+              maxLines: 10,
 
-        const Padding(padding: EdgeInsets.all(24)),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(1.0)),
+                ),
+                // contentPadding: EdgeInsets.symmetric(vertical: 125),
+                isDense: false,
+              ),
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(5)),
+          const Padding(padding: EdgeInsets.all(12)),
 
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+          Settings.enableMatchRescouting.value() 
+          ? Padding(
+            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            child: FloatingToggleButton(
+              initialColor:
+                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              pressedColor: Theme.of(context).colorScheme.inversePrimary,
+              labelText: "Rescouting?",
+              initialIcon: const Icon(Icons.close),
+              pressedIcon: const Icon(Icons.check),
+              inValue: isRescout,
+              onPressed: (pressed) {
+                if (pressed) {
+                  App.promptAlert(
+                    context,
+                    "Are you sure you're rescouting this match?",
+                    "This flag when submitted with \"Save\" is irreversible.",
+                    [
+                      (
+                        "Yes",
+                        () {
+                          isRescout.value = pressed;
+                          Navigator.of(context).pop();
+                        }
+                      ),
+                      (
+                        "No",
+                        () {
+                          setState(() {
+                            isRescout.value = false;
+                          });
+                          Navigator.of(context).pop();
+                        }
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          )
+          : const Padding(padding: EdgeInsets.zero),
 
-          child: FloatingButton(
-            labelText: "Save",
-            icon: const Icon(Icons.save),
-            color: Theme.of(context).colorScheme.inversePrimary,
-            onPressed: () {
-              App.promptAlert(
-                context,
-                "Save?",
-                "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
-                [
-                  ("Yes", () {
-                    if (matchNum == "0" || teamNum == "0") {
+          const Padding(padding: EdgeInsets.all(4)),
+
+          defaultTargetPlatform == TargetPlatform.iOS 
+          ? const Padding(padding: EdgeInsets.zero,)
+          : buildSaveButton(context, centeredWidthPadding),
+
+          const Padding(padding: EdgeInsets.all(16)),
+        ],
+      ),
+    );
+  }
+
+  Widget buildSaveButton(BuildContext context, double widthPadding) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding),
+      child: FloatingButton(
+        labelText: "Save",
+        icon: const Icon(Icons.save),
+        color: Theme.of(context).colorScheme.inversePrimary,
+        onPressed: () {
+          App.promptAlert(
+              context,
+              "Save?",
+              "Are you sure you want to save and send this match form?\nThis action is currently irreversible.",
+              [
+                (
+                  "Yes",
+                  () {
+                    if (matchNum.value == "0" ||
+                        teamNum.value == "0" ||
+                        matchNum.value.isEmpty ||
+                        teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
-                      App.showMessage(context, "You haven't fillied in the team number or match number.");
+                      App.showMessage(context,
+                          "You haven't fillied in the team number or match number.");
                       return;
                     }
 
                     addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());
-                  }),
-                  ("No", null),
-                ]
-              );
-            },
-          ),
-        ),
-
-        // Extra padding for the bottom
-        const Padding(padding: EdgeInsets.all(28)),
-      ],
+                  }
+                ),
+                ("No", null),
+              ]);
+        },
+      ),
     );
   }
 
-  Widget buildDesktopView(BuildContext context) {
-    return ListView(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            right: MediaQuery.of(context).size.width * (1 - 0.72),
-            left: MediaQuery.of(context).size.width * (1 - 0.72),
-            top: 25,
-            bottom: 5,
-          ),
-          child: SizedBox(
-            width: null,
-            height: 40,
-            child: TextField(
-              controller: _matchController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: false),
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(2),
-              ],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: "Match #",
-                floatingLabelAlignment: FloatingLabelAlignment.center,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelStyle: Theme.of(context).textTheme.titleLarge,
-              ),
+  Widget buildCycleTile(BuildContext context, int index) {
+    final info = cycles[index];
+
+    return ListTile(
+      title: Text("${info.time.toStringAsPrecision(3)} seconds"),
+      subtitle: Text(info.location.toString()),
+      leading: FloatingButton( 
+        icon: switch (info.location) {
+          CycleTimeLocation2.amp => const Icon(Icons.amp_stories),
+          CycleTimeLocation2.speaker => const Icon(Icons.speaker),
+          CycleTimeLocation2.shuttle => const Icon(Icons.airport_shuttle),
+          CycleTimeLocation2.distance => const Icon(Icons.social_distance),
+          _ => const Icon(Icons.error),
+        },
+
+        onPressed: () {
+          // This loops around. We just avoid the 'none' cycle time location.
+          info.location = CycleTimeLocation2.values[(info.location.index + 1) % (CycleTimeLocation2.values.length - 1)]; 
+
+          setState(() {});
+        },
+      ),
+      onLongPress: () {
+        App.promptAlert(
+          context,
+          "Do You Want To Delete This Cycle Record?",
+          "time: ${info.time}, location: ${info.location}, success: ${info.success}",
+          [
+            (
+              "Yes",
+              () {
+                Navigator.of(context).pop();
+
+                setState(() => cycles.removeAt(index));
+
+                App.promptAction(
+                  context,
+                  "Deleted Cycle Record",
+                  "Undo?",
+                  () {
+                    setState(() => cycles.insert(index, info));
+                  },
+                );
+              }
             ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1 - 0.72),
-              vertical: 5),
-          child: FloatingToggleButton(
-            labelText: "Replay?",
-            initialColor: greenMachineGreen.withRed(255),
-            pressedColor: greenMachineGreen,
-            initialIcon: const Icon(Icons.public_off_sharp),
-            pressedIcon: const Icon(Icons.public),
-            onPressed: (_) {},
-            inValue: isReplay,
-          ),
-        ),
-      ],
+            ("No", null),
+          ],
+        );
+      },
+      trailing: FloatingActionButton(
+        heroTag: null,
+        backgroundColor: info.success
+            ? Theme.of(context).colorScheme.inversePrimary
+            : Theme.of(context).colorScheme.inversePrimary.withRed(255),
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        disabledElevation: 0,
+        highlightElevation: 0,
+        onPressed: () => setState(() {
+          info.success = !info.success;
+        }),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: info.success ? const Icon(Icons.check) : const Icon(Icons.close),
+      ),
+      hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 
-  Widget createSectionHeader(String headline) {
-    return HeaderLabel(headline);
+  Widget buildTextNumberContainer(
+      BuildContext context,
+      double widthPadding,
+      int digitLimit,
+      String label,
+      Reference<String> assigned,
+      TextEditingController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding),
+      child: SizedBox(
+        // width: centeredWidth,
+        height: 48,
+
+        child: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+          style: Theme.of(context).textTheme.titleMedium,
+          textAlign: TextAlign.center,
+          onChanged: (value) => assigned.value = value,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(digitLimit),
+          ],
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: label,
+            floatingLabelAlignment: FloatingLabelAlignment.center,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            labelStyle: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget createSubsectionHeader(String headline) {
-    return SubheaderLabel(headline);
+  Widget createLabelAndDropdown<V>(
+    String label,
+    Map<String, V> entries,
+    Reference<V> inValue,
+    V defaultValue,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
+        vertical: 8,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          Dropdown<V>(
+            entries: entries,
+            inValue: inValue,
+            defaultValue: defaultValue,
+            textStyle: Theme.of(context).textTheme.labelMedium,
+            padding: const EdgeInsets.only(left: 5),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget createLabelAndCheckBox(String question, Reference<bool> condition) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-          vertical: 5),
+          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
+          vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * (1.0 * 0.55),
+          Expanded(
             child: Text(
               question,
               style: Theme.of(context).textTheme.labelLarge,
@@ -555,22 +748,15 @@ class _MatchFormPage extends State<MatchFormPage> {
       List<Reference<int>> decrementChildren = const [],
       int lowerBound = 0,
       int upperBound = 99}) {
-    // TODO: An interesting idea to pursue in the future is to make this and almost every little function here
-    // into individual stateful widgets so that only those that have anything modified actually update. Currently,
-    // how we update for any little change can probably be a very bad thing that might bite us in terms of performance.
-
-    
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-        vertical: 5,
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
+        vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * (1.0 * 0.35),
+          Expanded(
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge,
@@ -578,13 +764,10 @@ class _MatchFormPage extends State<MatchFormPage> {
               maxLines: 4,
             ),
           ),
-          
           NumberCounterButton(
             number: number,
-
             lowerBound: lowerBound,
             upperBound: upperBound,
-
             incrementChildren: incrementChildren,
             decrementChildren: decrementChildren,
           ),
@@ -593,217 +776,11 @@ class _MatchFormPage extends State<MatchFormPage> {
     );
   }
 
-  Widget createLabelAndDropdown<V>(
-    String label,
-    Map<String, V> entries,
-    Reference<V> inValue,
-    V defaultValue,
-  ) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85),
-        vertical: 5,
-      ),
-
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          Dropdown<V>(
-            entries: entries,
-            inValue: inValue,
-            defaultValue: defaultValue,
-            textStyle: Theme.of(context).textTheme.labelMedium,
-            padding: const EdgeInsets.only(left: 5),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget createCycleTimers(Color ampColor, Color speakerColor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 85,
-          height: 50,
-          child: FloatingButton(
-            labelText: "Amp",
-            icon: const Icon(Icons.amp_stories),
-            color: ampColor,
-            onPressed: () => setState(() {
-              if (cycleWatch.elapsedMilliseconds < bufferTimeMs) {
-                return;
-              }
-
-              cycleTimestamps.add(
-                CycleTimeInfo(
-                  time: cycleWatch.elapsedMilliseconds.toDouble() / 1000,
-                  location: CycleTimeLocationType.amp,
-                ),
-              );
-            }),
-            disabled: cycleTimerLocationDisabled,
-          ),
-        ),
-        SizedBox(
-          width: 85,
-          height: 50,
-          child: FloatingToggleButton(
-            labelText: "Start / Pause",
-            initialIcon: const Icon(Icons.timer_sharp),
-            pressedIcon: const Icon(Icons.timer),
-            initialColor: Theme.of(context).colorScheme.primaryContainer,
-            pressedColor: Theme.of(context).colorScheme.inversePrimary,
-            onPressed: (pressed) {
-              setState(() {
-                cycleTimerLocationDisabled = !pressed;
-                cycleStopwatchTimerValue.value = !cycleStopwatchTimerValue.value;
-
-                // cycleWatch.reset();
-                cycleWatch.start();
-
-                if (!pressed) {
-                  cycleWatch.stop();
-                }
-              });
-              
-              return null;
-            },
-            inValue: cycleStopwatchTimerValue,
-          ),
-        ),
-        SizedBox(
-          width: 85,
-          height: 50,
-          child: FloatingButton(
-            labelText: "Speaker",
-            icon: const Icon(Icons.speaker),
-            color: speakerColor,
-            onPressed: () => setState(() {
-              if (cycleWatch.elapsedMilliseconds < bufferTimeMs) {
-                return;
-              }
-
-              cycleTimestamps.add(
-                CycleTimeInfo(
-                  time: cycleWatch.elapsedMilliseconds.toDouble() / 1000,
-                  location: CycleTimeLocationType.speaker,
-                ),
-              );
-            }),
-            disabled: cycleTimerLocationDisabled,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget createCycleListView(Color ampColor, Color speakerColor) {
-    const widthRatio = 0.85;
-
-    final paddingWidth = MediaQuery.of(context).size.width * (1.0 - widthRatio);
-    final width = MediaQuery.of(context).size.width * widthRatio;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: paddingWidth / 2,
-      ),
-
-      child: SizedBox(
-        width: width,
-        height: 200,
-        child: ListView.builder(
-          itemCount: math.max(minTimestampsToDisplay, cycleTimestamps.length),
-          itemBuilder: (context, index) {
-            CycleTimeInfo info;
-
-            if (index > cycleTimestamps.length - 1) {
-              info = CycleTimeInfo();
-            } else {
-              info = cycleTimestamps[index];
-            }
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: width * 0.435,
-                  height: 35,
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      info.time.toStringAsPrecision(3),
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                  ),
-                ),
-
-                SizedBox(
-                  width: width * 0.425,
-                  height: 35,
-                  child: Container(
-                    alignment: Alignment.center,
-                    color: switch (info.location) {
-                      CycleTimeLocationType.amp => ampColor,
-                      CycleTimeLocationType.speaker => speakerColor,
-                      _ => Theme.of(context).colorScheme.inversePrimary,
-                    },
-                    child: Text(
-                      info.location.toString(),
-                      style: Theme.of(context).textTheme.labelMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-
-                SizedBox(
-                	width: width * 0.10,
-                	height: 35,
-
-                	child: FloatingActionButton(
-                    heroTag: null,
-
-                		backgroundColor: info.success 
-                    ? Theme.of(context).colorScheme.inversePrimary
-                    : Theme.of(context).colorScheme.inversePrimary.withRed(255),
-
-                		elevation: 0,
-                    focusElevation: 0,
-                    hoverElevation: 0,
-                    disabledElevation: 0,
-                    highlightElevation: 0,
-
-                		onPressed: () =>
-                		setState(() {
-                		  info.success = !info.success;
-                		}),
-
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
-
-                		child: info.success 
-                    ? const Icon(Icons.check)
-                    : const Icon(Icons.close),
-                	),
-                )
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   String toJson() {
     List<dynamic> expandCycles() {
       List<dynamic> result = [];
 
-      for (final timestamp in cycleTimestamps) {
+      for (final timestamp in cycles) {
         result.add(
           {
             "Time": timestamp.time,
@@ -813,88 +790,57 @@ class _MatchFormPage extends State<MatchFormPage> {
         );
       }
 
-      if (cycleTimestamps.isEmpty) {
-        result.add(
-          {
-            "Time": 0,
-            "Type": "None",
-            "Success": false,
-          }
-        );
+      if (cycles.isEmpty) {
+        result.add({
+          "Time": 0,
+          "Type": "None",
+          "Success": false,
+        });
       }
 
       return result;
     }
 
-    final result = jsonEncode(
-		{
-			"Team": teamNum.isEmpty ? 1 : int.parse(teamNum),
-			"Match": {
-				"Number": matchNum.isEmpty ? 1 : int.parse(matchNum),
-				"isReplay": isReplay.value
-			},
-
-			"Driver Station": {
-				"Is Blue": driverStation.value.$1,
-				"Number": driverStation.value.$2
-			},
-
-			"Scouter": getScouterName(),
-
-			"Cycles": expandCycles(),
-
-			"Amp": canShootIntoAmp.value,
-			"Speaker": canShootIntoSpeaker.value,
-
-			"Speaker Positions": {
-				"sides": speakerSides.value,
-				"middle": speakerMiddle.value
-			},
-
-			"Pickup Locations": {
-				"Ground": canPickupGround.value,
-				"Source": canPickupSource.value,
-			},
-
-			"Distance Shooting": {
-				"Can": canDistanceShoot.value,
-				"Misses": distanceShootingMisses.value,
-				"Scores": distanceShootingScores.value
-			},
-
-			"Auto": {
-				"Can": canDoAuto.value,
-				"Scores": autoScoresNum.value,
-				"Misses": autoMissesNum.value,
-				"Ejects": autoEjectsNum.value
-			},
-
-			"Climbing": {
-				"Succeeded": canClimbSuccessfully.value,
-				"Time": climbingTime
-			},
-
-			"Trap": {
-				"Misses": trapMissesNum.value,
-				"Score": trapScoreNum.value
-			},
-
-			"Misc": {
-				"Parked": canPark.value,
-				"Lost Communication": disconnected.value,
-				"User Lost Track": lostTrack.value,
-        "Disabled": disabled.value,
-			},
-
-			"Penalties": [
-
-			],
-
+    final result = jsonEncode({
+      "Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
+      "Match": {
+        "Number": matchNum.value.isEmpty ? 1 : int.parse(matchNum.value),
+        "isReplay": isReplay.value
+      },
+      "Driver Station": {
+        "Is Blue": driverStation.value.$1,
+        "Number": driverStation.value.$2
+      },
+      "Scouter": getScouterName(),
+      "Cycles": expandCycles(),
+      "Speaker Positions": {
+        "sides": shootingPositionSides.value,
+        "middle": shootingPositionMiddle.value
+      },
+      "Pickup Locations": {
+        "Ground": pickupGround.value,
+        "Source": pickupSource.value,
+      },
+      "Auto": {
+        "Can": canDoAuto.value,
+        "Scores": autoScores.value,
+        "Misses": autoMisses.value,
+        "Ejects": autoEjects.value
+      },
+      "Climbing": {
+        "Succeeded": canClimbSuccessfully.value,
+        "Time": climbingTime
+      },
+      "Trap": {"Misses": trapMisses.value, "Score": trapScores.value},
+      "Misc": {
+        "Parked": endgamePark.value,
+        "Lost Communication Or Disabled": disconnectOrDisabled.value,
+        "User Lost Track": scouterLostTrack.value,
+      },
+      "Penalties": [],
       "Mangled": false,
-
-			"Notes": notes.value
-		}
-    );
+      "Notes": notes
+    });
 
     log(result);
 

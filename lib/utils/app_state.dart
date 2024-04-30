@@ -25,40 +25,38 @@ class BoolSettingOption {
   String optionStr;
   Reference<bool> ref;
 
+  bool value() {
+    return ref.value;
+  }
+
   void update() {
     App.setBool(optionStr, ref.value);
   }
 }
 
 class Settings {
-  static const flipNumberCounterKey = "[Settings] Flip Number Counter";
-  static const sideBarLeftSidedKey = "[Settings] Side Bar On Left Side";
-  static const useOldLayoutKey = "[Settings] Use Old Match Form Layout";
-  static const enableMatchRescoutingKey = "[Settings] Enable Match Rescouting";
-
-  static BoolSettingOption flipNumberCounterA = 
+  static BoolSettingOption flipNumberCounter = 
       BoolSettingOption(
         "[Settings] Flip Number Counter", 
         false,
       );
- 
-  static Reference<bool> flipNumberCounter =
-      Reference(App.getBool(flipNumberCounterKey) ?? false);
-
-  static Reference<bool> sideBarLeftSided = 
-      Reference(App.getBool(sideBarLeftSidedKey) ?? false);
   
-  static Reference<bool> useOldLayout = 
-      Reference(App.getBool(useOldLayoutKey) ?? false);
-    
-  static Reference<bool> enableMatchRescouting =
-      Reference(App.getBool(enableMatchRescoutingKey) ?? false);
+  static BoolSettingOption sideBarLeftSided = 
+      BoolSettingOption(
+        "[Settings] Side Bar On Left Side",
+        false,
+      );
+  
+  static BoolSettingOption enableMatchRescouting = 
+      BoolSettingOption(
+        "[Settings] Enable Match Rescouting",
+        false,
+      );
 
   static void update() {
-    App.setBool(flipNumberCounterKey, flipNumberCounter.value);
-    App.setBool(sideBarLeftSidedKey, sideBarLeftSided.value);
-    App.setBool(useOldLayoutKey, useOldLayout.value);
-    App.setBool(enableMatchRescoutingKey, enableMatchRescouting.value);
+    flipNumberCounter.update();
+    sideBarLeftSided.update();
+    enableMatchRescouting.update();
   }
 }
 

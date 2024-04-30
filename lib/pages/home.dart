@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
-import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/match_form_2.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
 import 'package:green_scout/pages/preference_helpers.dart';
@@ -66,7 +65,7 @@ class _HomePage extends State<HomePage> {
         child: FloatingButton(
           icon: const Icon(Icons.create),
           color: Theme.of(context).colorScheme.inversePrimary,
-          onPressed: () => App.gotoPage(context, Settings.useOldLayout.value ? const MatchFormPage() : const MatchFormPage2()),
+          onPressed: () => App.gotoPage(context, const MatchFormPage()),
         ),
       ),
     ];
@@ -203,14 +202,7 @@ class _HomePage extends State<HomePage> {
         onPressed: () {
           App.gotoPage(
             context,
-            Settings.useOldLayout.value 
-            ? MatchFormPage(
-              matchNum: match.matchNum.toString(),
-              teamNum: match.team.toString(),
-              isBlue: match.isBlue,
-              driverNumber: match.driveTeamNum,
-            )
-            : MatchFormPage2(
+            MatchFormPage(
               matchNum: match.matchNum.toString(),
               teamNum: match.team.toString(),
               isBlue: match.isBlue,

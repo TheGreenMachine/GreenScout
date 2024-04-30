@@ -5,7 +5,6 @@ import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
-import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/match_form_2.dart';
 import 'package:green_scout/pages/settings.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -85,7 +84,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                 const SubheaderLabel("Pages"),
 
                 buildNavigationButton(context, Icons.home, "Home", const HomePage()),
-                buildNavigationButton(context, Icons.create, "Match Form", Settings.useOldLayout.value ? const MatchFormPage() : const MatchFormPage2()),
+                buildNavigationButton(context, Icons.create, "Match Form", const MatchFormPage()),
                 buildNavigationButton(context, Icons.leaderboard, "Leaderboards", const LeaderboardPage()),
 
                 ...buildAdminPanelNavigation(context),

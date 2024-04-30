@@ -136,11 +136,11 @@ class _NumberCounterButton extends State<NumberCounterButton> {
     Widget decrementButton = buildDecrementButton(context, width);
     Widget incrementButton = buildIncrementButton(context, width);
 
-    Widget leftWidget = Settings.flipNumberCounter.value 
+    Widget leftWidget = Settings.flipNumberCounter.value() 
     ? incrementButton
     : decrementButton;
 
-    Widget rightWidget = Settings.flipNumberCounter.value
+    Widget rightWidget = Settings.flipNumberCounter.value()
     ? decrementButton
     : incrementButton;
 
