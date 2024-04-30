@@ -290,6 +290,16 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
           content,
           style: Theme.of(context).textTheme.labelSmall
         ),
+
+        onLongPress: () async {
+          await Clipboard.setData(ClipboardData(text: content));
+
+          if (mounted) {
+            App.showMessage(context, "Copied '$label' To Clipboard Successfully!");
+          }
+        },
+
+        hoverColor: Theme.of(context).colorScheme.inversePrimary,
       )
     );
   }
