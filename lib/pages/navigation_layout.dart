@@ -5,10 +5,10 @@ import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
-import 'package:green_scout/pages/match_form_2.dart';
+import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/settings.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/subheader.dart';
-import 'preference_helpers.dart';
 
 // The main area to place all relevent navigation.
 class NavigationLayoutDrawer extends StatelessWidget {
@@ -53,7 +53,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                   width: constraint.biggest.width,
 
                   child: Text(
-                    isAdmin() ? "Admin" : "User",
+                    MainAppData.isAdmin ? "Admin" : "User",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 );
@@ -68,7 +68,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
             ),
 
             title: Text(
-              getScouterName(),
+              MainAppData.displayName,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -117,7 +117,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                 "Logging Out?",
                 null,
                 [
-                  ("Yes", () { setLoginStatus(false); App.gotoPage(context, const LoginPageForUsers()); }),
+                  ("Yes", () { MainAppData.loggedIn = false; App.gotoPage(context, const LoginPageForUsers()); }),
                   ("No", null),
                 ],
               );
@@ -134,7 +134,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
   }
 
   List<Widget> buildAdminPanelNavigation(BuildContext context) {
-    if (!isAdmin()) {
+    if (!MainAppData.isAdmin) {
       return [];
     }
 

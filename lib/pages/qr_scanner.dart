@@ -3,8 +3,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/pages/qr_main_hub.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -53,7 +53,7 @@ class _QRScannerPage extends State<QRScannerPage> {
               for (final barcode in barcodes) {
                 if (barcode.rawValue != null) {
                   log("We've gotten ${barcode.rawValue!}");
-                  addToMatchCache(barcode.rawValue!);
+                  MainAppData.addToMatchCache(barcode.rawValue!);
 
                   App.gotoPage(context, const QRCodeMainHubPage());
                   App.showMessage(context, "Successfully Scanned QR Code!");

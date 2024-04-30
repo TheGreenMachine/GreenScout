@@ -3,13 +3,12 @@ import "dart:developer";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:green_scout/pages/home.dart";
+import "package:green_scout/utils/main_app_data_helper.dart";
 import "package:green_scout/widgets/action_bar.dart";
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:encrypt/encrypt.dart';
 
 import "package:green_scout/utils/app_state.dart";
-
-import "preference_helpers.dart";
 
 import 'package:http/http.dart' as http;
 
@@ -81,10 +80,11 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         }
       ''',
         (response) {
-          storeUserRole(response.headers["role"] ?? "None");
-          log(getUserRole());
-          storeUserUUID(response.headers["uuid"] ?? "");
-          storeCertificate(response.headers["certificate"] ?? "");
+          MainAppData.userRole = response.headers["role"] ?? "None";
+          log(MainAppData.userRole);
+
+          MainAppData.userUUID = response.headers["uuid"] ?? "";
+          MainAppData.userCertificate = response.headers["certificate"] ?? "";
         },
       );
 
@@ -100,11 +100,10 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   void continueButtonOnPressed() async {
     continueButtonPressed = true;
 
-    if ((await validateLogin()) == null && getCertificate().isNotEmpty) {
-      setScouterName(_userController.text.toLowerCase());
-      setLoginStatus(true);
-
-      autoSetAdminStatus();
+    if ((await validateLogin()) == null &&  MainAppData.userCertificate.isNotEmpty) {
+      MainAppData.scouterName = _userController.text.toLowerCase();
+      MainAppData.loggedIn = true;
+      MainAppData.autoSetAdminStatus();
 
       if (mounted) {
         App.gotoPage(context, const HomePage());
@@ -252,8 +251,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 ),
               ),
               onTap: () {
-                setScouterName("Guest");
-                setAdminStatus(false);
+                MainAppData.scouterName = "Guest";
+                MainAppData.isAdmin = false;
 
                 // The reasoning for this is simple: When 
                 // logging in as a guest, you're unlikely to
@@ -261,10 +260,10 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 // 
                 // This is because if they're a guest they can't
                 // really sent data to the server.
-                setLoginStatus(false);
+                MainAppData.loggedIn = false;
 
-                storeCertificate("");
-                storeUserUUID("");
+                MainAppData.userCertificate = "";
+                MainAppData.userUUID = "";
 
                 App.gotoPage(context, const HomePage(),
                     canGoBack: true);

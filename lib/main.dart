@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 
-import 'pages/navigation_layout.dart';
-import 'pages/preference_helpers.dart';
 import 'utils/app_state.dart';
 
 class DevHttpOverrides extends HttpOverrides {
@@ -43,14 +41,14 @@ void main() async {
   // }
 
   Timer.periodic(const Duration(seconds: 15), (timer) async {
-    final matches = getImmediateMatchCache();
+    final matches = MainAppData.immediateMatchCache;
 
     // This is to test whether or not we have connection.
     // It may be wasteful but it shows our users that
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    await App.httpPost("/", "", ignoreOutput: false);
+    await App.httpPost("/", "", ignoreOutput: true);
 
     if (wasOnline &&
         App.internetOff &&
@@ -69,9 +67,9 @@ void main() async {
       return;
     }
 
-    if (!loggedInAlready()) {
+    if (!MainAppData.loggedIn) {
       // Just in case some cache is left over and they decided to log out.
-      resetImmediateMatchCache();
+      MainAppData.resetImmediateMatchCache();
       return;
     }
 
@@ -79,7 +77,7 @@ void main() async {
       for (var match in matches) {
         final _ = await App.httpPost("dataEntry", match);
 
-        confirmMatchMangled(match, App.responseSucceeded);
+        MainAppData.confirmMatchMangled(match, App.responseSucceeded);
       }
 
       if (App.internetOff) {
@@ -88,8 +86,8 @@ void main() async {
 
       // A little safety check to ensure that we aren't getting
       // rid of data that just got put into the list.
-      if (matches.length == getImmediateMatchCache().length) {
-        resetImmediateMatchCache();
+      if (matches.length == MainAppData.immediateMatchCache.length) {
+        MainAppData.resetImmediateMatchCache();
       }
     }
   });
@@ -119,9 +117,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark, seedColor: greenMachineGreen,
         ),
       ),
-      home: !loggedInAlready() ? const LoginPageForUsers() : const HomePage(),
-      //   home: const LoginPageForGuest(),
-      // routes: navigationLayout,
+      home: !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
       themeMode: ThemeMode.light,
 

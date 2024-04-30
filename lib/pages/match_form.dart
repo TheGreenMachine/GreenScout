@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -35,7 +35,7 @@ class MatchFormPage extends StatefulWidget {
   State<MatchFormPage> createState() => _MatchFormPage();
 }
 
-enum CycleTimeLocation2 {
+enum CycleTimeLocation {
   amp,
   speaker,
   shuttle,
@@ -59,16 +59,16 @@ enum CycleTimeLocation2 {
   }
 }
 
-class CycleTimeInfo2 {
-  CycleTimeInfo2({
+class CycleTimeInfo {
+  CycleTimeInfo({
     this.time = 0.0,
     this.success = false,
-    this.location = CycleTimeLocation2.none,
+    this.location = CycleTimeLocation.none,
   });
 
   double time;
   bool success;
-  CycleTimeLocation2 location;
+  CycleTimeLocation location;
 }
 
 class _MatchFormPage extends State<MatchFormPage> {
@@ -87,7 +87,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 
   Stopwatch cycleStopwatch = Stopwatch();
   bool cycleTimerActive = false;
-  List<CycleTimeInfo2> cycles = [];
+  List<CycleTimeInfo> cycles = [];
 
   Reference<bool> shootingPositionMiddle = Reference(false);
   Reference<bool> shootingPositionSides = Reference(false);
@@ -282,17 +282,17 @@ class _MatchFormPage extends State<MatchFormPage> {
             case 3:
             case 4:
               cycles.add(
-                CycleTimeInfo2(
+                CycleTimeInfo(
                   time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
                   success: true,
 
                   // Make sure to update this when modifying the previous cases above.
                   location: switch (index) {
-                    1 => CycleTimeLocation2.amp,
-                    2 => CycleTimeLocation2.speaker,
-                    3 => CycleTimeLocation2.shuttle,
-                    4 => CycleTimeLocation2.distance,
-                    _ => CycleTimeLocation2.none,
+                    1 => CycleTimeLocation.amp,
+                    2 => CycleTimeLocation.speaker,
+                    3 => CycleTimeLocation.shuttle,
+                    4 => CycleTimeLocation.distance,
+                    _ => CycleTimeLocation.none,
                   },
                 ),
               );
@@ -571,7 +571,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                       return;
                     }
 
-                    addToMatchCache(toJson());
+                    MainAppData.addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());
                   }
                 ),
@@ -590,16 +590,16 @@ class _MatchFormPage extends State<MatchFormPage> {
       subtitle: Text(info.location.toString()),
       leading: FloatingButton( 
         icon: switch (info.location) {
-          CycleTimeLocation2.amp => const Icon(Icons.amp_stories),
-          CycleTimeLocation2.speaker => const Icon(Icons.speaker),
-          CycleTimeLocation2.shuttle => const Icon(Icons.airport_shuttle),
-          CycleTimeLocation2.distance => const Icon(Icons.social_distance),
+          CycleTimeLocation.amp => const Icon(Icons.amp_stories),
+          CycleTimeLocation.speaker => const Icon(Icons.speaker),
+          CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
+          CycleTimeLocation.distance => const Icon(Icons.social_distance),
           _ => const Icon(Icons.error),
         },
 
         onPressed: () {
           // This loops around. We just avoid the 'none' cycle time location.
-          info.location = CycleTimeLocation2.values[(info.location.index + 1) % (CycleTimeLocation2.values.length - 1)]; 
+          info.location = CycleTimeLocation.values[(info.location.index + 1) % (CycleTimeLocation.values.length - 1)]; 
 
           setState(() {});
         },
@@ -811,7 +811,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Is Blue": driverStation.value.$1,
         "Number": driverStation.value.$2
       },
-      "Scouter": getScouterName(),
+      "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
       "Speaker Positions": {
         "sides": shootingPositionSides.value,

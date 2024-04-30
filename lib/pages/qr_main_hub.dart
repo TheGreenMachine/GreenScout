@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/display_qr_code.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/pages/qr_scanner.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
@@ -23,7 +23,7 @@ class QRCodeMainHubPage extends StatefulWidget {
 class _QRCodeMainHubPage extends State<QRCodeMainHubPage> {
   @override
   Widget build(BuildContext context) {
-    final matches = getAllTimeMatchCache();
+    final matches = MainAppData.allTimeMatchCache;
 
     double widthRatio = 1.0;
 

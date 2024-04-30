@@ -83,14 +83,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
               return buildUnloadedLeaderboard(context);
             },
           ),
-
-
-          // buildRankingsList(context, [RankingInfo("Hured", 3000, 400, true), RankingInfo("Joshua", 300, 23, false), RankingInfo("Mike", 200, 13, false), RankingInfo("Bobby", 100, 10, false), RankingInfo("Billy", 1, 1, false)]),
-
-          // const Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 18),
-          //   child: Text("Leaderboards are currently a work in progress. This feature will most likely not be finished until we have successfully made sure that all the core features are functional.", textAlign: TextAlign.center,),
-          // ),
         ],
       ),
     );
@@ -158,7 +150,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             ),
 
             subtitle: Text(
-              // "Scouted ${info.scoutedMatches} ${info.scoutedMatches > 1 ? "Matches" : "Match"}",
               "${info.points} ${info.points > 1 ? "Points" : "Point"}",
               style: Theme.of(context).textTheme.labelMedium,
             ),

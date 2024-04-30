@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
-import 'package:green_scout/pages/match_form_2.dart';
+import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/pages/qr_main_hub.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   List<Widget> createAdminPageButton(BuildContext context) {
-    if (!isAdmin()) {
+    if (!MainAppData.isAdmin) {
       return [];
     }
 

@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 
 class MatchInfo {
   const MatchInfo(this.matchNum, this.team, this.isBlue, this.driveTeamNum);
@@ -30,7 +30,7 @@ class MatchesData {
       App.setString(matchScheduleJsonKey, response.body);
     });
 
-    await App.httpGet("singleSchedule", getScouterName(), (response) {
+    await App.httpGet("singleSchedule", MainAppData.scouterName, (response) {
       App.setString(assignedMatchScheduleJsonKey, response.body);
     });
 

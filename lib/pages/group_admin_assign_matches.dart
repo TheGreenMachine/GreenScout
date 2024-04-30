@@ -140,7 +140,7 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
               final success = await App.httpPostWithHeaders("addSchedule", match.toJsonGeneric(i + 1),
                   MapEntry("userInput", match.userIds[i]));
 
-              if (!success) {
+              if (!success && context.mounted) {
                 App.showMessage(context, "Failed To Send To Server!");
                 return;
               }
@@ -148,7 +148,11 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
           }
 
           matchesAssigned.clear();
-          App.showMessage(context, "Success!");
+          
+          if (context.mounted) {
+            App.showMessage(context, "Success!");
+          }
+
           setState(() {});
         },
       ),

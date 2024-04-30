@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/no_animation_material_page_route.dart';
-import 'package:green_scout/pages/preference_helpers.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -146,7 +146,7 @@ class App {
         .post(
       uriPath,
       headers: {
-        "Certificate": getCertificate(),
+        "Certificate": MainAppData.userCertificate,
       },
       body: message,
     )
@@ -191,7 +191,7 @@ class App {
     await http
         .post(
       uriPath,
-      headers: {"Certificate": getCertificate(), header.key: header.value},
+      headers: {"Certificate": MainAppData.userCertificate, header.key: header.value},
       body: message,
     )
         .then((response) {
@@ -238,7 +238,7 @@ class App {
     await http
         .post(
       uriPath,
-      headers: {"Certificate": getCertificate()},
+      headers: {"Certificate": MainAppData.userCertificate},
       body: message,
     )
         .then((response) {
