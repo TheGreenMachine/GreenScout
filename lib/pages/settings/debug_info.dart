@@ -181,7 +181,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: matchJson));
 
-                if (mounted) {
+                if (context.mounted) {
                   App.showMessage(context, "Copied To Clipboard Successfully!");
                 }
               }, 
@@ -239,7 +239,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: matchJson));
 
-                if (mounted) {
+                if (context.mounted) {
                   App.showMessage(context, "Copied To Clipboard Successfully!");
                 }
               }, 
@@ -294,7 +294,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
         onLongPress: () async {
           await Clipboard.setData(ClipboardData(text: content));
 
-          if (mounted) {
+          if (context.mounted) {
             App.showMessage(context, "Copied '$label' To Clipboard Successfully!");
           }
         },

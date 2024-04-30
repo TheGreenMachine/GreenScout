@@ -125,14 +125,18 @@ class _IndividualAdminAssignMatchesPage
             final success = await App.httpPostWithHeaders("/addSchedule", match.toJson(),
                 MapEntry("userInput", match.scouterName));
 
-            if (!success) {
+            if (!success && context.mounted) {
               App.showMessage(context, "Failed To Send To Server!");
               return;
             }
           }
 
           matchesAssigned.clear();
-          App.showMessage(context, "Success!");
+
+          if (context.mounted) {
+            App.showMessage(context, "Success!");
+          }
+          
           setState(() {});
         },
       ),
