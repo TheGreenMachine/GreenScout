@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
+import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/reference.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -20,20 +19,7 @@ class SettingsMatchFormLayoutPage extends StatefulWidget {
 class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    double widthRatio = 1.0;
-
-    const ratioThresold = 670;
-
-    {
-      final width = MediaQuery.of(context).size.width;
-
-      final percent = clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
-
-      widthRatio = (1.0 - 0.50 * percent);
-    }
-
-    final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
+    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 1.0, 0.85);
 
     return Scaffold(
       appBar: AppBar(
@@ -48,6 +34,8 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
 
           createLabelAndDropdown<bool>(
             "Side Bar Position", 
+            widthPadding,
+            width,
             {
               "Left": true,
               "Right": false,
@@ -58,6 +46,8 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
 
           createLabelAndDropdown<bool>(
             "Number Counter Decrement Position", 
+            widthPadding,
+            width,
             {
               "Left": false,
               "Right": true,
@@ -74,7 +64,7 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
           const SubheaderLabel("Advanced Features"),
           const Padding(padding: EdgeInsets.all(6)),
 
-          createLabelAndCheckBox("Enable Match Rescouting?", Settings.enableMatchRescouting.ref),
+          createLabelAndCheckBox("Enable Match Rescouting?", widthPadding, Settings.enableMatchRescouting.ref),
         ],
       ),
     );
@@ -82,13 +72,15 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
 
   Widget createLabelAndDropdown<V>(
     String label,
+    double widthPadding,
+    double width,
     Map<String, V> entries,
     Reference<V> inValue,
     V defaultValue,
   ) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
+        horizontal: widthPadding,
         vertical: 8,
       ),
 
@@ -96,30 +88,35 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.65,
+            width: width * 0.65,
 
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
-          Dropdown<V>(
-            entries: entries,
-            inValue: inValue,
-            defaultValue: defaultValue,
-            textStyle: Theme.of(context).textTheme.labelMedium,
-            padding: const EdgeInsets.only(left: 5),
+          SizedBox(
+            width: width * 0.25,
+
+            child: Dropdown<V>(
+              entries: entries,
+              inValue: inValue,
+              defaultValue: defaultValue,
+              textStyle: Theme.of(context).textTheme.labelMedium,
+              padding: const EdgeInsets.only(left: 5),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget createLabelAndCheckBox(String question, Reference<bool> condition) {
+  Widget createLabelAndCheckBox(String question, double widthPadding, Reference<bool> condition) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
-          vertical: 8),
+        horizontal: widthPadding,
+        vertical: 8,
+      ),
 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

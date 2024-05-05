@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
+import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
 import 'package:http/http.dart' as http;
@@ -47,20 +47,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    double widthRatio = 1.0;
-
-    const ratioThresold = 670;
-
-    {
-      final width = MediaQuery.of(context).size.width;
-
-      final percent = clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
-
-      widthRatio = (1.0 - 0.50 * percent);
-    }
-
-    final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
+    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.5, 1.0);
 
     final matches = MainAppData.allTimeMatchCache;
 
@@ -78,12 +65,12 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
           children: [
             StreamBuilder(
               stream: userIpAddress, builder: (context, value) {
-                return buildInfoTile(context, widthPadding, Icons.wifi, "IP Address", value.data ?? "NO IP ADDRESS FOUND");
+                return buildInfoTile(context, widthPadding, width, Icons.wifi, "IP Address", value.data ?? "NO IP ADDRESS FOUND");
               },
             ),
-            buildInfoTile(context, widthPadding, Icons.perm_identity, "UUID", MainAppData.userUUID),
-            buildInfoTile(context, widthPadding, Icons.data_object, "Certificate", MainAppData.userCertificate),
-            buildActionTile(context, widthPadding, Icons.restore, "Reset Lifetime Matches", "Gets rid of all the cached matches stored", () {
+            buildInfoTile(context, widthPadding, width, Icons.perm_identity, "UUID", MainAppData.userUUID),
+            buildInfoTile(context, widthPadding, width, Icons.data_object, "Certificate", MainAppData.userCertificate),
+            buildActionTile(context, widthPadding, width, Icons.restore, "Reset Lifetime Matches", "Gets rid of all the cached matches stored", () {
               App.promptAlert(
                 context, 
                 "Clear All Cached Matches?", 
@@ -100,7 +87,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
               );
             }),
             
-            buildActionTile(context, widthPadding, Icons.restore_from_trash, "Reset Temporary Matches", "Gets rid of all the temporary cached matches stored", () {
+            buildActionTile(context, widthPadding, width, Icons.restore_from_trash, "Reset Temporary Matches", "Gets rid of all the temporary cached matches stored", () {
               App.promptAlert(
                 context, 
                 "Clear All Cached Temporary Matches?", 
@@ -252,55 +239,63 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
     }
   }
 
-  Widget buildActionTile(BuildContext context, double widthPadding, IconData icon, String label, String content, void Function() callback) {
+  Widget buildActionTile(BuildContext context, double widthPadding, double width, IconData icon, String label, String content, void Function() callback) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
 
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(
-          label,
-          style: Theme.of(context).textTheme.labelLarge
+      child: SizedBox(
+        width: width,
+
+        child: ListTile(
+          leading: Icon(icon),
+          title: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge
+          ),
+
+          subtitle: Text(
+            content,
+            style: Theme.of(context).textTheme.labelSmall
+          ),
+
+          hoverColor: Theme.of(context).colorScheme.inversePrimary,
+
+          onTap: callback,
         ),
-
-        subtitle: Text(
-          content,
-          style: Theme.of(context).textTheme.labelSmall
-        ),
-
-        hoverColor: Theme.of(context).colorScheme.inversePrimary,
-
-        onTap: callback,
       )
     );
   }
 
-  Widget buildInfoTile(BuildContext context, double widthPadding, IconData icon, String label, String content) {
+  Widget buildInfoTile(BuildContext context, double widthPadding, double width, IconData icon, String label, String content) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
 
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(
-          label,
-          style: Theme.of(context).textTheme.labelLarge
-        ),
+      child: SizedBox(
+        width: width,
 
-        subtitle: Text(
-          content,
-          style: Theme.of(context).textTheme.labelSmall
-        ),
+        child: ListTile(
+          leading: Icon(icon),
+          title: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge
+          ),
 
-        onLongPress: () async {
-          await Clipboard.setData(ClipboardData(text: content));
+          subtitle: Text(
+            content,
+            style: Theme.of(context).textTheme.labelSmall
+          ),
 
-          if (context.mounted) {
-            App.showMessage(context, "Copied '$label' To Clipboard Successfully!");
-          }
-        },
+          onLongPress: () async {
+            await Clipboard.setData(ClipboardData(text: content));
 
-        hoverColor: Theme.of(context).colorScheme.inversePrimary,
-      )
+            if (context.mounted) {
+              App.showMessage(context, "Copied '$label' To Clipboard Successfully!");
+            }
+          },
+
+          hoverColor: Theme.of(context).colorScheme.inversePrimary,
+        )
+      ),
     );
   }
 }
