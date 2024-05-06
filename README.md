@@ -38,6 +38,8 @@ Choose whichever target you would like to build for and run the app.
 
 P.S: If you are using VS Code, I highly recommend installing the [Flutter Extension](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) and [Dart Extension](https://marketplace.visualstudio.com/items?itemName=Dart-Code.dart-code) as they provide code highlighting, code suggestions, an integrated build system, and debug console into the editor.
 
+Also, any additional documentation can be found [here](./docs/).
+
 
 # Roadmap
   * Admin Features
