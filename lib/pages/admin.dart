@@ -1,9 +1,9 @@
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/data_for_admins.dart';
+import 'package:green_scout/utils/data_for_admins.dart';
 import 'package:green_scout/pages/group_admin_assign_matches.dart';
 import 'package:green_scout/pages/individual_admin_assign_matches.dart';
-import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/widgets/navigation_layout.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -11,7 +11,11 @@ import 'package:flutter/material.dart';
 
 class MatchDisplayAdminData {
   const MatchDisplayAdminData(
-      this.match, this.team, this.isBlue, this.driverStation);
+    this.match, 
+    this.team, 
+    this.isBlue, 
+    this.driverStation,
+  );
 
   final int match;
   final int team;

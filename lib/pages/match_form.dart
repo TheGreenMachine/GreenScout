@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/home.dart';
-import 'package:green_scout/pages/navigation_layout.dart';
+import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/number_counter.dart';
@@ -228,6 +228,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           // Might want to make text flip flop between "Start" and "Stop".
           label: const Text("Cycles"),
         ),
+
         NavigationRailDestination(
           icon: Icon(
             Icons.amp_stories,
@@ -236,6 +237,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Amp"),
         ),
+        
         NavigationRailDestination(
           icon: Icon(
             Icons.speaker,
@@ -244,6 +246,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Speaker"),
         ),
+
         NavigationRailDestination(
           icon: Icon(
             Icons.airport_shuttle,
@@ -252,6 +255,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Shuttle"),
         ),
+
         NavigationRailDestination(
           icon: Icon(
             Icons.social_distance,
@@ -260,14 +264,17 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Distance"),
         ),
+
         NavigationRailDestination(
           icon: climberTimerIcon,
           label: const Text('Climbing'),
         ),
       ],
+
       selectedIndex: null,
       labelType: NavigationRailLabelType.all,
       backgroundColor: Theme.of(context).colorScheme.surface,
+
       onDestinationSelected: (index) {
         setState(() {
           switch (index) {
@@ -310,34 +317,43 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   Widget buildMainContent(BuildContext context) {
-    const widthRatio = 0.98;
+    const widthRatio = 0.85;
 
     final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding =
-        MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
-
-    const centeredWidthRatio = 0.85;
-
-    final centeredWidth =
-        MediaQuery.of(context).size.width * centeredWidthRatio;
-    final centeredWidthPadding =
-        MediaQuery.of(context).size.width * (1.0 - centeredWidthRatio) / 2;
+    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
     return Expanded(
       child: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(8)),
-          buildTextNumberContainer(context, centeredWidthPadding, 3, "Match #",
-              matchNum, matchNumberController),
+
+          buildTextNumberContainer(
+            context, 
+            widthPadding, 
+            3, 
+            "Match #",
+            matchNum, 
+            matchNumberController,
+          ),
+
           const Padding(padding: EdgeInsets.all(5)),
-          buildTextNumberContainer(context, centeredWidthPadding, 5, "Team #",
-              teamNum, teamNumberController),
+
+          buildTextNumberContainer(
+            context, 
+            widthPadding, 
+            5, 
+            "Team #",
+            teamNum, 
+            teamNumberController,
+          ),
+
           const Padding(padding: EdgeInsets.all(5)),
+
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
             child: FloatingToggleButton(
-              initialColor:
-                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              initialColor: Theme.of(context).colorScheme.inversePrimary.withRed(255),
               pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
               labelText: "Is Replay?",
@@ -350,6 +366,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               inValue: isReplay,
             ),
           ),
+
           createLabelAndDropdown<(bool, int)>(
             "Driver Station",
             {
@@ -363,21 +380,27 @@ class _MatchFormPage extends State<MatchFormPage> {
             driverStation,
             (false, 1),
           ),
+
           const Padding(padding: EdgeInsets.all(5)),
 
           // This is to allow an out for the ios users out there.
           defaultTargetPlatform == TargetPlatform.iOS 
-          ? buildSaveButton(context, centeredWidthPadding)
+          ? buildSaveButton(context, widthPadding)
           : const Padding(padding: EdgeInsets.zero,),
 
           const Padding(padding: EdgeInsets.all(8)),
+
           const SubheaderLabel("Auto Mode"),
+
           createLabelAndCheckBox("Can Do It?", canDoAuto),
           createLabelAndNumberField("Scores", autoScores),
           createLabelAndNumberField("Misses", autoMisses),
           createLabelAndNumberField("Ejects", autoEjects),
+
           const Padding(padding: EdgeInsets.all(5)),
+
           const Padding(padding: EdgeInsets.all(5)),
+
           ExpansionTile(
             title: Text(
               "Cycles",
@@ -387,7 +410,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             collapsedBackgroundColor: Colors.grey.shade200,
             children: [
               SizedBox(
-                width: centeredWidth,
+                width: width,
                 height: MediaQuery.of(context).size.height * 0.25,
                 child: ListView.builder(
                   itemBuilder: (context, index) =>
@@ -397,19 +420,23 @@ class _MatchFormPage extends State<MatchFormPage> {
               ),
             ],
           ),
-          const Padding(padding: EdgeInsets.all(8)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+          const Padding(padding: EdgeInsets.all(13)),
+
           const SubheaderLabel("Climbing"),
+
           Text(
             "${climbingTime.toStringAsPrecision(3)} secs",
             style: Theme.of(context).textTheme.labelLarge,
             textAlign: TextAlign.center,
           ),
+
           const Padding(padding: EdgeInsets.all(4)),
+
           createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
           const Padding(padding: EdgeInsets.all(1.2)),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingActionButton(
               elevation: 0.0,
               focusElevation: 0.0,
@@ -440,42 +467,62 @@ class _MatchFormPage extends State<MatchFormPage> {
               child: const Text("Reset Time"),
             ),
           ),
-          const Padding(padding: EdgeInsets.all(6)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+
+          const Padding(padding: EdgeInsets.all(11)),
+
           const SubheaderLabel("Trap"),
+
           createLabelAndNumberField("Scores", trapScores),
           createLabelAndNumberField("Misses", trapMisses),
-          const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+
           const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
+
           createLabelAndCheckBox("Middle", shootingPositionMiddle),
           createLabelAndCheckBox("Sides", shootingPositionSides),
-          const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+
           const SubheaderLabel("Pickup Locations"),
+
           createLabelAndCheckBox("Ground", pickupGround),
           createLabelAndCheckBox("Source", pickupSource),
-          const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(5)),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+
           const SubheaderLabel("Misc."),
+
           createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
+
           createLabelAndCheckBox(
-              "Did Their Robot Get Disconnected Or Disabled?",
-              disconnectOrDisabled),
+            "Did Their Robot Get Disconnected Or Disabled?",
+            disconnectOrDisabled,
+          ),
+
           createLabelAndCheckBox(
-              "Did You Lose Track At Any Point?", scouterLostTrack),
-          const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(5)),
+            "Did You Lose Track At Any Point?", 
+            scouterLostTrack,
+          ),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+
           const SubheaderLabel("Notes"),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: TextField(
               controller: notesController,
-              // Font needs to be 16 to fix IOS safari issue.
+              // NOTE: Font needs to be greater than 16 to fix IOS safari issue.
               style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 16),
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontSize: 18),
+
               onChanged: (value) => notes = value,
               maxLines: 10,
 
@@ -488,12 +535,13 @@ class _MatchFormPage extends State<MatchFormPage> {
               ),
             ),
           ),
-          const Padding(padding: EdgeInsets.all(5)),
-          const Padding(padding: EdgeInsets.all(12)),
+
+          const Padding(padding: EdgeInsets.all(17)),
+
 
           Settings.enableMatchRescouting.value() 
           ? Padding(
-            padding: EdgeInsets.symmetric(horizontal: centeredWidthPadding),
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingToggleButton(
               initialColor:
                   Theme.of(context).colorScheme.inversePrimary.withRed(255),
@@ -536,8 +584,8 @@ class _MatchFormPage extends State<MatchFormPage> {
           const Padding(padding: EdgeInsets.all(4)),
 
           defaultTargetPlatform == TargetPlatform.iOS 
-          ? const Padding(padding: EdgeInsets.zero,)
-          : buildSaveButton(context, centeredWidthPadding),
+          ? const Padding(padding: EdgeInsets.zero)
+          : buildSaveButton(context, widthPadding),
 
           const Padding(padding: EdgeInsets.all(16)),
         ],
@@ -548,6 +596,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   Widget buildSaveButton(BuildContext context, double widthPadding) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
       child: FloatingButton(
         labelText: "Save",
         icon: const Icon(Icons.save),
@@ -561,10 +610,12 @@ class _MatchFormPage extends State<MatchFormPage> {
                 (
                   "Yes",
                   () {
-                    if (matchNum.value == "0" ||
-                        teamNum.value == "0" ||
-                        matchNum.value.isEmpty ||
-                        teamNum.value.isEmpty) {
+                    if (
+                      matchNum.value == "0" ||
+                      teamNum.value == "0" ||
+                      matchNum.value.isEmpty ||
+                      teamNum.value.isEmpty
+                    ) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
                           "You haven't fillied in the team number or match number.");
@@ -604,6 +655,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           setState(() {});
         },
       ),
+
       onLongPress: () {
         App.promptAlert(
           context,
@@ -634,46 +686,53 @@ class _MatchFormPage extends State<MatchFormPage> {
       trailing: FloatingActionButton(
         heroTag: null,
         backgroundColor: info.success
-            ? Theme.of(context).colorScheme.inversePrimary
-            : Theme.of(context).colorScheme.inversePrimary.withRed(255),
+          ? Theme.of(context).colorScheme.inversePrimary
+          : Theme.of(context).colorScheme.inversePrimary.withRed(255),
+
         elevation: 0,
         focusElevation: 0,
         hoverElevation: 0,
         disabledElevation: 0,
         highlightElevation: 0,
+
         onPressed: () => setState(() {
           info.success = !info.success;
         }),
+
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: info.success ? const Icon(Icons.check) : const Icon(Icons.close),
       ),
+
       hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 
   Widget buildTextNumberContainer(
-      BuildContext context,
-      double widthPadding,
-      int digitLimit,
-      String label,
-      Reference<String> assigned,
-      TextEditingController controller) {
+    BuildContext context,
+    double widthPadding,
+    int digitLimit,
+    String label,
+    Reference<String> assigned,
+    TextEditingController controller,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
       child: SizedBox(
-        // width: centeredWidth,
         height: 48,
 
         child: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: false),
+
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
+
           onChanged: (value) => assigned.value = value,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(digitLimit),
           ],
+
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: label,
@@ -697,6 +756,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
         vertical: 8,
       ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -719,8 +779,10 @@ class _MatchFormPage extends State<MatchFormPage> {
   Widget createLabelAndCheckBox(String question, Reference<bool> condition) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
-          vertical: 8),
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
+        vertical: 8,
+      ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -744,15 +806,17 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   Widget createLabelAndNumberField(String label, Reference<int> number,
-      {List<Reference<int>> incrementChildren = const [],
-      List<Reference<int>> decrementChildren = const [],
-      int lowerBound = 0,
-      int upperBound = 99}) {
+    {List<Reference<int>> incrementChildren = const [],
+    List<Reference<int>> decrementChildren = const [],
+    int lowerBound = 0,
+    int upperBound = 99}
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
         vertical: 8,
       ),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -803,46 +867,56 @@ class _MatchFormPage extends State<MatchFormPage> {
 
     final result = jsonEncode({
       "Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
+      
       "Match": {
         "Number": matchNum.value.isEmpty ? 1 : int.parse(matchNum.value),
         "isReplay": isReplay.value
       },
+
       "Driver Station": {
         "Is Blue": driverStation.value.$1,
         "Number": driverStation.value.$2
       },
+
       "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
+
       "Speaker Positions": {
         "sides": shootingPositionSides.value,
         "middle": shootingPositionMiddle.value
       },
+
       "Pickup Locations": {
         "Ground": pickupGround.value,
         "Source": pickupSource.value,
       },
+
       "Auto": {
         "Can": canDoAuto.value,
         "Scores": autoScores.value,
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
       },
+
       "Climbing": {
         "Succeeded": canClimbSuccessfully.value,
         "Time": climbingTime
       },
+
       "Trap": {"Misses": trapMisses.value, "Score": trapScores.value},
+
       "Misc": {
         "Parked": endgamePark.value,
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
         "User Lost Track": scouterLostTrack.value,
       },
+
       "Penalties": [],
       "Mangled": false,
       "Notes": notes
     });
 
-    log(result);
+    log("Exported Json:\n------------------------------\n$result\n------------------------------");
 
     return result;
   }

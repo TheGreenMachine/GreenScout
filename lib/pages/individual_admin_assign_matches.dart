@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/data_for_admins.dart';
+import 'package:green_scout/utils/data_for_admins.dart';
 import 'package:green_scout/utils/reference.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/number_counter.dart';
@@ -82,8 +82,10 @@ class _IndividualAdminAssignMatchesPage
       body: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(8)),
+
           const SubheaderLabel("User"),
           const Padding(padding: EdgeInsets.all(2)),
+
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
@@ -107,7 +109,9 @@ class _IndividualAdminAssignMatchesPage
               },
             ),
           ),
+
           const Padding(padding: EdgeInsets.all(12)),
+
           ...buildAssignmentFields(context),
         ],
       ),
@@ -117,9 +121,12 @@ class _IndividualAdminAssignMatchesPage
   Widget buildSendButton(BuildContext context, double widthPadding) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
       child: FloatingButton(
         labelText: "Send To Server",
+
         color: Theme.of(context).colorScheme.inversePrimary,
+
         onPressed: () async {
           for (var match in matchesAssigned) {
             final success = await App.httpPostWithHeaders("/addSchedule", match.toJson(),
@@ -136,7 +143,7 @@ class _IndividualAdminAssignMatchesPage
           if (context.mounted) {
             App.showMessage(context, "Success!");
           }
-          
+
           setState(() {});
         },
       ),
@@ -150,13 +157,15 @@ class _IndividualAdminAssignMatchesPage
 
     const matchRangeWidthRatio = 0.75;
 
-    final matchRangeWidthPadding =
-        MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
     final matchRangeWidth =
         MediaQuery.of(context).size.width * matchRangeWidthRatio;
+    
+    final matchRangeWidthPadding =
+        MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
 
     return [
       const SubheaderLabel("Match Range"),
+
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -187,6 +196,7 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
+
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -217,6 +227,7 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(16)),
+
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -234,6 +245,7 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
+
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -258,6 +270,8 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(18)),
+
+
       const SubheaderLabel("Add Match Range To List"),
       Padding(
         padding: EdgeInsets.symmetric(
@@ -286,6 +300,7 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
+
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -301,6 +316,7 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(16)),
+      
       buildSendButton(context, matchRangeWidthPadding),
       const Padding(padding: EdgeInsets.all(32)),
     ];

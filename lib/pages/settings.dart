@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/navigation_layout.dart';
+import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/pages/settings/debug_info.dart';
 import 'package:green_scout/pages/settings/match_form_layout.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/utils/general_utils.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -27,22 +26,7 @@ class _SettingsPage extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    double widthRatio = 1.0;
-
-    const ratioThresold = 670;
-
-    {
-      final width = MediaQuery.of(context).size.width;
-
-      final percent = clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
-
-      widthRatio = (1.0 - 0.50 * percent);
-    }
-
-    final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
-
-
+    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.5, 1.0);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,33 +42,37 @@ class _SettingsPage extends State<SettingsPage> {
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Settings"),
 
-          buildSettingTile(context, widthPadding, Icons.format_list_bulleted_outlined, "Match Form Layout", const SettingsMatchFormLayoutPage()),
-          buildSettingTile(context, widthPadding, Icons.developer_board, "Debug Info", const SettingsDebugInfoPage()),
+          buildSettingTile(context, widthPadding, width, Icons.format_list_bulleted_outlined, "Match Form Layout", const SettingsMatchFormLayoutPage()),
+          buildSettingTile(context, widthPadding, width, Icons.developer_board, "Debug Info", const SettingsDebugInfoPage()),
         ],
       ),
     );
   }
 
-  Widget buildSettingTile(BuildContext context, double widthPadding, IconData icon, String label, Widget page) {
+  Widget buildSettingTile(BuildContext context, double widthPadding, double width, IconData icon, String label, Widget page) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
 
-      child: ListTile(
-        leading: Icon(icon),
+      child: SizedBox(
+        width: width,
 
-        hoverColor: Theme.of(context).colorScheme.inversePrimary,
+        child: ListTile(
+          leading: Icon(icon),
 
-        onTap: () {
-          App.gotoPage(context, page, canGoBack: true);
-        },
+          hoverColor: Theme.of(context).colorScheme.inversePrimary,
 
-        title: Text(
-          label,
-          style: Theme.of(context).textTheme.labelLarge,
+          onTap: () {
+            App.gotoPage(context, page, canGoBack: true);
+          },
+
+          title: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+
+          titleAlignment: ListTileTitleAlignment.center,
         ),
-
-        titleAlignment: ListTileTitleAlignment.center,
-      )
+      ),
     );
   }
 }

@@ -20,10 +20,10 @@ class MatchesData {
   static List<MatchInfo> allAssignedMatches = [];
 
   @protected
-  static String matchScheduleJsonKey = "Match Schedules";
+  static const String matchScheduleJsonKey = "Match Schedules";
 
   @protected
-  static String assignedMatchScheduleJsonKey = "Assigned Matches Schedule";
+  static const String assignedMatchScheduleJsonKey = "Assigned Matches Schedule";
 
   static void getAllMatchesFromServer() async {
     await App.httpGet("schedule", "", (response) {

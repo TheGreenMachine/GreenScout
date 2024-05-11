@@ -4,8 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/pages/navigation_layout.dart';
-import 'package:green_scout/widgets/action_bar.dart';
+import 'package:green_scout/widgets/navigation_layout.dart';
+import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 
 class LeaderboardPage extends StatefulWidget {
@@ -28,6 +28,7 @@ class RankingInfo {
   final int points;
 
   final bool isStCloudMVP;
+  // TODO: Add more potential badge options here.
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {

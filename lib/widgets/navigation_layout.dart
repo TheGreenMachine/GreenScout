@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
@@ -7,6 +6,7 @@ import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/match_form.dart';
 import 'package:green_scout/pages/settings.dart';
+import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
@@ -16,21 +16,15 @@ class NavigationLayoutDrawer extends StatelessWidget {
   
   @override 
   Widget build(BuildContext context) {
-    double widthRatio = 0.75;
-
-    const lowerLimit = 455;
-    const upperLimit = 755;
-
-    {
-      final width = MediaQuery.of(context).size.width;
-
-      final percent = clampDouble(((width - lowerLimit) / (upperLimit - lowerLimit)), 0.0, 1.0);
-
-      widthRatio = (0.75 - 0.20 * percent);
-    }
-
-    final width = MediaQuery.of(context).size.width * widthRatio;
     final height = MediaQuery.of(context).size.height;
+
+    final (width, _) = screenScalerBounded(
+      MediaQuery.of(context).size.width, 
+      755, 
+      455, 
+      0.75,
+      0.55,
+    );
 
     return Drawer(
       width: width,

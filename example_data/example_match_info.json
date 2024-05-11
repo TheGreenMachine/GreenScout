@@ -51,5 +51,8 @@
         "Disabled": false
     },
     "Penalties": [],
+
+    "Mangled": false,
+
     "Notes": ""
 }
