@@ -28,18 +28,6 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Start up check to ensure that we're logged out when 
-  // the certificate becomes invalid on the server.
-  // await App.httpPost("certificateValid", '');
-
-  // if (App.responseFailed) {
-  //   log("Certfifcate: ${getCertificate()}");
-
-  //   setLoginStatus(false);
-  //   storeCertificate("");
-  //   storeUserUUID("");
-  // }
-
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = MainAppData.immediateMatchCache;
 
@@ -94,6 +82,18 @@ void main() async {
 
   runApp(const MyApp());
 
+  if (MainAppData.loggedIn && MainAppData.userCertificate != null) {
+    // Start up check to ensure that we're logged out when
+    // the certificate becomes invalid on the server.
+    bool postSucceeded = await App.httpPost("certificateValid", '');
+
+    if (!postSucceeded) {
+      MainAppData.loggedIn = false;
+      App.gotoPage(
+          globalNavigatorKey.currentContext!, const LoginPageForUsers());
+    }
+  }
+
   Settings.update();
 }
 
@@ -114,10 +114,12 @@ class MyApp extends StatelessWidget {
       // TODO: later
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark, seedColor: greenMachineGreen,
+          brightness: Brightness.dark,
+          seedColor: greenMachineGreen,
         ),
       ),
-      home: !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
+      home:
+          !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
       themeMode: ThemeMode.light,
 
