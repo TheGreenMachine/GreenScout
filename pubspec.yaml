@@ -42,6 +42,9 @@ dependencies:
   encrypt: ^5.0.3
   network_info_plus: ^5.0.2
 
+  scrollable_positioned_list: ^0.2.3
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

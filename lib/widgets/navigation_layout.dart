@@ -1,3 +1,4 @@
+import 'package:green_scout/pages/hof.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
@@ -13,15 +14,15 @@ import 'package:green_scout/widgets/subheader.dart';
 // The main area to place all relevent navigation.
 class NavigationLayoutDrawer extends StatelessWidget {
   const NavigationLayoutDrawer({super.key});
-  
-  @override 
+
+  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
     final (width, _) = screenScalerBounded(
-      MediaQuery.of(context).size.width, 
-      755, 
-      455, 
+      MediaQuery.of(context).size.width,
+      755,
+      455,
       0.75,
       0.55,
     );
@@ -29,11 +30,9 @@ class NavigationLayoutDrawer extends StatelessWidget {
     return Drawer(
       width: width,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
-
       child: Column(
         children: [
           const Padding(padding: EdgeInsets.all(6)),
-
           ListTile(
             // subtitle: Text("TODO User / Admin / Super"),
             visualDensity: VisualDensity.comfortable,
@@ -43,9 +42,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
             subtitle: Container(
               color: Colors.transparent,
               child: LayoutBuilder(builder: (context, constraint) {
-                return SizedBox( 
+                return SizedBox(
                   width: constraint.biggest.width,
-
                   child: Text(
                     MainAppData.isAdmin ? "Admin" : "User",
                     style: Theme.of(context).textTheme.bodySmall,
@@ -57,7 +55,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
             leading: Container(
               color: Colors.transparent,
               child: LayoutBuilder(builder: (context, constraint) {
-                return Icon(Icons.account_circle, size: constraint.biggest.height);
+                return Icon(Icons.account_circle,
+                    size: constraint.biggest.height);
               }),
             ),
 
@@ -66,30 +65,28 @@ class NavigationLayoutDrawer extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-
           SizedBox(
             width: width,
             height: height * 0.65,
-
             child: ListView(
               children: [
                 const Padding(padding: EdgeInsets.all(8)),
-
                 const SubheaderLabel("Pages"),
-
-                buildNavigationButton(context, Icons.home, "Home", const HomePage()),
-                buildNavigationButton(context, Icons.create, "Match Form", const MatchFormPage()),
-                buildNavigationButton(context, Icons.leaderboard, "Leaderboards", const LeaderboardPage()),
-
+                buildNavigationButton(
+                    context, Icons.home, "Home", const HomePage()),
+                buildNavigationButton(
+                    context, Icons.create, "Match Form", const MatchFormPage()),
+                buildNavigationButton(context, Icons.leaderboard,
+                    "Leaderboards", const LeaderboardPage()),
+                buildNavigationButton(context, Icons.emoji_events_sharp,
+                    "Hall of Fame", const HallOfFamePage()),
                 ...buildAdminPanelNavigation(context),
               ],
             ),
           ),
-
           Expanded(child: Container()),
-
-          buildNavigationButton(context, Icons.settings, "Settings", const SettingsPage()),
-
+          buildNavigationButton(
+              context, Icons.settings, "Settings", const SettingsPage()),
           ListTile(
             // subtitle: Text("TODO User / Admin / Super"),
             visualDensity: VisualDensity.comfortable,
@@ -107,11 +104,17 @@ class NavigationLayoutDrawer extends StatelessWidget {
 
             onTap: () {
               App.promptAlert(
-                context, 
+                context,
                 "Logging Out?",
                 null,
                 [
-                  ("Yes", () { MainAppData.loggedIn = false; App.gotoPage(context, const LoginPageForUsers()); }),
+                  (
+                    "Yes",
+                    () {
+                      MainAppData.loggedIn = false;
+                      App.gotoPage(context, const LoginPageForUsers());
+                    }
+                  ),
                   ("No", null),
                 ],
               );
@@ -134,31 +137,27 @@ class NavigationLayoutDrawer extends StatelessWidget {
 
     return [
       const Padding(padding: EdgeInsets.all(16)),
-
       const SubheaderLabel("Admin"),
-      buildNavigationButton(context, Icons.admin_panel_settings, "Control Panel", const AdminPage()),
+      buildNavigationButton(context, Icons.admin_panel_settings,
+          "Control Panel", const AdminPage()),
     ];
   }
 
-  Widget buildNavigationButton(BuildContext context, IconData icon, String label, Widget page) {
+  Widget buildNavigationButton(
+      BuildContext context, IconData icon, String label, Widget page) {
     return ListTile(
       onTap: () {
         App.gotoPage(context, page);
       },
-
       hoverColor: Theme.of(context).colorScheme.inversePrimary,
-
       visualDensity: VisualDensity.comfortable,
-
       dense: true,
-
       leading: Container(
         color: Colors.transparent,
         child: LayoutBuilder(builder: (context, constraint) {
           return Icon(icon, size: constraint.biggest.height / 2);
         }),
       ),
-
       title: Text(
         label,
         style: Theme.of(context).textTheme.titleSmall,
