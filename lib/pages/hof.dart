@@ -169,7 +169,7 @@ class _HOFPage extends State<HallOfFamePage> {
           const HeaderLabel("Hall of Fame"),
           const Padding(padding: EdgeInsets.all(4)),
           SizedBox(
-            height: MediaQuery.of(context).size.height - 150,
+            height: 700,
             child: Stack(
               children: [
                 ScrollablePositionedList.separated(
