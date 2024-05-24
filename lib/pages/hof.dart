@@ -79,8 +79,7 @@ class _HOFPage extends State<HallOfFamePage> {
       ["Frontend GOAT"],
       "Original Frontend developer for GreenScout",
       '"I took one look at him and knew he was cracked" -Nico L, 2024',
-      "assets/leaderboard/badges/1st place badge.png",
-      //PLACEHOLDER
+      "assets/hof/mike.png",
     ),
     HOFEntry(
       "Tag C",
@@ -91,8 +90,8 @@ class _HOFPage extends State<HallOfFamePage> {
       //Feel free to change this one since i'm bad at talking about myself
       //-Tag
       '"I had tell this man to eat his Jimmy Johns instead of coding" -Michael P, 2024',
-      "assets/leaderboard/badges/1st place badge.png",
-    ) //PLACEHOLDER
+      "assets/hof/tag.png",
+    )
   ];
 
   final itemScrollController = ItemScrollController();
