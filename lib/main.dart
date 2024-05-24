@@ -83,14 +83,18 @@ void main() async {
   runApp(const MyApp());
 
   if (MainAppData.loggedIn && MainAppData.userCertificate != null) {
-    // Start up check to ensure that we're logged out when
-    // the certificate becomes invalid on the server.
-    bool postSucceeded = await App.httpPost("certificateValid", '');
+    var connected = await App.httpPost("/", "", ignoreOutput: true);
 
-    if (!postSucceeded) {
-      MainAppData.loggedIn = false;
-      App.gotoPage(
-          globalNavigatorKey.currentContext!, const LoginPageForUsers());
+    if (connected) {
+      // Start up check to ensure that we're logged out when
+      // the certificate becomes invalid on the server.
+      bool postSucceeded = await App.httpPost("certificateValid", '');
+
+      if (!postSucceeded) {
+        MainAppData.loggedIn = false;
+        App.gotoPage(
+            globalNavigatorKey.currentContext!, const LoginPageForUsers());
+      }
     }
   }
 
