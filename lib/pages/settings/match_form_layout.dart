@@ -19,7 +19,7 @@ class SettingsMatchFormLayoutPage extends StatefulWidget {
 class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 1.0, 0.85);
+    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,45 +27,49 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
         actions: createEmptyActionBar(),
       ),
 
-      body: ListView(
-        children: [
-          const HeaderLabel("Match Form Layout"),
-          const Padding(padding: EdgeInsets.all(6)),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: widthPadding),
 
-          createLabelAndDropdown<bool>(
-            "Side Bar Position", 
-            widthPadding,
-            width,
-            {
-              "Left": true,
-              "Right": false,
-            }, 
-            Settings.sideBarLeftSided.ref, 
-            false,
-          ),
+        child: ListView(
+          children: [
+            const HeaderLabel("Match Form Layout"),
+            const Padding(padding: EdgeInsets.all(6)),
 
-          createLabelAndDropdown<bool>(
-            "Number Counter Decrement Position", 
-            widthPadding,
-            width,
-            {
-              "Left": false,
-              "Right": true,
-            },
-            Settings.flipNumberCounter.ref,
-            false,
-          ),
+            createLabelAndDropdown<bool>(
+              "Side Bar Position", 
+              widthPadding,
+              width,
+              {
+                "Left": true,
+                "Right": false,
+              }, 
+              Settings.sideBarLeftSided.ref, 
+              false,
+            ),
 
-          // I didn't think about how much more work this might cause me.
-          // I don't want to maintain two different match form layouts right now...
-          // createLabelAndCheckBox("Use Old Match Form Layout?", Settings.useOldLayout),
+            createLabelAndDropdown<bool>(
+              "Number Counter Decrement Position", 
+              widthPadding,
+              width,
+              {
+                "Left": false,
+                "Right": true,
+              },
+              Settings.flipNumberCounter.ref,
+              false,
+            ),
 
-          const Padding(padding: EdgeInsets.all(20)),
-          const SubheaderLabel("Advanced Features"),
-          const Padding(padding: EdgeInsets.all(6)),
+            // I didn't think about how much more work this might cause me.
+            // I don't want to maintain two different match form layouts right now...
+            // createLabelAndCheckBox("Use Old Match Form Layout?", Settings.useOldLayout),
 
-          createLabelAndCheckBox("Enable Match Rescouting?", widthPadding, Settings.enableMatchRescouting.ref),
-        ],
+            const Padding(padding: EdgeInsets.all(20)),
+            const SubheaderLabel("Advanced Features"),
+            const Padding(padding: EdgeInsets.all(6)),
+
+            createLabelAndCheckBox("Enable Match Rescouting?", widthPadding, Settings.enableMatchRescouting.ref),
+          ],
+        ),
       ),
     );
   }

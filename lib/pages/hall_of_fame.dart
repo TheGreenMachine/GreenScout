@@ -1,13 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:green_scout/utils/action_bar.dart';
+import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/widgets/circularIndicatorButton.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
-import 'package:green_scout/widgets/subheader.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 // I'm bad at design someone please make this better
@@ -153,21 +151,96 @@ class _HOFPage extends State<HallOfFamePage> {
     }
   }
 
+  Widget buildUserLayout(BuildContext context, HOFEntry entry) {
+    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.5, 1.0);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 12),
+
+      child: Center(child: Card(
+        clipBehavior: Clip.antiAlias,
+        
+        child: SizedBox(
+          width: width,
+
+          child: Column(
+            children: [
+              Text(
+                entry.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 52,
+                ),
+              ),
+
+              Text(
+                "Team ${entry.team}",
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+
+              const Padding(padding: EdgeInsets.all(4)),
+
+              // Take every entry and then construct a widget for them.
+              // After mapping them to a widget, unwrap the resulting list.
+              ...entry.titles.map((title) {
+                return Text(title);
+              }),
+
+              const Padding(padding: EdgeInsets.all(8)),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: widthPadding / 2),
+
+                child: Text(
+                  entry.description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+
+              const Padding(padding: EdgeInsets.all(8)),
+
+              Text(
+                entry.quote,
+
+                textAlign: TextAlign.center,
+
+                style: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 18,
+                ),
+              ),
+
+              const Padding(padding: EdgeInsets.all(16)),
+
+              SizedBox(
+                width: width > 670 ? (width / 3) : (width / 2),
+
+                child: Image.asset(entry.imagePath, fit: BoxFit.contain),
+              ),
+            ],
+          ),
+        ),
+      )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createDefaultActionBar(),
+        title: const Text("Hall of Fame", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       drawer: const NavigationLayoutDrawer(),
       body: ListView(
-        // ignore: prefer_const_literals_to_create_immutables
-        scrollDirection: Axis.vertical,
         children: [
-          const Padding(padding: EdgeInsets.all(4)),
-          const HeaderLabel("Hall of Fame"),
-          const Padding(padding: EdgeInsets.all(4)),
           SizedBox(
             height: 700,
             child: Stack(
@@ -179,77 +252,7 @@ class _HOFPage extends State<HallOfFamePage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
-                  itemBuilder: (context, index) => Card(
-                    clipBehavior: Clip.antiAlias,
-                    color: Colors.white,
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height - 400,
-                            width: MediaQuery.of(context).size.width,
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                            textScaler:
-                                                const TextScaler.linear(5),
-                                            entries[index].name),
-                                      ]),
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [Text(entries[index].team)]),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children:
-                                        entries[index].titles.map((title) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(),
-                                        child: Text(
-                                          title,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                  const Padding(padding: EdgeInsets.all(8.0)),
-                                  Center(
-                                    child: Text(
-                                      entries[index].description,
-                                      maxLines: 10,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      textScaler: const TextScaler.linear(3),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  const Padding(padding: EdgeInsets.all(8.0)),
-                                  Center(
-                                    child: Text(
-                                      entries[index].quote,
-                                      maxLines: 10,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      textScaler: const TextScaler.linear(1.5),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 250, // Adjust height as needed
-                                    width: double.infinity,
-                                    child: Image.asset(
-                                      entries[index].imagePath,
-                                      fit: BoxFit
-                                          .contain, // Adjust to BoxFit.contain if you want to fit the image within the box
-                                    ),
-                                  )
-                                ]))
-                      ],
-                    ),
-                  ),
+                  itemBuilder: (context, index) => buildUserLayout(context, entries[index]),
                   separatorBuilder: (context, index) => const SizedBox(
                     width: 10.0,
                   ),

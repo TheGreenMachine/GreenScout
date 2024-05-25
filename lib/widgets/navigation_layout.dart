@@ -1,4 +1,4 @@
-import 'package:green_scout/pages/hof.dart';
+import 'package:green_scout/pages/hall_of_fame.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
