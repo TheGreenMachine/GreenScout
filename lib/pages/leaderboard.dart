@@ -16,17 +16,15 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class RankingInfo {
-  const RankingInfo(
-    this.username,
-    this.displayName,
-    this.score,
-    this.badges,
-  );
+  RankingInfo(this.username, this.displayName, this.score, this.badges,
+      {this.pfp = const Icon(Icons.account_circle), this.finished = false});
 
   final String username;
   final String displayName;
   final int score;
   final Map<String, String> badges;
+  Widget pfp;
+  bool finished;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -54,6 +52,13 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         var info = (RankingInfo(personInfo["Username"],
             personInfo["DisplayName"], personInfo["Score"], badgeMap));
 
+        App.httpGet("getPfp", "", (response) {
+          if (response.statusCode == 200) {
+            info.pfp = Image.memory(response.bodyBytes);
+          }
+          info.finished = true;
+        }, {"username": info.username});
+
         rankings.add(info);
       }
 
@@ -79,7 +84,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data!.last.finished) {
                 return buildRankingsList(context, snapshot.requireData);
               }
 
@@ -140,11 +145,18 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           child: ExpansionTile(
             dense: true,
 
-            leading: Text(
-              (index + 1).toString(),
-              style: Theme.of(context).textTheme.titleMedium,
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  (index + 1).toString(),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(
+                    width: 8), // Adds space between the index and the image
+                info.pfp
+              ],
             ),
-
             title: Text(
               info.displayName,
               style: Theme.of(context).textTheme.labelLarge,
