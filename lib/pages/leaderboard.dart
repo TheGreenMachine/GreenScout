@@ -90,7 +90,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
-              print(snapshot.connectionState);
               if (snapshot.hasData &&
                   snapshot.connectionState == ConnectionState.done) {
                 return buildRankingsList(context, snapshot.requireData);
