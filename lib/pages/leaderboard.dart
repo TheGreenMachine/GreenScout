@@ -16,15 +16,19 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class RankingInfo {
-  RankingInfo(this.username, this.displayName, this.score, this.badges,
-      {this.pfp = const Icon(Icons.account_circle), this.finished = false});
+  RankingInfo(
+    this.username,
+    this.displayName,
+    this.score,
+    this.badges, {
+    this.pfp = const Icon(Icons.account_circle),
+  });
 
   final String username;
   final String displayName;
   final int score;
   final Map<String, String> badges;
   Widget pfp;
-  bool finished;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -56,7 +60,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           if (response.statusCode == 200) {
             info.pfp = Image.memory(response.bodyBytes);
           }
-          info.finished = true;
           if (i == responseArray.length - 1) {
             rankingsController.close();
           }
