@@ -228,7 +228,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           // Might want to make text flip flop between "Start" and "Stop".
           label: const Text("Cycles"),
         ),
-
         NavigationRailDestination(
           icon: Icon(
             Icons.amp_stories,
@@ -237,7 +236,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Amp"),
         ),
-        
         NavigationRailDestination(
           icon: Icon(
             Icons.speaker,
@@ -246,7 +244,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Speaker"),
         ),
-
         NavigationRailDestination(
           icon: Icon(
             Icons.airport_shuttle,
@@ -255,7 +252,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Shuttle"),
         ),
-
         NavigationRailDestination(
           icon: Icon(
             Icons.social_distance,
@@ -264,17 +260,14 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Distance"),
         ),
-
         NavigationRailDestination(
           icon: climberTimerIcon,
           label: const Text('Climbing'),
         ),
       ],
-
       selectedIndex: null,
       labelType: NavigationRailLabelType.all,
       backgroundColor: Theme.of(context).colorScheme.surface,
-
       onDestinationSelected: (index) {
         setState(() {
           switch (index) {
@@ -320,7 +313,8 @@ class _MatchFormPage extends State<MatchFormPage> {
     const widthRatio = 0.85;
 
     final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
+    final widthPadding =
+        MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
     return Expanded(
       child: ListView(
@@ -328,22 +322,22 @@ class _MatchFormPage extends State<MatchFormPage> {
           const Padding(padding: EdgeInsets.all(8)),
 
           buildTextNumberContainer(
-            context, 
-            widthPadding, 
-            3, 
+            context,
+            widthPadding,
+            3,
             "Match #",
-            matchNum, 
+            matchNum,
             matchNumberController,
           ),
 
           const Padding(padding: EdgeInsets.all(5)),
 
           buildTextNumberContainer(
-            context, 
-            widthPadding, 
-            5, 
+            context,
+            widthPadding,
+            5,
             "Team #",
-            teamNum, 
+            teamNum,
             teamNumberController,
           ),
 
@@ -351,9 +345,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
             child: FloatingToggleButton(
-              initialColor: Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              initialColor:
+                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
               pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
               labelText: "Is Replay?",
@@ -384,9 +378,11 @@ class _MatchFormPage extends State<MatchFormPage> {
           const Padding(padding: EdgeInsets.all(5)),
 
           // This is to allow an out for the ios users out there.
-          defaultTargetPlatform == TargetPlatform.iOS 
-          ? buildSaveButton(context, widthPadding)
-          : const Padding(padding: EdgeInsets.zero,),
+          defaultTargetPlatform == TargetPlatform.iOS
+              ? buildSaveButton(context, widthPadding)
+              : const Padding(
+                  padding: EdgeInsets.zero,
+                ),
 
           const Padding(padding: EdgeInsets.all(8)),
 
@@ -468,7 +464,6 @@ class _MatchFormPage extends State<MatchFormPage> {
             ),
           ),
 
-
           const Padding(padding: EdgeInsets.all(11)),
 
           const SubheaderLabel("Trap"),
@@ -478,7 +473,6 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           const Padding(padding: EdgeInsets.all(10)),
 
-
           const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
 
           createLabelAndCheckBox("Middle", shootingPositionMiddle),
@@ -486,14 +480,12 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           const Padding(padding: EdgeInsets.all(10)),
 
-
           const SubheaderLabel("Pickup Locations"),
 
           createLabelAndCheckBox("Ground", pickupGround),
           createLabelAndCheckBox("Source", pickupSource),
 
           const Padding(padding: EdgeInsets.all(10)),
-
 
           const SubheaderLabel("Misc."),
 
@@ -505,12 +497,11 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
 
           createLabelAndCheckBox(
-            "Did You Lose Track At Any Point?", 
+            "Did You Lose Track At Any Point?",
             scouterLostTrack,
           ),
 
           const Padding(padding: EdgeInsets.all(10)),
-
 
           const SubheaderLabel("Notes"),
           Padding(
@@ -519,9 +510,9 @@ class _MatchFormPage extends State<MatchFormPage> {
               controller: notesController,
               // NOTE: Font needs to be greater than 16 to fix IOS safari issue.
               style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontSize: 18),
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 18),
 
               onChanged: (value) => notes = value,
               maxLines: 10,
@@ -538,54 +529,55 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           const Padding(padding: EdgeInsets.all(17)),
 
-
-          Settings.enableMatchRescouting.value() 
-          ? Padding(
-            padding: EdgeInsets.symmetric(horizontal: widthPadding),
-            child: FloatingToggleButton(
-              initialColor:
-                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
-              pressedColor: Theme.of(context).colorScheme.inversePrimary,
-              labelText: "Rescouting?",
-              initialIcon: const Icon(Icons.close),
-              pressedIcon: const Icon(Icons.check),
-              inValue: isRescout,
-              onPressed: (pressed) {
-                if (pressed) {
-                  App.promptAlert(
-                    context,
-                    "Are you sure you're rescouting this match?",
-                    "This flag when submitted with \"Save\" is irreversible.",
-                    [
-                      (
-                        "Yes",
-                        () {
-                          isRescout.value = pressed;
-                          Navigator.of(context).pop();
-                        }
-                      ),
-                      (
-                        "No",
-                        () {
-                          setState(() {
-                            isRescout.value = false;
-                          });
-                          Navigator.of(context).pop();
-                        }
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
-          )
-          : const Padding(padding: EdgeInsets.zero),
+          Settings.enableMatchRescouting.value()
+              ? Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthPadding),
+                  child: FloatingToggleButton(
+                    initialColor: Theme.of(context)
+                        .colorScheme
+                        .inversePrimary
+                        .withRed(255),
+                    pressedColor: Theme.of(context).colorScheme.inversePrimary,
+                    labelText: "Rescouting?",
+                    initialIcon: const Icon(Icons.close),
+                    pressedIcon: const Icon(Icons.check),
+                    inValue: isRescout,
+                    onPressed: (pressed) {
+                      if (pressed) {
+                        App.promptAlert(
+                          context,
+                          "Are you sure you're rescouting this match?",
+                          "This flag when submitted with \"Save\" is irreversible.",
+                          [
+                            (
+                              "Yes",
+                              () {
+                                isRescout.value = pressed;
+                                Navigator.of(context).pop();
+                              }
+                            ),
+                            (
+                              "No",
+                              () {
+                                setState(() {
+                                  isRescout.value = false;
+                                });
+                                Navigator.of(context).pop();
+                              }
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                )
+              : const Padding(padding: EdgeInsets.zero),
 
           const Padding(padding: EdgeInsets.all(4)),
 
-          defaultTargetPlatform == TargetPlatform.iOS 
-          ? const Padding(padding: EdgeInsets.zero)
-          : buildSaveButton(context, widthPadding),
+          defaultTargetPlatform == TargetPlatform.iOS
+              ? const Padding(padding: EdgeInsets.zero)
+              : buildSaveButton(context, widthPadding),
 
           const Padding(padding: EdgeInsets.all(16)),
         ],
@@ -596,7 +588,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   Widget buildSaveButton(BuildContext context, double widthPadding) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
       child: FloatingButton(
         labelText: "Save",
         icon: const Icon(Icons.save),
@@ -610,12 +601,10 @@ class _MatchFormPage extends State<MatchFormPage> {
                 (
                   "Yes",
                   () {
-                    if (
-                      matchNum.value == "0" ||
-                      teamNum.value == "0" ||
-                      matchNum.value.isEmpty ||
-                      teamNum.value.isEmpty
-                    ) {
+                    if (matchNum.value == "0" ||
+                        teamNum.value == "0" ||
+                        matchNum.value.isEmpty ||
+                        teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
                           "You haven't fillied in the team number or match number.");
@@ -639,7 +628,7 @@ class _MatchFormPage extends State<MatchFormPage> {
     return ListTile(
       title: Text("${info.time.toStringAsPrecision(3)} seconds"),
       subtitle: Text(info.location.toString()),
-      leading: FloatingButton( 
+      leading: FloatingButton(
         icon: switch (info.location) {
           CycleTimeLocation.amp => const Icon(Icons.amp_stories),
           CycleTimeLocation.speaker => const Icon(Icons.speaker),
@@ -647,15 +636,14 @@ class _MatchFormPage extends State<MatchFormPage> {
           CycleTimeLocation.distance => const Icon(Icons.social_distance),
           _ => const Icon(Icons.error),
         },
-
         onPressed: () {
           // This loops around. We just avoid the 'none' cycle time location.
-          info.location = CycleTimeLocation.values[(info.location.index + 1) % (CycleTimeLocation.values.length - 1)]; 
+          info.location = CycleTimeLocation.values[(info.location.index + 1) %
+              (CycleTimeLocation.values.length - 1)];
 
           setState(() {});
         },
       ),
-
       onLongPress: () {
         App.promptAlert(
           context,
@@ -686,23 +674,19 @@ class _MatchFormPage extends State<MatchFormPage> {
       trailing: FloatingActionButton(
         heroTag: null,
         backgroundColor: info.success
-          ? Theme.of(context).colorScheme.inversePrimary
-          : Theme.of(context).colorScheme.inversePrimary.withRed(255),
-
+            ? Theme.of(context).colorScheme.inversePrimary
+            : Theme.of(context).colorScheme.inversePrimary.withRed(255),
         elevation: 0,
         focusElevation: 0,
         hoverElevation: 0,
         disabledElevation: 0,
         highlightElevation: 0,
-
         onPressed: () => setState(() {
           info.success = !info.success;
         }),
-
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: info.success ? const Icon(Icons.check) : const Icon(Icons.close),
       ),
-
       hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
@@ -719,20 +703,16 @@ class _MatchFormPage extends State<MatchFormPage> {
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
       child: SizedBox(
         height: 48,
-
         child: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: false),
-
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
-
           onChanged: (value) => assigned.value = value,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(digitLimit),
           ],
-
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: label,
@@ -756,7 +736,6 @@ class _MatchFormPage extends State<MatchFormPage> {
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
         vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -782,7 +761,6 @@ class _MatchFormPage extends State<MatchFormPage> {
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
         vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -806,17 +784,15 @@ class _MatchFormPage extends State<MatchFormPage> {
   }
 
   Widget createLabelAndNumberField(String label, Reference<int> number,
-    {List<Reference<int>> incrementChildren = const [],
-    List<Reference<int>> decrementChildren = const [],
-    int lowerBound = 0,
-    int upperBound = 99}
-  ) {
+      {List<Reference<int>> incrementChildren = const [],
+      List<Reference<int>> decrementChildren = const [],
+      int lowerBound = 0,
+      int upperBound = 99}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85) / 2,
         vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -867,52 +843,43 @@ class _MatchFormPage extends State<MatchFormPage> {
 
     final result = jsonEncode({
       "Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
-      
       "Match": {
         "Number": matchNum.value.isEmpty ? 1 : int.parse(matchNum.value),
         "isReplay": isReplay.value
       },
-
       "Driver Station": {
         "Is Blue": driverStation.value.$1,
         "Number": driverStation.value.$2
       },
-
       "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
-
       "Speaker Positions": {
         "sides": shootingPositionSides.value,
         "middle": shootingPositionMiddle.value
       },
-
       "Pickup Locations": {
         "Ground": pickupGround.value,
         "Source": pickupSource.value,
       },
-
       "Auto": {
         "Can": canDoAuto.value,
         "Scores": autoScores.value,
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
       },
-
       "Climbing": {
         "Succeeded": canClimbSuccessfully.value,
         "Time": climbingTime
       },
-
       "Trap": {"Misses": trapMisses.value, "Score": trapScores.value},
-
       "Misc": {
         "Parked": endgamePark.value,
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
         "User Lost Track": scouterLostTrack.value,
       },
-
       "Penalties": [],
       "Mangled": false,
+      "Rescouting": isRescout.value,
       "Notes": notes
     });
 
