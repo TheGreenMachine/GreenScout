@@ -18,9 +18,7 @@ class BoolSettingOption {
   BoolSettingOption(
     this.optionStr,
     bool defaultValue,
-  ) : ref = Reference(
-    App.getBool(optionStr) ?? defaultValue
-  );
+  ) : ref = Reference(App.getBool(optionStr) ?? defaultValue);
 
   String optionStr;
   Reference<bool> ref;
@@ -35,23 +33,20 @@ class BoolSettingOption {
 }
 
 class Settings {
-  static BoolSettingOption flipNumberCounter = 
-      BoolSettingOption(
-        "[Settings] Flip Number Counter", 
-        false,
-      );
-  
-  static BoolSettingOption sideBarLeftSided = 
-      BoolSettingOption(
-        "[Settings] Side Bar On Left Side",
-        false,
-      );
-  
-  static BoolSettingOption enableMatchRescouting = 
-      BoolSettingOption(
-        "[Settings] Enable Match Rescouting",
-        false,
-      );
+  static BoolSettingOption flipNumberCounter = BoolSettingOption(
+    "[Settings] Flip Number Counter",
+    false,
+  );
+
+  static BoolSettingOption sideBarLeftSided = BoolSettingOption(
+    "[Settings] Side Bar On Left Side",
+    false,
+  );
+
+  static BoolSettingOption enableMatchRescouting = BoolSettingOption(
+    "[Settings] Enable Match Rescouting",
+    false,
+  );
 
   static void update() {
     flipNumberCounter.update();
@@ -176,7 +171,7 @@ class App {
   }
 
   static Future<bool> httpPostWithHeaders(
-      String path, String message, MapEntry<String, dynamic> header,
+      String path, String message, Map<String, String> headers,
       {bool ignoreOutput = false}) async {
     dynamic err;
     dynamic responseErr;
@@ -188,10 +183,16 @@ class App {
       port: serverPort,
     );
 
+    Map<String, String> headersToSend = {
+      "Certificate": MainAppData.userCertificate,
+      "uuid": MainAppData.userUUID,
+    };
+    headersToSend.addAll(headers);
+
     await http
         .post(
       uriPath,
-      headers: {"Certificate": MainAppData.userCertificate, header.key: header.value},
+      headers: headersToSend,
       body: message,
     )
         .then((response) {
@@ -203,7 +204,6 @@ class App {
       if (ignoreOutput) {
         return;
       }
-
 
       log("Response Status: ${response.statusCode}");
       log("Response body: ${response.body}");

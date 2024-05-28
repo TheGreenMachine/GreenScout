@@ -82,19 +82,15 @@ class _IndividualAdminAssignMatchesPage
       body: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(8)),
-
           const SubheaderLabel("User"),
           const Padding(padding: EdgeInsets.all(2)),
-
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
             ),
-
-            child: StreamBuilder( 
+            child: StreamBuilder(
               stream: AdminData.usersController.stream,
-
-              builder: (context, snapshot) { 
+              builder: (context, snapshot) {
                 return Dropdown<String>(
                   padding: const EdgeInsets.only(left: 10),
                   isExpanded: true,
@@ -109,9 +105,7 @@ class _IndividualAdminAssignMatchesPage
               },
             ),
           ),
-
           const Padding(padding: EdgeInsets.all(12)),
-
           ...buildAssignmentFields(context),
         ],
       ),
@@ -121,16 +115,13 @@ class _IndividualAdminAssignMatchesPage
   Widget buildSendButton(BuildContext context, double widthPadding) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
       child: FloatingButton(
         labelText: "Send To Server",
-
         color: Theme.of(context).colorScheme.inversePrimary,
-
         onPressed: () async {
           for (var match in matchesAssigned) {
-            final success = await App.httpPostWithHeaders("/addSchedule", match.toJson(),
-                MapEntry("userInput", match.scouterName));
+            final success = await App.httpPostWithHeaders("/addSchedule",
+                match.toJson(), {"userInput": match.scouterName});
 
             if (!success && context.mounted) {
               App.showMessage(context, "Failed To Send To Server!");
@@ -159,13 +150,12 @@ class _IndividualAdminAssignMatchesPage
 
     final matchRangeWidth =
         MediaQuery.of(context).size.width * matchRangeWidthRatio;
-    
+
     final matchRangeWidthPadding =
         MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
 
     return [
       const SubheaderLabel("Match Range"),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -196,7 +186,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -227,7 +216,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(16)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -245,7 +233,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -270,8 +257,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(18)),
-
-
       const SubheaderLabel("Add Match Range To List"),
       Padding(
         padding: EdgeInsets.symmetric(
@@ -300,7 +285,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(4)),
-
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -316,7 +300,6 @@ class _IndividualAdminAssignMatchesPage
         ),
       ),
       const Padding(padding: EdgeInsets.all(16)),
-      
       buildSendButton(context, matchRangeWidthPadding),
       const Padding(padding: EdgeInsets.all(32)),
     ];

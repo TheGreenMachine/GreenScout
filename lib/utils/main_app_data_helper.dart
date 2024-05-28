@@ -86,7 +86,7 @@ class MainAppData {
 
   static void addToMatchCache(String matchJSON) {
     App.setStringList(
-      _tempMatchCacheKey, 
+      _tempMatchCacheKey,
       [
         ...immediateMatchCache,
         matchJSON,
@@ -95,14 +95,14 @@ class MainAppData {
 
     // So... what we're doing is concatenating the old list
     // of match cache and then combining it with the new data
-    // we just got. 
-    // 
+    // we just got.
+    //
     // The reason we're using a set (which is '<String>{}') is because
     // a set as a structure has the neat property of only allowing one
     // instance of an item at a time. So, essentially they are a list
     // which only contains unique elements.
     App.setStringList(
-      _allTimeMatchCacheKey, 
+      _allTimeMatchCacheKey,
       <String>{...allTimeMatchCache, ...immediateMatchCache}.toList(),
     );
   }
@@ -138,5 +138,12 @@ class MainAppData {
     log("Resetting all match cache (all time and immediate)");
     App.setStringList(_tempMatchCacheKey, []);
     App.setStringList(_allTimeMatchCacheKey, []);
+  }
+
+  static Future<bool> updateUserData(String newDisplayName) async {
+    return App.httpPostWithHeaders("/setDisplayName", "", {
+      "Username": MainAppData.scouterName,
+      "displayName": newDisplayName,
+    });
   }
 }
