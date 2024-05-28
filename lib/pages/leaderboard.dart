@@ -13,22 +13,20 @@ class LeaderboardPage extends StatefulWidget {
 
   @override
   State<LeaderboardPage> createState() => _LeaderboardPage();
-} 
+}
 
 class RankingInfo {
   const RankingInfo(
-    this.scouterName,
-    this.points,
-    this.scoutedMatches,
-    this.isStCloudMVP,
+    this.username,
+    this.displayName,
+    this.score,
+    this.badges,
   );
 
-  final String scouterName;
-  final int scoutedMatches;
-  final int points;
-
-  final bool isStCloudMVP;
-  // TODO: Add more potential badge options here.
+  final String username;
+  final String displayName;
+  final int score;
+  final Map<String, String> badges;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -46,7 +44,17 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       List<RankingInfo> rankings = [];
 
       for (final personInfo in responseArray) {
-        rankings.add(RankingInfo(personInfo["Name"], personInfo["Score"], 0, false));
+        Map<String, String> badgeMap = {};
+
+        for (var badge in personInfo["Badges"]) {
+          Map<String, String> asMap = Map.from(badge);
+          badgeMap[asMap["ID"]!] = asMap["Description"]!;
+        }
+
+        var info = (RankingInfo(personInfo["Username"],
+            personInfo["DisplayName"], personInfo["Score"], badgeMap));
+
+        rankings.add(info);
       }
 
       rankingsController.add(rankings);
@@ -60,22 +68,16 @@ class _LeaderboardPage extends State<LeaderboardPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         actions: createDefaultActionBar(),
       ),
-
       drawer: const NavigationLayoutDrawer(),
-
       body: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(4)),
-
           const HeaderLabel("Leaderboard"),
-
           const Padding(padding: EdgeInsets.all(8)),
-          
           StreamBuilder(
-            stream: rankingsStream, 
+            stream: rankingsStream,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return buildRankingsList(context, snapshot.requireData);
@@ -92,7 +94,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   Widget buildFailedLoad(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-
       child: Text(
         "Unable To Load Leaderboards\n:(",
         textAlign: TextAlign.center,
@@ -105,7 +106,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 40),
       child: Text(
-        "Loading Leaderboards...", 
+        "Loading Leaderboards...",
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.displaySmall,
       ),
@@ -113,7 +114,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   }
 
   Widget buildRankingsList(BuildContext context, List<RankingInfo> rankings) {
-    Widget buildRankingEntry(BuildContext context, int index, List<RankingInfo> rankings, double width, double widthPadding) {
+    Widget buildRankingEntry(BuildContext context, int index,
+        List<RankingInfo> rankings, double width, double widthPadding) {
       final info = rankings[index];
 
       Image? getNumberedBadgeAsset(int index) {
@@ -123,7 +125,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
           case 1:
             return Image.asset("assets/leaderboard/badges/2nd place badge.png");
-          
+
           case 2:
             return Image.asset("assets/leaderboard/badges/3rd place badge.png");
         }
@@ -133,10 +135,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
         child: SizedBox(
           width: width,
-
           child: ExpansionTile(
             dense: true,
 
@@ -146,47 +146,42 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             ),
 
             title: Text(
-              info.scouterName,
+              info.displayName,
               style: Theme.of(context).textTheme.labelLarge,
             ),
 
             subtitle: Text(
-              "${info.points} ${info.points > 1 ? "Points" : "Point"}",
+              "${info.score} ${info.score > 1 ? "Points" : "Point"}",
               style: Theme.of(context).textTheme.labelMedium,
             ),
 
             // trailing: const Icon(Icons.badge),
             trailing: SizedBox(
               width: width * 0.40,
-
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-
                 children: [
-                  info.isStCloudMVP 
-                  ? Image.asset("assets/leaderboard/badges/st cloud mvp badge.png")
-                  : const Padding(padding: EdgeInsets.zero),
-                  getNumberedBadgeAsset(index) ?? const Padding(padding: EdgeInsets.zero),
+                  info.badges.containsKey("2024mnmi2")
+                      ? Image.asset(
+                          "assets/leaderboard/badges/st cloud mvp badge.png")
+                      : const Padding(padding: EdgeInsets.zero),
+                  getNumberedBadgeAsset(index) ??
+                      const Padding(padding: EdgeInsets.zero),
                 ],
               ),
             ),
 
             children: [
-              Text(
-                "Scouted ${info.scoutedMatches} ${info.scoutedMatches > 1 ? "Matches" : "Match"}",
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-
-              info.isStCloudMVP 
-              ? Padding(
-                padding: const EdgeInsets.only(top: 8),
-
-                child: Text(
-                  "[MVP] Scouted The Most During The St. Cloud Regional",
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-              )
-              : const Padding(padding: EdgeInsets.zero),
+              Text("Username: ${info.username}"),
+              info.badges.containsKey("2024mnmi2")
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        "[MVP] Scouted The Most During The St. Cloud Regional",
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    )
+                  : const Padding(padding: EdgeInsets.zero),
             ],
           ),
         ),
@@ -200,20 +195,22 @@ class _LeaderboardPage extends State<LeaderboardPage> {
     {
       final width = MediaQuery.of(context).size.width;
 
-      final percent = clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
+      final percent =
+          clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
 
       widthRatio = (1.0 - 0.55 * percent);
     }
 
     final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding = MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
+    final widthPadding =
+        MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
     return SizedBox(
       width: width,
       height: MediaQuery.of(context).size.height * 0.8,
-
       child: ListView.builder(
-        itemBuilder: (context, index) => buildRankingEntry(context, index, rankings, width, widthPadding),
+        itemBuilder: (context, index) =>
+            buildRankingEntry(context, index, rankings, width, widthPadding),
         itemCount: rankings.length,
       ),
     );
