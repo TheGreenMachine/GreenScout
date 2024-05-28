@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 
 /// A Helper Class That Centralizes All Data Integral
@@ -145,5 +146,21 @@ class MainAppData {
       "Username": MainAppData.scouterName,
       "displayName": newDisplayName,
     });
+  }
+
+  static Future<void> setUserInfo() async {
+    await App.httpGet("/userInfo", "", (response) {
+      var responseJson = jsonDecode(response.body);
+      MainAppData.scouterName = responseJson["Username"];
+      MainAppData.displayName = responseJson["DisplayName"];
+    }, {"username": MainAppData.scouterName});
+
+    await App.httpGet("/getPfp", "", (response) {
+      if (response.statusCode == 200) {
+        App.setString("myPfp", base64Encode(response.bodyBytes));
+      } else {
+        App.setString("myPfp", "");
+      }
+    }, {"username": MainAppData.scouterName});
   }
 }

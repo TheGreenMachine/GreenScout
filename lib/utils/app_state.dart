@@ -14,6 +14,8 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
+const emptyMap = {"empty": " "};
+
 class BoolSettingOption {
   BoolSettingOption(
     this.optionStr,
@@ -221,10 +223,8 @@ class App {
   }
 
   static Future<bool> httpGet(
-    String path,
-    String? message,
-    Function(http.Response) onGet,
-  ) async {
+      String path, String? message, Function(http.Response) onGet,
+      [Map<String, String> headers = emptyMap]) async {
     dynamic err;
     dynamic responseErr;
 
@@ -235,10 +235,15 @@ class App {
       port: serverPort,
     );
 
+    Map<String, String> headersToSend = {
+      "Certificate": MainAppData.userCertificate
+    };
+
+    headersToSend.addAll(headers);
     await http
         .post(
       uriPath,
-      headers: {"Certificate": MainAppData.userCertificate},
+      headers: headersToSend,
       body: message,
     )
         .then((response) {

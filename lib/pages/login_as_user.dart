@@ -19,7 +19,7 @@ class LoginPageForUsers extends StatefulWidget {
   State<LoginPageForUsers> createState() => _LoginPageForUsers();
 }
 
-// TODO: Redo this whole login screen. 
+// TODO: Redo this whole login screen.
 // It's sooooo bad....
 
 class _LoginPageForUsers extends State<LoginPageForUsers> {
@@ -100,10 +100,13 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   void continueButtonOnPressed() async {
     continueButtonPressed = true;
 
-    if ((await validateLogin()) == null &&  MainAppData.userCertificate.isNotEmpty) {
+    if ((await validateLogin()) == null &&
+        MainAppData.userCertificate.isNotEmpty) {
       MainAppData.scouterName = _userController.text.toLowerCase();
       MainAppData.loggedIn = true;
       MainAppData.autoSetAdminStatus();
+
+      await MainAppData.setUserInfo();
 
       if (mounted) {
         App.gotoPage(context, const HomePage());
@@ -156,11 +159,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
               controller: _userController,
               onChanged: (value) => userStr = value,
               onFieldSubmitted: (_) => continueButtonOnPressed(),
-
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp("[a-zA-Z0-9]")),
               ],
-
               textAlign: TextAlign.start,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.account_box_sharp),
@@ -254,10 +255,10 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 MainAppData.scouterName = "Guest";
                 MainAppData.isAdmin = false;
 
-                // The reasoning for this is simple: When 
+                // The reasoning for this is simple: When
                 // logging in as a guest, you're unlikely to
                 // want to encourage the user to stay as a guest.
-                // 
+                //
                 // This is because if they're a guest they can't
                 // really sent data to the server.
                 MainAppData.loggedIn = false;
@@ -265,8 +266,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
                 MainAppData.userCertificate = "";
                 MainAppData.userUUID = "";
 
-                App.gotoPage(context, const HomePage(),
-                    canGoBack: true);
+                App.gotoPage(context, const HomePage(), canGoBack: true);
 
                 App.showMessage(context, "Logged In As Guest!");
               },

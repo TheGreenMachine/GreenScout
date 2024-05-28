@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:green_scout/pages/hall_of_fame.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
@@ -55,6 +57,14 @@ class NavigationLayoutDrawer extends StatelessWidget {
             leading: Container(
               color: Colors.transparent,
               child: LayoutBuilder(builder: (context, constraint) {
+                var imageStr = App.getString("myPfp");
+                if (imageStr != null && imageStr != "") {
+                  return Image.memory(
+                    base64Decode(imageStr!),
+                    fit: BoxFit.cover,
+                  );
+                }
+
                 return Icon(Icons.account_circle,
                     size: constraint.biggest.height);
               }),
