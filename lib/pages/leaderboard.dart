@@ -40,8 +40,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
       final responseArray = responseJson as List<dynamic>;
       List<RankingInfo> rankings = [];
-
-      for (final personInfo in responseArray) {
+      for (int i = 0; i < responseArray.length; i++) {
+        var personInfo = responseArray[i];
         Map<String, String> badgeMap = {};
 
         for (var badge in personInfo["Badges"]) {
@@ -57,6 +57,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             info.pfp = Image.memory(response.bodyBytes);
           }
           info.finished = true;
+          if (i == responseArray.length - 1) {
+            rankingsController.close();
+          }
         }, {"username": info.username});
 
         rankings.add(info);
@@ -84,7 +87,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data!.last.finished) {
+              print(snapshot.connectionState);
+              if (snapshot.hasData &&
+                  snapshot.connectionState == ConnectionState.done) {
                 return buildRankingsList(context, snapshot.requireData);
               }
 
