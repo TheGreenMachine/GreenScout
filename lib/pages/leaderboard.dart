@@ -20,15 +20,13 @@ class RankingInfo {
     this.username,
     this.displayName,
     this.score,
-    this.badges, {
-    this.pfp = const Icon(Icons.account_circle),
-  });
+    this.badges,
+  );
 
   final String username;
   final String displayName;
   final int score;
   final Map<String, String> badges;
-  Widget pfp;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -56,15 +54,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         var info = (RankingInfo(personInfo["Username"],
             personInfo["DisplayName"], personInfo["Score"], badgeMap));
 
-        App.httpGet("getPfp", "", (response) {
-          if (response.statusCode == 200) {
-            info.pfp = Image.memory(response.bodyBytes);
-          }
-          if (i == responseArray.length - 1) {
-            rankingsController.close();
-          }
-        }, {"username": info.username});
-
         rankings.add(info);
       }
 
@@ -90,8 +79,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
-              if (snapshot.hasData &&
-                  snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.connectionState == ConnectionState.done) {
                 return buildRankingsList(context, snapshot.requireData);
               }
 
@@ -159,9 +147,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                   (index + 1).toString(),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(
-                    width: 8), // Adds space between the index and the image
-                info.pfp
+                const SizedBox(width: 8),
+                App.getNetworkImage(info.username)
               ],
             ),
             title: Text(

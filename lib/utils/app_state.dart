@@ -279,6 +279,11 @@ class App {
     return internetOn && responseErr == null;
   }
 
+  static Image getNetworkImage(String arg) {
+    return Image(
+        image: NetworkImage("https://$serverHostName/getPfp?username=$arg"));
+  }
+
   static void showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
