@@ -13,6 +13,7 @@ import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
@@ -22,6 +23,9 @@ class UserInfoPage extends StatefulWidget {
 }
 
 class _UserInfoPage extends State<UserInfoPage> {
+  bool hasCustomImage = false;
+  Image customImage = Image.asset("nuh uh");
+  XFile xCustomImage = XFile("Fake");
   Reference displayName = Reference(MainAppData.displayName);
 
   @override
@@ -47,6 +51,7 @@ class _UserInfoPage extends State<UserInfoPage> {
             const Padding(padding: EdgeInsets.all(6)),
             createLabelAndTextInput("Display Name", widthPadding, width,
                 displayName.value, displayName),
+            createLabelAndImagePicker("Profile picture", widthPadding, width),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: ElevatedButton(
@@ -54,15 +59,31 @@ class _UserInfoPage extends State<UserInfoPage> {
                   bool success = false;
 
                   () async {
-                    success =
-                        await MainAppData.updateUserData(displayName.value);
+                    if (displayName.value != MainAppData.displayName) {
+                      success =
+                          await MainAppData.updateUserData(displayName.value);
 
-                    if (success) {
-                      MainAppData.displayName = displayName.value;
-                      App.showMessage(context,
-                          "Successfully updated display name to ${displayName.value}");
-                    } else {
-                      App.showMessage(context, "Unable to update display name");
+                      if (success) {
+                        MainAppData.displayName = displayName.value;
+                        App.showMessage(context,
+                            "Successfully updated display name to ${displayName.value}");
+                      } else {
+                        App.showMessage(
+                            context, "Unable to update display name");
+                      }
+                    }
+
+                    if (hasCustomImage) {
+                      success = await MainAppData.updateUserPfp(xCustomImage);
+
+                      if (success) {
+                        App.setPfp(
+                            Image.memory(await xCustomImage.readAsBytes()));
+
+                        App.showMessage(context, "Successfully updated pfp");
+                      } else {
+                        App.showMessage(context, "Unable to update pfp");
+                      }
                     }
                   }();
                 },
@@ -115,5 +136,47 @@ class _UserInfoPage extends State<UserInfoPage> {
     );
   }
 
-  // Need to show username, display name, profile picture
+  Widget createLabelAndImagePicker<V>(
+      String label, double widthPadding, double width) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: widthPadding,
+        vertical: 8,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: width * 0.65,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+          GestureDetector(
+              onTap: () async {
+                final ImagePicker picker = ImagePicker();
+                final XFile? xFile = await picker.pickImage(
+                    source: ImageSource.gallery, maxHeight: 512, maxWidth: 512);
+                if (xFile != null) {
+                  customImage = Image.memory(
+                    await xFile.readAsBytes(),
+                  );
+                  xCustomImage = xFile;
+                  hasCustomImage = true;
+                  setState(() {});
+                }
+              },
+              child: SizedBox(width: width * 0.25, child: getPFP()))
+        ],
+      ),
+    );
+  }
+
+  Widget getPFP() {
+    if (hasCustomImage) {
+      return customImage;
+    }
+    return App.getPfp();
+  }
 }

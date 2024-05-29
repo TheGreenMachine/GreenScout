@@ -57,16 +57,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
             leading: Container(
               color: Colors.transparent,
               child: LayoutBuilder(builder: (context, constraint) {
-                var imageStr = App.getString("myPfp");
-                if (imageStr != null && imageStr != "") {
-                  return Image.memory(
-                    base64Decode(imageStr!),
-                    fit: BoxFit.cover,
-                  );
-                }
-
-                return Icon(Icons.account_circle,
-                    size: constraint.biggest.height);
+                return App.getPfp();
               }),
             ),
 
