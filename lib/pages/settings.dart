@@ -49,7 +49,7 @@ class _SettingsPage extends State<SettingsPage> {
               const SettingsMatchFormLayoutPage()),
           buildSettingTile(context, widthPadding, width, Icons.developer_board,
               "Debug Info", const SettingsDebugInfoPage()),
-          buildSettingTile(context, widthPadding, width, Icons.developer_board,
+          buildSettingTile(context, widthPadding, width, Icons.dataset_sharp,
               "Edit User Info", const UserInfoPage()),
         ],
       ),
