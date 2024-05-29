@@ -16,15 +16,19 @@ class LeaderboardPage extends StatefulWidget {
 }
 
 class RankingInfo {
-  RankingInfo(this.username, this.displayName, this.score, this.badges,
-      {this.pfp = const Icon(Icons.account_circle), this.finished = false});
+  RankingInfo(
+    this.username,
+    this.displayName,
+    this.score,
+    this.badges, {
+    this.pfp = const Icon(Icons.account_circle),
+  });
 
   final String username;
   final String displayName;
   final int score;
   final Map<String, String> badges;
   Widget pfp;
-  bool finished;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -40,8 +44,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
       final responseArray = responseJson as List<dynamic>;
       List<RankingInfo> rankings = [];
-
-      for (final personInfo in responseArray) {
+      for (int i = 0; i < responseArray.length; i++) {
+        var personInfo = responseArray[i];
         Map<String, String> badgeMap = {};
 
         for (var badge in personInfo["Badges"]) {
@@ -56,7 +60,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           if (response.statusCode == 200) {
             info.pfp = Image.memory(response.bodyBytes);
           }
-          info.finished = true;
+          if (i == responseArray.length - 1) {
+            rankingsController.close();
+          }
         }, {"username": info.username});
 
         rankings.add(info);
@@ -84,7 +90,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data!.last.finished) {
+              if (snapshot.hasData &&
+                  snapshot.connectionState == ConnectionState.done) {
                 return buildRankingsList(context, snapshot.requireData);
               }
 

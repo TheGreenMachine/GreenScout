@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// A Helper Class That Centralizes All Data Integral
 /// For The App To Run.
@@ -148,6 +149,11 @@ class MainAppData {
     });
   }
 
+  static Future<bool> updateUserPfp(XFile file) async {
+    return App.httpPostWithHeaders("/setUserPfp", await file.readAsBytes(),
+        {"Username": MainAppData.scouterName, "Filename": file.name});
+  }
+
   static Future<void> setUserInfo() async {
     await App.httpGet("/userInfo", "", (response) {
       var responseJson = jsonDecode(response.body);
@@ -155,11 +161,11 @@ class MainAppData {
       MainAppData.displayName = responseJson["DisplayName"];
     }, {"username": MainAppData.scouterName});
 
-    await App.httpGet("/getPfp", "", (response) {
+    await App.httpGet("getPfp", "", (response) {
       if (response.statusCode == 200) {
-        App.setString("myPfp", base64Encode(response.bodyBytes));
+        App.setPfp(Image.memory(response.bodyBytes));
       } else {
-        App.setString("myPfp", "");
+        App.setPfp(const Icon(Icons.account_circle));
       }
     }, {"username": MainAppData.scouterName});
   }

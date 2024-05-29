@@ -16,6 +16,8 @@ const serverPort = 443;
 
 const emptyMap = {"empty": " "};
 
+Widget myPfp = const Icon(Icons.account_circle);
+
 class BoolSettingOption {
   BoolSettingOption(
     this.optionStr,
@@ -127,6 +129,14 @@ class App {
     );
   }
 
+  static void setPfp(Widget pfp) {
+    myPfp = pfp;
+  }
+
+  static Widget getPfp() {
+    return myPfp;
+  }
+
   static Future<bool> httpPost(String path, String message,
       {bool ignoreOutput = false}) async {
     dynamic err;
@@ -173,7 +183,7 @@ class App {
   }
 
   static Future<bool> httpPostWithHeaders(
-      String path, String message, Map<String, String> headers,
+      String path, dynamic message, Map<String, String> headers,
       {bool ignoreOutput = false}) async {
     dynamic err;
     dynamic responseErr;
