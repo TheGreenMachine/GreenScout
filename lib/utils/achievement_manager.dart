@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 
+const cheat =
+    true; //This is literally only here so i don't have an anyeurism while developing
+
 Image gearEye = Image.asset(
   "accolades/gearEye.png",
   width: 100,
@@ -17,9 +20,12 @@ Image goat = Image.asset(
 //Why are these maps? No idea. I'm sure I had a good reason for it though.
 class AchievementManager {
   var achievements = {
-    "Scouting Rookie": PercentAchievement("Scouting Rookie", "Scouted 1 match",
-        gearEye, () => MainAppData.lifeScore / 1,
-        met: true),
+    "Scouting Rookie": PercentAchievement(
+      "Scouting Rookie",
+      "Scouted 1 match",
+      gearEye,
+      () => MainAppData.lifeScore / 1,
+    ),
     "Scouting Novice": PercentAchievement(
         "Scouting Novice",
         "Scouted 10 matches",
@@ -130,7 +136,7 @@ class AchievementManager {
 }
 
 class Achievement {
-  Achievement(this.name, this.description, this.badge, {this.met = false});
+  Achievement(this.name, this.description, this.badge, {this.met = cheat});
 
   final String name;
   String description;
