@@ -2,6 +2,7 @@ import "dart:developer";
 
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:green_scout/main.dart";
 import "package:green_scout/pages/home.dart";
 import "package:green_scout/utils/main_app_data_helper.dart";
 import "package:green_scout/utils/action_bar.dart";
@@ -88,9 +89,9 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
         },
       );
 
-      // if (getCertificate().isEmpty) {
-      //   return "Invalid password or username";
-      // }
+      if (MainAppData.userRole == "Not accepted nuh uh") {
+        return "Invalid password or username";
+      }
     }
 
     continueButtonPressed = false;
@@ -100,8 +101,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   void continueButtonOnPressed() async {
     continueButtonPressed = true;
 
-    if ((await validateLogin()) == null &&
-        MainAppData.userCertificate.isNotEmpty) {
+    String? loginResponse = await validateLogin();
+    if (loginResponse == null && MainAppData.userCertificate.isNotEmpty) {
       MainAppData.scouterName = _userController.text.toLowerCase();
       MainAppData.loggedIn = true;
       MainAppData.autoSetAdminStatus();
@@ -111,6 +112,8 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
       if (mounted) {
         App.gotoPage(context, const HomePage());
       }
+    } else {
+      App.showMessage(globalNavigatorKey.currentContext!, loginResponse!);
     }
   }
 
