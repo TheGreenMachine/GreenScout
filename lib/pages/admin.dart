@@ -1,3 +1,4 @@
+import 'package:green_scout/pages/event_change.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/data_for_admins.dart';
 import 'package:green_scout/pages/group_admin_assign_matches.dart';
@@ -11,9 +12,9 @@ import 'package:flutter/material.dart';
 
 class MatchDisplayAdminData {
   const MatchDisplayAdminData(
-    this.match, 
-    this.team, 
-    this.isBlue, 
+    this.match,
+    this.team,
+    this.isBlue,
     this.driverStation,
   );
 
@@ -54,6 +55,19 @@ class _AdminPage extends State<AdminPage> {
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Welcome to the Admin Page!"),
           const Padding(padding: EdgeInsets.all(24)),
+          const SubheaderLabel("Change Event"),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+            child: FloatingButton(
+              icon: const Icon(Icons.event),
+              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              onPressed: () {
+                App.gotoPage(context, const EventConfigPage(), canGoBack: true);
+              },
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(2)),
           const SubheaderLabel("Assign Matches Individually"),
           const Padding(padding: EdgeInsets.all(2)),
           Padding(

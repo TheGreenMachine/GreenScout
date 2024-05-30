@@ -41,6 +41,8 @@ class Dropdown<V> extends StatefulWidget {
 class _Dropdown<V> extends State<Dropdown> {
   List<DropdownMenuItem<V>> items = [];
 
+  FocusNode node = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +66,10 @@ class _Dropdown<V> extends State<Dropdown> {
     return DropdownButton<V>(
       padding: widget.padding,
       menuMaxHeight: widget.menuMaxHeight,
-      onTap: widget.onTap,
+      onTap: () {
+        node.unfocus();
+        widget.onTap;
+      },
       style: widget.textStyle,
       isDense: widget.isDense,
       isExpanded: widget.isExpanded,
@@ -72,6 +77,7 @@ class _Dropdown<V> extends State<Dropdown> {
       borderRadius: BorderRadius.circular(10),
       items: items,
       value: widget.inValue != null ? (widget.inValue!.value) : null,
+      focusNode: node,
       onChanged: (newValue) => setState(() {
         if (widget.inValue == null) {
           return;

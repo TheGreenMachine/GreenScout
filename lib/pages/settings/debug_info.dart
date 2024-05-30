@@ -41,9 +41,12 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await App.httpGet("generalInfo", "", (response) {
-        String? keyFromJson = jsonDecode(response.body)["EventKey"];
-        if (keyFromJson != null) {
-          eventKeyController.add(keyFromJson);
+        Map<dynamic, dynamic> json = jsonDecode(response.body);
+        String? nameFromJson = json["EventName"];
+        String? keyFromJson = json["EventKey"];
+
+        if (nameFromJson != null && keyFromJson != null) {
+          eventKeyController.add("Key: $keyFromJson     Name: $nameFromJson");
         }
       });
     });
@@ -79,8 +82,8 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
                     context,
                     widthPadding,
                     width,
-                    Icons.key,
-                    "Event Key",
+                    Icons.event,
+                    "Event Data",
                     value.data ?? "Unable to retrieve from server");
               },
             ),
