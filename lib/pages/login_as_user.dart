@@ -105,6 +105,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
     if (loginResponse == null && MainAppData.userCertificate.isNotEmpty) {
       MainAppData.scouterName = _userController.text.toLowerCase();
       MainAppData.loggedIn = true;
+      MainAppData.lifeScore = 0; //TEMP
       MainAppData.autoSetAdminStatus();
 
       await MainAppData.setUserInfo();

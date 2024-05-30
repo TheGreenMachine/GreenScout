@@ -88,6 +88,10 @@ class App {
     localStorage!.setBool(key, value);
   }
 
+  static Future<void> setInt(String key, int value) async {
+    localStorage!.setInt(key, value);
+  }
+
   static List<String>? getStringList(String key) {
     return localStorage!.getStringList(key);
   }
@@ -98,6 +102,10 @@ class App {
 
   static bool? getBool(String key) {
     return localStorage!.getBool(key);
+  }
+
+  static int? getInt(String key) {
+    return localStorage!.getInt(key);
   }
 
   static Future<void> start() async {

@@ -17,6 +17,8 @@ class MainAppData {
   static const _userUUIDKey = "User UUID";
   static const _allTimeMatchCacheKey = "Match JSONS";
   static const _tempMatchCacheKey = "TEMP Match JSONS";
+  static const _userLifeScore = "User Life Score";
+  static const _userHighScore = "User High Score";
 
   static void autoSetAdminStatus() {
     isAdmin = userRole == "admin" || userRole == "super";
@@ -84,6 +86,22 @@ class MainAppData {
 
   static List<String> get allTimeMatchCache {
     return App.getStringList(_allTimeMatchCacheKey) ?? [];
+  }
+
+  static int get lifeScore {
+    return App.getInt(_userLifeScore) ?? 0;
+  }
+
+  static set lifeScore(int value) {
+    App.setInt(_userLifeScore, value);
+  }
+
+  static int get highScore {
+    return App.getInt(_userHighScore) ?? 0;
+  }
+
+  static set highScore(int value) {
+    App.setInt(_userHighScore, value);
   }
 
   static void addToMatchCache(String matchJSON) {

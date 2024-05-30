@@ -48,6 +48,7 @@ dependencies:
   video_player: ^2.8.6
   mime: ^1.0.5
   dart_ipify: ^1.1.1
+  percent_indicator: ^4.2.3
 
 
 dev_dependencies:
@@ -75,6 +76,7 @@ flutter:
   assets:
     - assets/leaderboard/badges/
     - assets/hof/
+    - assets/accolades/
 
     
   

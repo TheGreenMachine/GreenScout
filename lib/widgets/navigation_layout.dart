@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:green_scout/pages/achievements.dart';
 import 'package:green_scout/pages/hall_of_fame.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
@@ -81,6 +82,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Leaderboards", const LeaderboardPage()),
                 buildNavigationButton(context, Icons.emoji_events_sharp,
                     "Hall of Fame", const HallOfFamePage()),
+                buildNavigationButton(context, Icons.star, "Achievements",
+                    const AchievementsPage()),
                 ...buildAdminPanelNavigation(context),
               ],
             ),
