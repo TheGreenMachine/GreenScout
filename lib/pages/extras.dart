@@ -5,15 +5,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/extras/gallery.dart';
-import 'package:green_scout/pages/settings/user_info.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
-import 'package:green_scout/pages/settings/debug_info.dart';
-import 'package:green_scout/pages/settings/match_form_layout.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'dart:html' as html;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ExtrasPage extends StatefulWidget {
   const ExtrasPage({super.key});
@@ -43,15 +42,15 @@ class _ExtrasPage extends State<ExtrasPage> {
         children: [
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Extras"),
-          if (manager.achievements["Strategizer"]!.met)
-            buildRedirectButton(context, Image.asset("extras/naz.png"),
+          if (AchievementManager.nazHighlightsUnlocked)
+            buildRedirectButton(context, Image.asset("assets/extras/naz.png"),
                 "Naz Reid highlights", naz),
-          if (manager.achievements["Foreign Fracas"]!.met)
-            buildRedirectButton(context, Image.asset("extras/rudy.png"),
+          if (AchievementManager.rudyHighlightsUnlocked)
+            buildRedirectButton(context, Image.asset("assets/extras/rudy.png"),
                 "Rudy Gobert highlights", rudy),
-          if (manager.silentBadges["Router"]!.met)
+          if (AchievementManager.routerGalleryUnlocked)
             buildNavigationButton(context, Icons.camera_alt,
-                "Ryan McGoff Photo Gallery", PhotoGalleryPage())
+                "Ryan McGoff Photo Gallery", const PhotoGalleryPage())
         ],
       ),
     );
@@ -73,8 +72,8 @@ class _ExtrasPage extends State<ExtrasPage> {
   Widget buildRedirectButton(
       BuildContext context, Image image, String label, List<String> urls) {
     return ListTile(
-      onTap: () {
-        html.window.open(urls[Random().nextInt(urls.length)], 'new tab');
+      onTap: () async {
+        await launchUrlString(urls[Random().nextInt(urls.length)]);
       },
       hoverColor: Theme.of(context).colorScheme.inversePrimary,
       visualDensity: VisualDensity.comfortable,

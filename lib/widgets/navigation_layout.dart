@@ -1,9 +1,7 @@
-import 'dart:convert';
-
-import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/achievements.dart';
 import 'package:green_scout/pages/extras.dart';
 import 'package:green_scout/pages/hall_of_fame.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
@@ -86,8 +84,12 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Hall of Fame", const HallOfFamePage()),
                 buildNavigationButton(context, Icons.star, "Achievements",
                     const AchievementsPage()),
-                if (manager.achievements["Strategizer"]!.met ||
-                    manager.achievements["Foreign Fracas"]!.met)
+
+                if (
+                  AchievementManager.nazHighlightsUnlocked || 
+                  AchievementManager.rudyHighlightsUnlocked || 
+                  AchievementManager.routerGalleryUnlocked
+                )
                   buildNavigationButton(context, Icons.emoji_emotions_rounded,
                       "Extras", const ExtrasPage()),
                 ...buildAdminPanelNavigation(context),

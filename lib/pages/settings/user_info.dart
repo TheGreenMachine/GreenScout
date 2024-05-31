@@ -1,19 +1,12 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:green_scout/main.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'package:green_scout/widgets/subheader.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -36,8 +29,8 @@ class _UserInfoPage extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool unlockedDisplayname = manager.achievements["Locked In"]!.met;
-    bool unlockedPfp = manager.achievements["Deja vu"]!.met;
+    bool unlockedDisplayname = AchievementManager.displayNameUnlocked;
+    bool unlockedPfp = AchievementManager.profileChangeUnlocked;
 
     final (width, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);

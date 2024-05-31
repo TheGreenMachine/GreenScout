@@ -21,7 +21,7 @@ class PhotoGalleryPage extends StatelessWidget {
           actions: createEmptyActionBar(),
         ),
         body: Padding(
-            padding: EdgeInsets.symmetric(vertical: widthPadding),
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: ListView(
               children: [
                 const HeaderLabel("Ryan McGoff Photo Gallery"),

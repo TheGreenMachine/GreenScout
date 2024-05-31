@@ -49,6 +49,7 @@ dependencies:
   mime: ^1.0.5
   dart_ipify: ^1.1.1
   percent_indicator: ^4.2.3
+  url_launcher: ^6.2.6
 
 
 dev_dependencies:
@@ -78,6 +79,7 @@ flutter:
     - assets/hof/
     - assets/accolades/
     - assets/extras/
+    - assets/
 
     
   

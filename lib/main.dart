@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
-import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 
 import 'utils/app_state.dart';
@@ -19,8 +18,6 @@ class DevHttpOverrides extends HttpOverrides {
 }
 
 const appTitle = "Green Scout";
-
-final manager = AchievementManager();
 
 final globalNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -85,7 +82,7 @@ void main() async {
 
   runApp(const MyApp());
 
-  if (MainAppData.loggedIn && MainAppData.userCertificate != null) {
+  if (MainAppData.loggedIn && MainAppData.userCertificate.isNotEmpty) {
     var connected = await App.httpPost("/", "", ignoreOutput: true);
 
     if (connected) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/settings/user_info.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/pages/settings/debug_info.dart';
@@ -42,16 +42,18 @@ class _SettingsPage extends State<SettingsPage> {
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Settings"),
           buildSettingTile(
-              context,
-              widthPadding,
-              width,
-              Icons.format_list_bulleted_outlined,
-              "Match Form Layout",
-              const SettingsMatchFormLayoutPage()),
+            context,
+            widthPadding,
+            width,
+            Icons.format_list_bulleted_outlined,
+            "Match Form Layout",
+            const SettingsMatchFormLayoutPage(),
+          ),
+
           buildSettingTile(context, widthPadding, width, Icons.developer_board,
               "Debug Info", const SettingsDebugInfoPage()),
-          if (manager.achievements["Locked In"]!.met ||
-              manager.achievements["Deja vu"]!.met)
+
+          if (AchievementManager.displayNameUnlocked || AchievementManager.profileChangeUnlocked)
             buildSettingTile(context, widthPadding, width, Icons.dataset_sharp,
                 "Edit User Info", const UserInfoPage()),
         ],
