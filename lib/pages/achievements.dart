@@ -35,9 +35,18 @@ class _AchievementsPage extends State<AchievementsPage> {
       body: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(10)),
-          buildAchievementsList(context, AchievementManager.achievements,                                 "Achievements", true,  width, widthPadding, true),
-          buildAchievementsList(context, AchievementManager.leaderboardBadges,                            "Badges",       false, width, widthPadding, false),
-          buildAchievementsList(context, AchievementManager.silentBadges + AchievementManager.textBadges, "Other",        false, width, widthPadding, false),
+          buildAchievementsList(context, AchievementManager.achievements,
+              "Achievements", true, width, widthPadding, true),
+          buildAchievementsList(context, AchievementManager.leaderboardBadges,
+              "Badges", false, width, widthPadding, false),
+          buildAchievementsList(
+              context,
+              AchievementManager.silentBadges + AchievementManager.textBadges,
+              "Other",
+              false,
+              width,
+              widthPadding,
+              false),
         ],
       ),
     );
@@ -62,10 +71,10 @@ class _AchievementsPage extends State<AchievementsPage> {
     );
   }
 
-  List<Widget> buildUnlocksLayout(BuildContext context, Achievement achievement, double width, double widthPadding) {
+  List<Widget> buildUnlocksLayout(BuildContext context, Achievement achievement,
+      double width, double widthPadding) {
     return [
       const Padding(padding: EdgeInsets.all(36)),
-
       const Text(
         "Unlocks",
         style: TextStyle(
@@ -73,9 +82,7 @@ class _AchievementsPage extends State<AchievementsPage> {
           fontWeight: FontWeight.w600,
         ),
       ),
-
       const Padding(padding: EdgeInsets.all(5)),
-
       Text(
         achievement.unlocks!,
         textAlign: TextAlign.center,
@@ -85,64 +92,63 @@ class _AchievementsPage extends State<AchievementsPage> {
         ),
       ),
     ];
-  } 
+  }
 
-  void showInfoPopup(BuildContext context, Achievement achievement, double width, double widthPadding) {
+  void showInfoPopup(BuildContext context, Achievement achievement,
+      double width, double widthPadding) {
     showDialog(
-      context: context, 
+      context: context,
       builder: (BuildContext context) {
         return Padding(
-            padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 30),
-
-            child: Card(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Padding(padding: EdgeInsets.all(6)),
-
-                  Text(
-                    achievement.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 34,
-                    ),
+          padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 30),
+          child: Card(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Padding(padding: EdgeInsets.all(6)),
+                Text(
+                  achievement.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 34,
                   ),
-
-                  const Padding(padding: EdgeInsets.all(20)),
-
-                  FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: achievement.badge,
+                ),
+                const Padding(padding: EdgeInsets.all(20)),
+                FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: achievement.badge,
+                ),
+                const Padding(padding: EdgeInsets.all(6)),
+                Text(
+                  achievement.description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    // fontStyle: FontStyle.italic,
                   ),
-
-                  const Padding(padding: EdgeInsets.all(6)),
-
-                  Text(
-                    achievement.description,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      // fontStyle: FontStyle.italic,
-                    ),
-                  ),
-
-                  if (achievement.unlocks != null)
-                    ...buildUnlocksLayout(context, achievement, width, widthPadding),
-
-                  const Padding(padding: EdgeInsets.all(16)),
-                ],
-              ),
+                ),
+                if (achievement.unlocks != null)
+                  ...buildUnlocksLayout(
+                      context, achievement, width, widthPadding),
+                const Padding(padding: EdgeInsets.all(16)),
+              ],
             ),
-          );
+          ),
+        );
       },
     );
   }
 
   Widget buildAchievementsList(
-    BuildContext context, List<Achievement> achievements, String header, bool unlockable, double width, double widthPadding, bool displayProgressBar
-  ) {
+      BuildContext context,
+      List<Achievement> achievements,
+      String header,
+      bool unlockable,
+      double width,
+      double widthPadding,
+      bool displayProgressBar) {
     List<Widget> built = List.empty(growable: true);
 
     for (var value in achievements) {
@@ -155,58 +161,57 @@ class _AchievementsPage extends State<AchievementsPage> {
       }
 
       built.add(
-        Padding( 
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 7),
-
           child: Stack(
             children: [
               if (value.showDescription && value.met)
                 const Positioned(
                   left: 5,
                   top: 5,
-                  child: Icon(Icons.info_outlined, size: 20, color: Colors.grey,), 
+                  child: Icon(
+                    Icons.info_outlined,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
                 ),
-
-              InkWell( 
+              InkWell(
                 // Weird hack, but what this does is make it so the button
                 // doesn't have a clickable state when it doesn't have a description.
-                onTap: !(value.showDescription && value.met) ? null : () {
-                  // App.gotoPage(context, AchievementDescriptionPage(value), canGoBack: true);
-                  showInfoPopup(context, value, width, widthPadding);
-                },
+                onTap: !(value.showDescription && value.met)
+                    ? null
+                    : () {
+                        // App.gotoPage(context, AchievementDescriptionPage(value), canGoBack: true);
+                        showInfoPopup(context, value, width, widthPadding);
+                      },
 
-                child: ConstrainedBox( 
+                child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: width / 4,
                     minWidth: width / 4,
                   ),
-
-                  child: Ink( 
+                  child: Ink(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
-
                       color: Colors.grey.shade100,
                     ),
-
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
                       ),
-
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FittedBox(
                             fit: BoxFit.scaleDown,
-                            child: 
-                              value.met 
-                              ? value.badge
-                              : const Icon(Icons.lock_outline, size: 80),
+                            child: value.met
+                                ? value.badge
+                                : const Icon(Icons.lock_outline, size: 80),
                           ),
                           const Padding(padding: EdgeInsets.all(4)),
                           Text(
-                            value.name, 
+                            buildCompletionMessage(value),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -228,16 +233,13 @@ class _AchievementsPage extends State<AchievementsPage> {
     return Column(
       children: [
         if (built.isNotEmpty) HeaderLabel(header, bold: true),
-
-        if (displayProgressBar) 
+        if (displayProgressBar)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-
-            child: buildProgressBar(width, AchievementManager.getCompletionRatio()),
+            child: buildProgressBar(
+                width, AchievementManager.getCompletionRatio()),
           ),
-
         const Padding(padding: EdgeInsets.all(8)),
-
         Wrap(
           spacing: 2,
           alignment: WrapAlignment.center,
@@ -246,14 +248,21 @@ class _AchievementsPage extends State<AchievementsPage> {
               padding: const EdgeInsets.symmetric(
                 vertical: 8,
               ),
-
               child: element,
             );
           }).toList(),
         ),
-
         const Padding(padding: EdgeInsets.all(16)),
       ],
     );
+  }
+
+  static String buildCompletionMessage(Achievement achievement) {
+    if (achievement is PercentAchievement) {
+      return achievement.met
+          ? achievement.name
+          : "${(achievement.percentCompletion.call() * 100).truncate()}%";
+    }
+    return achievement.met ? achievement.name : "?";
   }
 }

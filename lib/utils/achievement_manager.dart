@@ -27,21 +27,18 @@ class AchievementManager {
       gearEye,
       () => MainAppData.lifeScore / 1,
     ),
-
     PercentAchievement(
       "Scouting Novice",
       "Scouted 10 matches",
       const Icon(Icons.thumb_up_alt_sharp, size: 100),
       () => MainAppData.lifeScore / 10,
     ),
-
     PercentAchievement(
-      "Scouter", 
+      "Scouter",
       "Scouted 50 matches",
-      const Icon(Icons.school, size: 100), 
+      const Icon(Icons.school, size: 100),
       () => MainAppData.lifeScore / 50,
     ),
-
     PercentAchievement(
       "Scouting Pro",
       "Scouted 100 matches",
@@ -49,15 +46,16 @@ class AchievementManager {
       () => MainAppData.lifeScore / 100,
       unlocks: "App themes",
     ),
-
     PercentAchievement(
       "Scouting Enthusiast",
-      "Scouted 500 matches", 
-      Image.asset("assets/accolades/goat.png", width: 100, height: 100), // Loads a goat image for some reason. I don't know ask tag - Michael
+      "Scouted 500 matches",
+      Image.asset("assets/accolades/goat.png",
+          width: 100,
+          height:
+              100), // Loads a goat image for some reason. I don't know ask tag - Michael
       () => MainAppData.lifeScore / 500,
       unlocks: "Gold leaderboard name color",
     ),
-
     PercentAchievement(
       "Locked In",
       "High Score of 50 matches",
@@ -66,7 +64,6 @@ class AchievementManager {
       unlocks: "Display name changing",
       conditionMet: (value) => displayNameUnlocked = value,
     ),
-
     PercentAchievement(
       "Déjà vu",
       "High score of 78 matches",
@@ -75,15 +72,13 @@ class AchievementManager {
       unlocks: "Profile picture changing",
       conditionMet: (value) => profileChangeUnlocked = value,
     ),
-
     PercentAchievement(
-      "👀", 
+      "👀",
       "High score of 300 matches",
-      const Icon(Icons.timer, size: 100), 
+      const Icon(Icons.timer, size: 100),
       () => MainAppData.highScore / 300,
       unlocks: "Green leaderboard name color",
     ),
-
     Achievement(
       "Strategizer",
       "Opened the spreadsheet from the app",
@@ -91,7 +86,6 @@ class AchievementManager {
       unlocks: "Naz Reid highlights",
       conditionMet: (value) => nazHighlightsUnlocked = value,
     ),
-
     Achievement(
       "Foreign Fracas",
       "Opened the app while outside of the United States",
@@ -99,15 +93,13 @@ class AchievementManager {
       unlocks: "Rudy Gobert highlights",
       conditionMet: (value) => rudyHighlightsUnlocked = value,
     ),
-
     Achievement(
-      "Detective", 
+      "Detective",
       "Changed the match layout",
       const Icon(Icons.settings, size: 100),
     ),
-
     Achievement(
-      "Debugger", 
+      "Debugger",
       "Opened the debug menu",
       const Icon(Icons.developer_board, size: 100),
     ),
@@ -117,120 +109,107 @@ class AchievementManager {
     Achievement(
       "St Cloud MVP 2024",
       "Scouted the most matches during the 2024 Granite City Regional",
-      Image.asset("assets/leaderboard/badges/st cloud mvp badge.png", width: 100, height: 100), 
+      Image.asset("assets/leaderboard/badges/st cloud mvp badge.png",
+          width: 100, height: 100),
     ),
-
     Achievement(
-      "App Dev", 
-      "App Developer", 
+      "App Dev",
+      "App Developer",
       const Icon(Icons.computer, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Frontend Dev", 
-      "Frontend Developer", 
+      "Frontend Dev",
+      "Frontend Developer",
       const FlutterLogo(size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Backend Dev", 
+      "Backend Dev",
       "Backend Developer",
       Image.asset("assets/leaderboard/badges/go.png", width: 100, height: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Strategy Lead", 
+      "Strategy Lead",
       "Strategy lead",
-      Image.asset("assets/leaderboard/badges/sheets.png", width: 100, height: 100),
+      Image.asset("assets/leaderboard/badges/sheets.png",
+          width: 100, height: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Leadership", 
+      "Leadership",
       "Leadership",
       const Icon(Icons.supervisor_account, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Captain", 
-      "Team Captain", 
+      "Captain",
+      "Team Captain",
       const Icon(Icons.star, size: 100),
       showDescription: false,
     ),
-
     Achievement(
       "Assistant Captain",
-      "Team Assistant Captain", 
+      "Team Assistant Captain",
       const Icon(Icons.star_border, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "CSP Lead", 
       "CSP Lead",
-      Image.asset("assets/leaderboard/badges/java.png", width: 100, height: 100),
+      "CSP Lead",
+      Image.asset("assets/leaderboard/badges/java.png",
+          width: 100, height: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Mechanical Lead", 
+      "Mechanical Lead",
       "Mechanical Lead",
       const Icon(Icons.build, size: 100),
       showDescription: false,
     ),
-    
     Achievement(
-      "Mentor", 
-      "Mentor", 
+      "Mentor",
+      "Mentor",
       const Icon(Icons.engineering, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "App Mentor", 
       "App Mentor",
-      Image.asset("assets/leaderboard/badges/gopher.png", width: 100, height: 100),
+      "App Mentor",
+      Image.asset("assets/leaderboard/badges/gopher.png",
+          width: 100, height: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Admin", 
+      "Admin",
       "Administrator",
       const Icon(Icons.admin_panel_settings_outlined, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Super Admin", 
+      "Super Admin",
       "Super Administrator",
       const Icon(Icons.admin_panel_settings, size: 100),
       showDescription: false,
     ),
-
     Achievement(
-      "Test", 
+      "Test",
       "This user is used for testing.",
       const Icon(Icons.smart_toy_outlined, size: 100),
     ),
-
     Achievement(
-      "Driveteam", 
+      "Driveteam",
       "Member of the driveteam",
       const Icon(Icons.drive_eta, size: 100),
     ),
-
     Achievement(
-      "HOF", 
+      "HOF",
       "In the Hall of Fame",
       const Icon(Icons.emoji_events_sharp, size: 100),
     ),
-
     Achievement(
-      "Bug Finder", 
+      "Bug Finder",
       "Helped the devs find a bug",
       const Icon(Icons.bug_report, size: 100),
     ),
@@ -238,8 +217,8 @@ class AchievementManager {
 
   static final textBadges = [
     Achievement(
-      "1816", 
-      "Member of Team 1816", 
+      "1816",
+      "Member of Team 1816",
       gearEye,
       unlocks: "Spreadsheet link",
     ),
@@ -251,7 +230,6 @@ class AchievementManager {
       "Used the app during the 2024 Crescendo season",
       Image.asset("assets/accolades/note.png", width: 100, height: 100),
     ),
-
     Achievement(
       "Router Dungeon Survivor",
       "Survived the router dungeon",
@@ -285,16 +263,14 @@ class AchievementManager {
 
 class Achievement {
   Achievement(
-    this.name, 
-    this.description, 
-    this.badge,
-    {
-      this.met = cheat, 
-      this.conditionMet,
-      this.unlocks, 
-      this.showDescription = true,
-    }
-  );
+    this.name,
+    this.description,
+    this.badge, {
+    this.met = cheat,
+    this.conditionMet,
+    this.unlocks,
+    this.showDescription = true,
+  });
 
   final String name;
   String description;
@@ -308,17 +284,15 @@ class Achievement {
 
 class PercentAchievement extends Achievement {
   PercentAchievement(
-    super.name, 
-    super.description, 
-    super.badge, 
-    this.percentCompletion,
-    {
-      super.met = cheat, 
-      super.conditionMet,
-      super.unlocks,
-      super.showDescription = true,
-    }
-  );
+    super.name,
+    super.description,
+    super.badge,
+    this.percentCompletion, {
+    super.met = cheat,
+    super.conditionMet,
+    super.unlocks,
+    super.showDescription = true,
+  });
 
   double Function() percentCompletion;
 }
