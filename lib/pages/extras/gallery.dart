@@ -3,6 +3,7 @@ import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
 class PhotoGalleryPage extends StatelessWidget {
@@ -14,6 +15,7 @@ class PhotoGalleryPage extends StatelessWidget {
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
     return Scaffold(
+        drawer: const NavigationLayoutDrawer(),
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           actions: createEmptyActionBar(),
