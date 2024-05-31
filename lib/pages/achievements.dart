@@ -101,9 +101,9 @@ class _AchievementsPage extends State<AchievementsPage> {
     achievements.forEach((key, value) {
       if (unlockable || value.met) {
         built.add(Padding(
-            padding: const EdgeInsets.symmetric(),
+            padding: const EdgeInsets.symmetric(horizontal: 2),
             child: SizedBox(
-                width: 250,
+                width: 275,
                 height: 250,
                 child: ExpansionTile(
                   title: FittedBox(
@@ -131,10 +131,25 @@ class _AchievementsPage extends State<AchievementsPage> {
                                   style: TextStyle(color: Colors.red),
                                 ))),
                   children: [
-                    Text(
-                        textAlign: TextAlign.center,
-                        maxLines: 3,
-                        value.met ? value.description : "Locked")
+                    value.unlocks != null
+                        ? FittedBox(
+                            child: Text(
+                            value.description,
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                          ))
+                        : Text(
+                            value.description,
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                          ),
+                    if (value.unlocks != null)
+                      FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                              textAlign: TextAlign.center,
+                              maxLines: 3,
+                              "Unlocks: ${value.unlocks!}"))
                   ],
                 ))));
       }

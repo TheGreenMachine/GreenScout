@@ -37,24 +37,30 @@ class AchievementManager {
         "Scouting Pro",
         "Scouted 100 matches",
         const Icon(Icons.workspace_premium_sharp, size: 100),
-        () => MainAppData.lifeScore / 100),
+        () => MainAppData.lifeScore / 100,
+        unlocks: "App themes"),
     "Scouting Enthusiast": PercentAchievement("Scouting Enthusiast",
-        "Scouted 500 matches", goat, () => MainAppData.lifeScore / 500),
+        "Scouted 500 matches", goat, () => MainAppData.lifeScore / 500,
+        unlocks: "Gold leaderboard name color"),
     "Locked In": PercentAchievement("Locked In", "High Score of 50 matches",
-        const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50),
+        const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50,
+        unlocks: "Display name changing"),
     "Déjà vu": PercentAchievement("Déjà vu", "High score of 78 matches",
-        const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78),
+        const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78,
+        unlocks: "Profile picture changing"),
     "👀": PercentAchievement("👀", "High score of 300 matches",
-        const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300),
+        const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300,
+        unlocks: "Green leaderboard name color"),
     "Strategizer": Achievement(
-      "Strategizer",
-      "Opened the spreadsheet from the app",
-      const Icon(Icons.grid_on, size: 100),
-    ),
+        "Strategizer",
+        "Opened the spreadsheet from the app",
+        const Icon(Icons.grid_on, size: 100),
+        unlocks: "Naz Reid highlights"),
     "Foreign Fracas": Achievement(
         "Foreign Fracas",
-        "Opened the app while outside of the united states",
-        const Icon(Icons.public, size: 100)),
+        "Opened the app while outside of the United States",
+        const Icon(Icons.public, size: 100),
+        unlocks: "Rudy Gobert highlights"),
     "Detective": Achievement("Detective", "Changed the match layout",
         const Icon(Icons.settings, size: 100)),
     "Debugger": Achievement("Debugger", "Opened the debug menu",
@@ -62,7 +68,8 @@ class AchievementManager {
     "Router": Achievement(
         "Router Dungeon Survivor",
         "Survived the router dungeon",
-        Image.asset("accolades/ryanMcgoff.png", width: 100, height: 100)),
+        Image.asset("accolades/ryanMcgoff.png", width: 100, height: 100),
+        unlocks: "Ryan McGoff photo gallery"),
   };
 
   var leaderboardBadges = {
@@ -108,8 +115,8 @@ class AchievementManager {
   };
 
   var textBadges = {
-    "1816": Achievement(
-        "1816", "Member of FRC Team 1816, \"The Green Machine\"", gearEye),
+    "1816": Achievement("1816", "Member of Team 1816", gearEye,
+        unlocks: "Spreadsheet link"),
   };
 
   var silentBadges = {
@@ -136,11 +143,13 @@ class AchievementManager {
 }
 
 class Achievement {
-  Achievement(this.name, this.description, this.badge, {this.met = cheat});
+  Achievement(this.name, this.description, this.badge,
+      {this.met = cheat, this.unlocks});
 
   final String name;
   String description;
   final Widget badge;
+  final String? unlocks;
 
   bool met;
 }
@@ -148,6 +157,6 @@ class Achievement {
 class PercentAchievement extends Achievement {
   PercentAchievement(
       super.name, super.description, super.badge, this.percentCompletion,
-      {super.met = false});
+      {super.met = cheat, super.unlocks});
   double Function() percentCompletion;
 }
