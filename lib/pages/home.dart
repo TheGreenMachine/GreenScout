@@ -1,3 +1,4 @@
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/match_form.dart';
@@ -50,6 +51,10 @@ class _HomePage extends State<HomePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       MatchesData.parseMatches();
+
+      if (!AchievementManager.rudyHighlightsUnlocked) {
+        MainAppData.checkIpForeign(context);
+      }
     });
   }
 
@@ -80,17 +85,11 @@ class _HomePage extends State<HomePage> {
       body: ListView(
         children: [
           ...createAdminPageButton(context),
-
           const Padding(padding: EdgeInsets.all(15)),
-
           ...createMatchFormPageButton(context),
-
           const Padding(padding: EdgeInsets.all(18)),
-
           const HeaderLabel("Assigned Matches"),
-
           const Padding(padding: EdgeInsets.all(4)),
-
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
@@ -103,13 +102,9 @@ class _HomePage extends State<HomePage> {
               ),
             ),
           ),
-
           const Padding(padding: EdgeInsets.all(12)),
-
           const HeaderLabel("All Matches"),
-
           const Padding(padding: EdgeInsets.all(4)),
-
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
@@ -122,7 +117,6 @@ class _HomePage extends State<HomePage> {
               ),
             ),
           ),
-
           const Padding(padding: EdgeInsets.all(16)),
         ],
       ),

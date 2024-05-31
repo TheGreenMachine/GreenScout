@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -18,6 +21,15 @@ class _AchievementsPage extends State<AchievementsPage> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      App.httpGet("/userInfo", "", (response) {
+        var responseJson = jsonDecode(response.body);
+
+        AchievementManager.syncAchievements(
+            responseJson["Badges"], responseJson["Accolades"]);
+      }, {"username": MainAppData.scouterName});
+    });
   }
 
   @override
@@ -39,14 +51,8 @@ class _AchievementsPage extends State<AchievementsPage> {
               "Achievements", true, width, widthPadding, true),
           buildAchievementsList(context, AchievementManager.leaderboardBadges,
               "Badges", false, width, widthPadding, false),
-          buildAchievementsList(
-              context,
-              AchievementManager.silentBadges + AchievementManager.textBadges,
-              "Other",
-              false,
-              width,
-              widthPadding,
-              false),
+          buildAchievementsList(context, AchievementManager.silentBadges,
+              "Other", false, width, widthPadding, false),
         ],
       ),
     );
@@ -156,8 +162,8 @@ class _AchievementsPage extends State<AchievementsPage> {
         continue;
       }
 
-      if (value.conditionMet != null) {
-        value.conditionMet!(value.met);
+      if (value.ref != null) {
+        value.met = value.ref!.value;
       }
 
       built.add(

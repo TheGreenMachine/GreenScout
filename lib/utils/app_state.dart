@@ -114,6 +114,8 @@ class App {
 
   static void gotoPage(BuildContext context, Widget page,
       {bool canGoBack = false}) {
+    ScaffoldMessenger.of(context).clearMaterialBanners();
+
     final navigator = Navigator.of(context);
 
     if (canGoBack) {
@@ -324,6 +326,40 @@ class App {
               .copyWith(color: Theme.of(context).colorScheme.background),
           textAlign: TextAlign.center,
         ),
+        backgroundColor: Theme.of(context).colorScheme.onBackground,
+      ),
+    );
+  }
+
+  static void showAchievementUnlocked(
+      BuildContext context, String message, String subtitle) {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        actions: [
+          TextButton(
+            child: const Text('Dismiss'),
+            onPressed: () =>
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+          ),
+        ],
+        content: Column(children: [
+          Text(
+            message,
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge!
+                .copyWith(color: Theme.of(context).colorScheme.background),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            subtitle,
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall!
+                .copyWith(color: Theme.of(context).colorScheme.background),
+            textAlign: TextAlign.center,
+          )
+        ]),
         backgroundColor: Theme.of(context).colorScheme.onBackground,
       ),
     );

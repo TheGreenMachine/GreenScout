@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
+import 'package:green_scout/utils/reference.dart';
 
 const cheat =
-    true; //This is literally only here so i don't have an anyeurism while developing
+    false; //This is literally only here so i don't have an anyeurism while developing
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
@@ -13,12 +14,16 @@ class AchievementManager {
     height: 100,
   );
 
-  static var rudyHighlightsUnlocked = false;
-  static var nazHighlightsUnlocked = false;
+  static var rudyHighlightsUnlocked = App.getBool("Foreign Fracas") ?? false;
+  static var nazHighlightsUnlocked = false; //TODO spreadsheet
   static var routerGalleryUnlocked = false;
 
   static var displayNameUnlocked = false;
   static var profileChangeUnlocked = false;
+
+  static var appThemesUnlocked = false;
+
+  static var spreadsheetUnlocked = false;
 
   static final achievements = [
     PercentAchievement(
@@ -40,12 +45,12 @@ class AchievementManager {
       () => MainAppData.lifeScore / 50,
     ),
     PercentAchievement(
-      "Scouting Pro",
-      "Scouted 100 matches",
-      const Icon(Icons.workspace_premium_sharp, size: 100),
-      () => MainAppData.lifeScore / 100,
-      unlocks: "App themes",
-    ),
+        "Scouting Pro",
+        "Scouted 100 matches",
+        const Icon(Icons.workspace_premium_sharp, size: 100),
+        () => MainAppData.lifeScore / 100,
+        unlocks: "App themes",
+        ref: Reference(appThemesUnlocked)),
     PercentAchievement(
       "Scouting Enthusiast",
       "Scouted 500 matches",
@@ -56,22 +61,13 @@ class AchievementManager {
       () => MainAppData.lifeScore / 500,
       unlocks: "Gold leaderboard name color",
     ),
-    PercentAchievement(
-      "Locked In",
-      "High Score of 50 matches",
-      const Icon(Icons.lock, size: 100),
-      () => MainAppData.highScore / 50,
-      unlocks: "Display name changing",
-      conditionMet: (value) => displayNameUnlocked = value,
-    ),
-    PercentAchievement(
-      "Déjà vu",
-      "High score of 78 matches",
-      const Icon(Icons.loop, size: 100),
-      () => MainAppData.highScore / 78,
-      unlocks: "Profile picture changing",
-      conditionMet: (value) => profileChangeUnlocked = value,
-    ),
+    PercentAchievement("Locked In", "High Score of 50 matches",
+        const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50,
+        unlocks: "Display name changing", ref: Reference(displayNameUnlocked)),
+    PercentAchievement("Déjà vu", "High score of 78 matches",
+        const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78,
+        unlocks: "Profile picture changing",
+        ref: Reference(profileChangeUnlocked)),
     PercentAchievement(
       "👀",
       "High score of 300 matches",
@@ -84,23 +80,27 @@ class AchievementManager {
       "Opened the spreadsheet from the app",
       const Icon(Icons.grid_on, size: 100),
       unlocks: "Naz Reid highlights",
-      conditionMet: (value) => nazHighlightsUnlocked = value,
+      isFrontendProvided: true,
+      ref: Reference(nazHighlightsUnlocked),
     ),
     Achievement(
       "Foreign Fracas",
       "Opened the app while outside of the United States",
       const Icon(Icons.public, size: 100),
       unlocks: "Rudy Gobert highlights",
-      conditionMet: (value) => rudyHighlightsUnlocked = value,
+      isFrontendProvided: true,
+      ref: Reference(rudyHighlightsUnlocked),
     ),
     Achievement(
       "Detective",
       "Changed the match layout",
+      isFrontendProvided: true,
       const Icon(Icons.settings, size: 100),
     ),
     Achievement(
       "Debugger",
       "Opened the debug menu",
+      isFrontendProvided: true,
       const Icon(Icons.developer_board, size: 100),
     ),
   ];
@@ -215,15 +215,6 @@ class AchievementManager {
     ),
   ];
 
-  static final textBadges = [
-    Achievement(
-      "1816",
-      "Member of Team 1816",
-      gearEye,
-      unlocks: "Spreadsheet link",
-    ),
-  ];
-
   static final silentBadges = [
     Achievement(
       "Early adopter",
@@ -235,7 +226,14 @@ class AchievementManager {
       "Survived the router dungeon",
       Image.asset("assets/accolades/ryanMcgoff.png", width: 100, height: 100),
       unlocks: "Ryan McGoff photo gallery",
-      conditionMet: (value) => routerGalleryUnlocked = value,
+      ref: Reference(routerGalleryUnlocked),
+    ),
+    Achievement(
+      "1816",
+      "Member of Team 1816",
+      gearEye,
+      unlocks: "Spreadsheet link",
+      ref: Reference(spreadsheetUnlocked),
     ),
   ];
 
@@ -252,7 +250,41 @@ class AchievementManager {
   }
 
   static List<Achievement> allAchievements() {
-    return achievements + leaderboardBadges + textBadges + silentBadges;
+    return achievements + leaderboardBadges + silentBadges;
+  }
+
+  static void syncAchievements(
+      dynamic responseBadges, dynamic responseAccolades) {
+    //Yes this is over iterative and dumb HOWEVER it's less painful that making it a map
+    for (var badge in leaderboardBadges) {
+      if ((responseBadges as List<dynamic>).contains(badge.name)) {
+        badge.met = true;
+        if (badge.ref != null) {
+          badge.ref!.value = true;
+        }
+      }
+    }
+
+    for (var achievement in achievements) {
+      if ((responseAccolades as List<dynamic>).contains(achievement.name)) {
+        achievement.met = true;
+        if (achievement.ref != null) {
+          achievement.ref!.value = true;
+        }
+      } else if (achievement.isFrontendProvided && achievement.met) {
+        App.httpPost("/provideAdditions",
+            '{"UUID": "${MainAppData.userUUID}", "Achievements": ["${achievement.name}"]}');
+      }
+    }
+
+    for (var silentBadge in silentBadges) {
+      if ((responseAccolades as List<dynamic>).contains(silentBadge.name)) {
+        silentBadge.met = true;
+        if (silentBadge.ref != null) {
+          silentBadge.ref!.value = true;
+        }
+      }
+    }
   }
 
   void checkUpdatePool() async {
@@ -262,37 +294,31 @@ class AchievementManager {
 }
 
 class Achievement {
-  Achievement(
-    this.name,
-    this.description,
-    this.badge, {
-    this.met = cheat,
-    this.conditionMet,
-    this.unlocks,
-    this.showDescription = true,
-  });
+  Achievement(this.name, this.description, this.badge,
+      {this.met = cheat,
+      this.unlocks,
+      this.showDescription = true,
+      this.ref,
+      this.isFrontendProvided = false});
 
   final String name;
   String description;
   final Widget badge;
   final String? unlocks;
+  final Reference<bool>? ref;
+  final bool isFrontendProvided;
 
-  void Function(bool)? conditionMet;
   bool met;
   bool showDescription;
 }
 
 class PercentAchievement extends Achievement {
   PercentAchievement(
-    super.name,
-    super.description,
-    super.badge,
-    this.percentCompletion, {
-    super.met = cheat,
-    super.conditionMet,
-    super.unlocks,
-    super.showDescription = true,
-  });
+      super.name, super.description, super.badge, this.percentCompletion,
+      {super.met = cheat,
+      super.unlocks,
+      super.showDescription = true,
+      super.ref});
 
   double Function() percentCompletion;
 }

@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:js';
 
+import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 /// A Helper Class That Centralizes All Data Integral
 /// For The App To Run.
@@ -172,11 +176,31 @@ class MainAppData {
         {"Username": MainAppData.scouterName, "Filename": file.name});
   }
 
+  static Future<void> checkIpForeign(BuildContext context) async {
+    var ip = await Ipify.ipv4();
+    var response = await http.get(Uri.parse("https://ipinfo.io/$ip/json"));
+    if (jsonDecode(response.body)["country"] != "US") {
+      triggerForeign(context);
+    }
+  }
+
+  static void triggerForeign(BuildContext context) {
+    App.showAchievementUnlocked(context, "Achievement Unlocked: Foreign Fracas",
+        "Unlocked Rudy Gobert highlights in Extras");
+    AchievementManager.rudyHighlightsUnlocked = true;
+    App.setBool("Foreign Fracas", true);
+    App.httpPost("/provideAdditions",
+        '{"UUID": ${MainAppData.userUUID}, "Achievements": ["Foreign Fracas"]}');
+  }
+
   static Future<void> setUserInfo() async {
     await App.httpGet("/userInfo", "", (response) {
       var responseJson = jsonDecode(response.body);
       MainAppData.scouterName = responseJson["Username"];
       MainAppData.displayName = responseJson["DisplayName"];
+
+      AchievementManager.syncAchievements(
+          responseJson["Badges"], responseJson["Accolades"]);
     }, {"username": MainAppData.scouterName});
 
     await App.httpGet("getPfp", "", (response) {
