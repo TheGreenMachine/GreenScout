@@ -148,7 +148,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(width: 8),
-                App.getNetworkImage(info.username)
+                App.getProfileImage(info.username)
               ],
             ),
             title: Text(

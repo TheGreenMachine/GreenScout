@@ -54,6 +54,7 @@ class AchievementManager {
       "High score of 78 matches",
       const Icon(Icons.loop, size: 100),
       () => MainAppData.highScore / 78,
+      unlocks: "Profile picture changing",
     ),
     "👀": PercentAchievement("👀", "High score of 300 matches",
         const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300,
@@ -72,11 +73,6 @@ class AchievementManager {
         const Icon(Icons.settings, size: 100)),
     "Debugger": Achievement("Debugger", "Opened the debug menu",
         const Icon(Icons.developer_board, size: 100)),
-    "Router": Achievement(
-        "Router Dungeon Survivor",
-        "Survived the router dungeon",
-        Image.asset("accolades/ryanMcgoff.png", width: 100, height: 100),
-        unlocks: "Ryan McGoff photo gallery"),
   };
 
   var leaderboardBadges = {
@@ -131,6 +127,11 @@ class AchievementManager {
         "Early adopter",
         "Used the app during the 2024 Crescendo season",
         Image.asset("accolades/note.png", width: 100, height: 100)),
+    "Router": Achievement(
+        "Router Dungeon Survivor",
+        "Survived the router dungeon",
+        Image.asset("accolades/ryanMcgoff.png", width: 100, height: 100),
+        unlocks: "Ryan McGoff photo gallery"),
   };
 
   double getCompletionRatio() {

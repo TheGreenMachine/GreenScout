@@ -287,9 +287,29 @@ class App {
     return internetOn && responseErr == null;
   }
 
-  static Image getNetworkImage(String arg) {
+  static Image getProfileImage(String arg) {
     return Image(
         image: NetworkImage("https://$serverHostName/getPfp?username=$arg"));
+  }
+
+  static Widget getGalleryImage(int index) {
+    return Image(
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        height: 500,
+        image: NetworkImage(
+          "https://$serverHostName/gallery?index=$index",
+        ));
   }
 
   static void showMessage(BuildContext context, String message) {
