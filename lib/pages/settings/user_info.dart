@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -35,6 +36,9 @@ class _UserInfoPage extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool unlockedDisplayname = manager.achievements["Locked In"]!.met;
+    bool unlockedPfp = manager.achievements["Deja vu"]!.met;
+
     final (width, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
@@ -49,47 +53,52 @@ class _UserInfoPage extends State<UserInfoPage> {
           children: [
             const HeaderLabel("User Information"),
             const Padding(padding: EdgeInsets.all(6)),
-            createLabelAndTextInput("Display Name", widthPadding, width,
-                displayName.value, displayName),
-            createLabelAndImagePicker("Profile picture", widthPadding, width),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  bool success = false;
+            if (unlockedDisplayname)
+              createLabelAndTextInput("Display Name", widthPadding, width,
+                  displayName.value, displayName),
+            if (unlockedPfp)
+              createLabelAndImagePicker("Profile picture", widthPadding, width),
+            if (unlockedPfp || unlockedDisplayname)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    bool success = false;
 
-                  () async {
-                    if (displayName.value != MainAppData.displayName) {
-                      success =
-                          await MainAppData.updateUserData(displayName.value);
+                    () async {
+                      if (unlockedDisplayname) {
+                        if (displayName.value != MainAppData.displayName) {
+                          success = await MainAppData.updateUserData(
+                              displayName.value);
 
-                      if (success) {
-                        MainAppData.displayName = displayName.value;
-                        App.showMessage(context,
-                            "Successfully updated display name to ${displayName.value}");
-                      } else {
-                        App.showMessage(
-                            context, "Unable to update display name");
+                          if (success) {
+                            MainAppData.displayName = displayName.value;
+                            App.showMessage(context,
+                                "Successfully updated display name to ${displayName.value}");
+                          } else {
+                            App.showMessage(
+                                context, "Unable to update display name");
+                          }
+                        }
                       }
-                    }
 
-                    if (hasCustomImage) {
-                      success = await MainAppData.updateUserPfp(xCustomImage);
+                      if (hasCustomImage) {
+                        success = await MainAppData.updateUserPfp(xCustomImage);
 
-                      if (success) {
-                        App.setPfp(
-                            Image.memory(await xCustomImage.readAsBytes()));
+                        if (success) {
+                          App.setPfp(
+                              Image.memory(await xCustomImage.readAsBytes()));
 
-                        App.showMessage(context, "Successfully updated pfp");
-                      } else {
-                        App.showMessage(context, "Unable to update pfp");
+                          App.showMessage(context, "Successfully updated pfp");
+                        } else {
+                          App.showMessage(context, "Unable to update pfp");
+                        }
                       }
-                    }
-                  }();
-                },
-                child: const Text("Submit"),
+                    }();
+                  },
+                  child: const Text("Submit"),
+                ),
               ),
-            ),
           ],
         ),
       ),

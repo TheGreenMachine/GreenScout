@@ -17,7 +17,7 @@ Image goat = Image.asset(
   height: 100,
 );
 
-//Why are these maps? No idea. I'm sure I had a good reason for it though.
+//Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
   var achievements = {
     "Scouting Rookie": PercentAchievement(
@@ -42,12 +42,19 @@ class AchievementManager {
     "Scouting Enthusiast": PercentAchievement("Scouting Enthusiast",
         "Scouted 500 matches", goat, () => MainAppData.lifeScore / 500,
         unlocks: "Gold leaderboard name color"),
-    "Locked In": PercentAchievement("Locked In", "High Score of 50 matches",
-        const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50,
-        unlocks: "Display name changing"),
-    "Déjà vu": PercentAchievement("Déjà vu", "High score of 78 matches",
-        const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78,
-        unlocks: "Profile picture changing"),
+    "Locked In": PercentAchievement(
+      "Locked In",
+      "High Score of 50 matches",
+      const Icon(Icons.lock, size: 100),
+      () => MainAppData.highScore / 50,
+      unlocks: "Display name changing",
+    ),
+    "Deja vu": PercentAchievement(
+      "Déjà vu",
+      "High score of 78 matches",
+      const Icon(Icons.loop, size: 100),
+      () => MainAppData.highScore / 78,
+    ),
     "👀": PercentAchievement("👀", "High score of 300 matches",
         const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300,
         unlocks: "Green leaderboard name color"),

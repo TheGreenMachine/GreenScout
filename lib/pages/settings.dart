@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/settings/user_info.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
@@ -49,8 +50,10 @@ class _SettingsPage extends State<SettingsPage> {
               const SettingsMatchFormLayoutPage()),
           buildSettingTile(context, widthPadding, width, Icons.developer_board,
               "Debug Info", const SettingsDebugInfoPage()),
-          buildSettingTile(context, widthPadding, width, Icons.dataset_sharp,
-              "Edit User Info", const UserInfoPage()),
+          if (manager.achievements["Locked In"]!.met ||
+              manager.achievements["Deja vu"]!.met)
+            buildSettingTile(context, widthPadding, width, Icons.dataset_sharp,
+                "Edit User Info", const UserInfoPage()),
         ],
       ),
     );
