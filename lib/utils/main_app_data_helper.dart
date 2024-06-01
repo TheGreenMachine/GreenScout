@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:js';
 
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:image_picker/image_picker.dart';
@@ -186,7 +188,7 @@ class MainAppData {
         AchievementManager.syncAchievements(
             responseJson["Badges"], responseJson["Accolades"]);
       }
-    }, {"username": MainAppData.scouterName});
+    }, {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
 
     await App.httpGet("getPfp", "", (response) {
       if (response.statusCode == 200) {
@@ -237,6 +239,22 @@ class MainAppData {
       App.setBool("Detective", true);
       App.httpPost("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Detective"]}');
+    }
+  }
+
+  static void notifyAchievement(Achievement achievement) {
+    App.showAchievementUnlocked(globalNavigatorKey.currentContext!,
+        "Achievement Unlocked: ${achievement.name}",
+        subtitle: achievement.description +
+            (achievement.unlocks != null
+                ? " - Unlocked ${achievement.unlocks}"
+                : ""));
+  }
+
+  static Future<void> notifyAchievementList(
+      List<Achievement> achievements) async {
+    for (var achievement in achievements) {
+      notifyAchievement(achievement);
     }
   }
 }

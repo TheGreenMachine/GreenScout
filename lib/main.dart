@@ -81,7 +81,9 @@ void main() async {
   });
 
   Timer.periodic(const Duration(minutes: 1), (timer) async {
-    MainAppData.setUserInfo();
+    if (MainAppData.loggedIn) {
+      MainAppData.setUserInfo();
+    }
   });
 
   runApp(const MyApp());

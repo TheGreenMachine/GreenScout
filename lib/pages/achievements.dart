@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -30,7 +31,7 @@ class _AchievementsPage extends State<AchievementsPage> {
           AchievementManager.syncAchievements(
               responseJson["Badges"], responseJson["Accolades"]);
         }
-      }, {"username": MainAppData.scouterName});
+      }, {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
 
       setState(() {});
     }();

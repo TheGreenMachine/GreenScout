@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -271,11 +274,23 @@ class AchievementManager {
         }
       }
 
+      Map<String, bool> retrivedAccolades = {};
+      List<Achievement> achivementsToNotify = [];
+
+      for (var responseAccolade in responseAccolades) {
+        retrivedAccolades[responseAccolade["Accolade"]] =
+            responseAccolade["Notified"];
+      }
+
       for (var achievement in achievements) {
-        if ((responseAccolades as List<dynamic>).contains(achievement.name)) {
+        if ((retrivedAccolades).keys.contains(achievement.name)) {
           achievement.met = true;
           if (achievement.ref != null) {
             achievement.ref!.value = true;
+          }
+          if (!retrivedAccolades[achievement.name]! &&
+              !achievement.isFrontendProvided) {
+            achivementsToNotify.add(achievement);
           }
         } else if (achievement.isFrontendProvided && achievement.met) {
           App.httpPost("/provideAdditions",
@@ -288,8 +303,12 @@ class AchievementManager {
         }
       }
 
+      if (achivementsToNotify.isNotEmpty) {
+        MainAppData.notifyAchievementList(achivementsToNotify);
+      }
+
       for (var silentBadge in silentBadges) {
-        if ((responseAccolades as List<dynamic>).contains(silentBadge.name)) {
+        if ((retrivedAccolades).keys.contains(silentBadge.name)) {
           silentBadge.met = true;
           if (silentBadge.ref != null) {
             silentBadge.ref!.value = true;
@@ -297,11 +316,6 @@ class AchievementManager {
         }
       }
     }
-  }
-
-  void checkUpdatePool() async {
-    await App.httpGet(
-        "/updates", "", (result) {}, {"username": MainAppData.scouterName});
   }
 }
 
