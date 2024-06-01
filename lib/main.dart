@@ -98,6 +98,8 @@ void main() async {
         MainAppData.loggedIn = false;
         App.gotoPage(
             globalNavigatorKey.currentContext!, const LoginPageForUsers());
+      } else {
+        MainAppData.setUserInfo();
       }
     }
   }

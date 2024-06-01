@@ -176,31 +176,16 @@ class MainAppData {
         {"Username": MainAppData.scouterName, "Filename": file.name});
   }
 
-  static Future<void> checkIpForeign(BuildContext context) async {
-    var ip = await Ipify.ipv4();
-    var response = await http.get(Uri.parse("https://ipinfo.io/$ip/json"));
-    if (jsonDecode(response.body)["country"] != "US") {
-      triggerForeign(context);
-    }
-  }
-
-  static void triggerForeign(BuildContext context) {
-    App.showAchievementUnlocked(context, "Achievement Unlocked: Foreign Fracas",
-        "Unlocked Rudy Gobert highlights in Extras");
-    AchievementManager.rudyHighlightsUnlocked = true;
-    App.setBool("Foreign Fracas", true);
-    App.httpPost("/provideAdditions",
-        '{"UUID": ${MainAppData.userUUID}, "Achievements": ["Foreign Fracas"]}');
-  }
-
   static Future<void> setUserInfo() async {
     await App.httpGet("/userInfo", "", (response) {
       var responseJson = jsonDecode(response.body);
       MainAppData.scouterName = responseJson["Username"];
       MainAppData.displayName = responseJson["DisplayName"];
 
-      AchievementManager.syncAchievements(
-          responseJson["Badges"], responseJson["Accolades"]);
+      if (!AchievementManager.isCheating()) {
+        AchievementManager.syncAchievements(
+            responseJson["Badges"], responseJson["Accolades"]);
+      }
     }, {"username": MainAppData.scouterName});
 
     await App.httpGet("getPfp", "", (response) {
@@ -210,5 +195,48 @@ class MainAppData {
         App.setPfp(const Icon(Icons.account_circle));
       }
     }, {"username": MainAppData.scouterName});
+  }
+
+  static Future<void> checkIpForeign(BuildContext context) async {
+    var ip = await Ipify.ipv4();
+    var response = await http.get(Uri.parse("https://ipinfo.io/$ip/json"));
+    if (jsonDecode(response.body)["country"] != "US") {
+      triggerForeign(context);
+    }
+  }
+
+  /// Achievement methods. These could be made more generic but it'd be a million parameters
+
+  static void triggerForeign(BuildContext context) {
+    if (!AchievementManager.isCheating() && MainAppData.loggedIn) {
+      App.showAchievementUnlocked(
+          context, "Achievement Unlocked: Foreign Fracas",
+          subtitle:
+              "Opened the app while outside of the United States - Unlocked Rudy Gobert highlights in Extras");
+      AchievementManager.rudyHighlightsUnlocked = true;
+      App.setBool("Foreign Fracas", true);
+      App.httpPost("/provideAdditions",
+          '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Foreign Fracas"]}');
+    }
+  }
+
+  static void triggerDebug(BuildContext context) {
+    if (!AchievementManager.isCheating() && MainAppData.loggedIn) {
+      App.showAchievementUnlocked(context, "Achievement Unlocked: Debugger",
+          subtitle: "Opened the debug menu");
+      App.setBool("Debugger", true);
+      App.httpPost("/provideAdditions",
+          '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Debugger"]}');
+    }
+  }
+
+  static void triggerDetective(BuildContext context) {
+    if (!AchievementManager.isCheating() && MainAppData.loggedIn) {
+      App.showAchievementUnlocked(context, "Achievement Unlocked: Detective",
+          subtitle: "Changed the match layout");
+      App.setBool("Detective", true);
+      App.httpPost("/provideAdditions",
+          '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Detective"]}');
+    }
   }
 }

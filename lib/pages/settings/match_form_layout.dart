@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
@@ -13,42 +15,42 @@ class SettingsMatchFormLayoutPage extends StatefulWidget {
   });
 
   @override
-  State<SettingsMatchFormLayoutPage> createState() => _SettingsMatchFormLayoutPage();
+  State<SettingsMatchFormLayoutPage> createState() =>
+      _SettingsMatchFormLayoutPage();
 }
 
 class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
+    final (width, widthPadding) =
+        screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createEmptyActionBar(),
       ),
-
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: widthPadding),
-
         child: ListView(
           children: [
             const HeaderLabel("Match Form Layout"),
             const Padding(padding: EdgeInsets.all(6)),
 
             createLabelAndDropdown<bool>(
-              "Side Bar Position", 
+              "Side Bar Position",
               widthPadding,
               width,
               {
                 "Left": true,
                 "Right": false,
-              }, 
-              Settings.sideBarLeftSided.ref, 
+              },
+              Settings.sideBarLeftSided.ref,
               false,
             ),
 
             createLabelAndDropdown<bool>(
-              "Number Counter Decrement Position", 
+              "Number Counter Decrement Position",
               widthPadding,
               width,
               {
@@ -67,7 +69,8 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
             const SubheaderLabel("Advanced Features"),
             const Padding(padding: EdgeInsets.all(6)),
 
-            createLabelAndCheckBox("Enable Match Rescouting?", widthPadding, Settings.enableMatchRescouting.ref),
+            createLabelAndCheckBox("Enable Match Rescouting?", widthPadding,
+                Settings.enableMatchRescouting.ref),
           ],
         ),
       ),
@@ -87,13 +90,11 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
         horizontal: widthPadding,
         vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
             width: width * 0.65,
-
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelLarge,
@@ -101,8 +102,12 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
           ),
           SizedBox(
             width: width * 0.25,
-
             child: Dropdown<V>(
+              onChanged: () {
+                if (!(App.getBool("Detective") ?? false)) {
+                  MainAppData.triggerDetective(context);
+                }
+              },
               entries: entries,
               inValue: inValue,
               defaultValue: defaultValue,
@@ -115,13 +120,13 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
     );
   }
 
-  Widget createLabelAndCheckBox(String question, double widthPadding, Reference<bool> condition) {
+  Widget createLabelAndCheckBox(
+      String question, double widthPadding, Reference<bool> condition) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: widthPadding,
         vertical: 8,
       ),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -137,6 +142,9 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
             value: condition.value,
             onChanged: (_) => setState(() {
               condition.value = !condition.value;
+              if (!(App.getBool("Detective") ?? false)) {
+                MainAppData.triggerDetective(context);
+              }
             }),
           ),
         ],

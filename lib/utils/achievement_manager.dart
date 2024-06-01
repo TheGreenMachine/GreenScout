@@ -8,22 +8,26 @@ const cheat =
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
+  static bool isCheating() {
+    return cheat;
+  }
+
   static Image gearEye = Image.asset(
     "assets/accolades/gearEye.png",
     width: 100,
     height: 100,
   );
 
-  static var rudyHighlightsUnlocked = App.getBool("Foreign Fracas") ?? false;
-  static var nazHighlightsUnlocked = false; //TODO spreadsheet
-  static var routerGalleryUnlocked = false;
+  static var rudyHighlightsUnlocked = App.getBool("Foreign Fracas") ?? cheat;
+  static var nazHighlightsUnlocked = cheat; //TODO spreadsheet
+  static var routerGalleryUnlocked = cheat;
 
-  static var displayNameUnlocked = false;
-  static var profileChangeUnlocked = false;
+  static var displayNameUnlocked = cheat;
+  static var profileChangeUnlocked = cheat;
 
-  static var appThemesUnlocked = false;
+  static var appThemesUnlocked = cheat;
 
-  static var spreadsheetUnlocked = false;
+  static var spreadsheetUnlocked = cheat;
 
   static final achievements = [
     PercentAchievement(
@@ -102,6 +106,7 @@ class AchievementManager {
       "Opened the debug menu",
       isFrontendProvided: true,
       const Icon(Icons.developer_board, size: 100),
+      met: App.getBool("Debugger") ?? cheat,
     ),
   ];
 
@@ -255,33 +260,40 @@ class AchievementManager {
 
   static void syncAchievements(
       dynamic responseBadges, dynamic responseAccolades) {
-    //Yes this is over iterative and dumb HOWEVER it's less painful that making it a map
-    for (var badge in leaderboardBadges) {
-      if ((responseBadges as List<dynamic>).contains(badge.name)) {
-        badge.met = true;
-        if (badge.ref != null) {
-          badge.ref!.value = true;
+    if (MainAppData.loggedIn) {
+      //Yes this is over iterative and dumb HOWEVER it's less painful that making it a map
+      for (var badge in leaderboardBadges) {
+        if ((responseBadges as List<dynamic>).contains(badge.name)) {
+          badge.met = true;
+          if (badge.ref != null) {
+            badge.ref!.value = true;
+          }
         }
       }
-    }
 
-    for (var achievement in achievements) {
-      if ((responseAccolades as List<dynamic>).contains(achievement.name)) {
-        achievement.met = true;
-        if (achievement.ref != null) {
-          achievement.ref!.value = true;
+      for (var achievement in achievements) {
+        if ((responseAccolades as List<dynamic>).contains(achievement.name)) {
+          achievement.met = true;
+          if (achievement.ref != null) {
+            achievement.ref!.value = true;
+          }
+        } else if (achievement.isFrontendProvided && achievement.met) {
+          App.httpPost("/provideAdditions",
+              '{"UUID": "${MainAppData.userUUID}", "Achievements": ["${achievement.name}"]}');
+        } else if (!cheat) {
+          achievement.met = false;
+          if (achievement.ref != null) {
+            achievement.ref!.value = false;
+          }
         }
-      } else if (achievement.isFrontendProvided && achievement.met) {
-        App.httpPost("/provideAdditions",
-            '{"UUID": "${MainAppData.userUUID}", "Achievements": ["${achievement.name}"]}');
       }
-    }
 
-    for (var silentBadge in silentBadges) {
-      if ((responseAccolades as List<dynamic>).contains(silentBadge.name)) {
-        silentBadge.met = true;
-        if (silentBadge.ref != null) {
-          silentBadge.ref!.value = true;
+      for (var silentBadge in silentBadges) {
+        if ((responseAccolades as List<dynamic>).contains(silentBadge.name)) {
+          silentBadge.met = true;
+          if (silentBadge.ref != null) {
+            silentBadge.ref!.value = true;
+          }
         }
       }
     }

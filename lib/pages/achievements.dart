@@ -22,14 +22,18 @@ class _AchievementsPage extends State<AchievementsPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      App.httpGet("/userInfo", "", (response) {
+    () async {
+      await App.httpGet("/userInfo", "", (response) {
         var responseJson = jsonDecode(response.body);
 
-        AchievementManager.syncAchievements(
-            responseJson["Badges"], responseJson["Accolades"]);
+        if (!AchievementManager.isCheating()) {
+          AchievementManager.syncAchievements(
+              responseJson["Badges"], responseJson["Accolades"]);
+        }
       }, {"username": MainAppData.scouterName});
-    });
+
+      setState(() {});
+    }();
   }
 
   @override

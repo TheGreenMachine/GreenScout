@@ -84,12 +84,9 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Hall of Fame", const HallOfFamePage()),
                 buildNavigationButton(context, Icons.star, "Achievements",
                     const AchievementsPage()),
-
-                if (
-                  AchievementManager.nazHighlightsUnlocked || 
-                  AchievementManager.rudyHighlightsUnlocked || 
-                  AchievementManager.routerGalleryUnlocked
-                )
+                if (AchievementManager.nazHighlightsUnlocked ||
+                    AchievementManager.rudyHighlightsUnlocked ||
+                    AchievementManager.routerGalleryUnlocked)
                   buildNavigationButton(context, Icons.emoji_emotions_rounded,
                       "Extras", const ExtrasPage()),
                 ...buildAdminPanelNavigation(context),

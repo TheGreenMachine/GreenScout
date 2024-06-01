@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/no_animation_material_page_route.dart';
 import 'package:green_scout/utils/reference.dart';
@@ -18,6 +19,7 @@ const emptyMap = {"empty": " "};
 
 Widget myPfp = const Icon(Icons.account_circle);
 
+///This always updates the match form achievement because that's all it's currently being used for.
 class BoolSettingOption {
   BoolSettingOption(
     this.optionStr,
@@ -331,8 +333,8 @@ class App {
     );
   }
 
-  static void showAchievementUnlocked(
-      BuildContext context, String message, String subtitle) {
+  static void showAchievementUnlocked(BuildContext context, String message,
+      {String? subtitle}) {
     ScaffoldMessenger.of(context).showMaterialBanner(
       MaterialBanner(
         actions: [
@@ -351,14 +353,15 @@ class App {
                 .copyWith(color: Theme.of(context).colorScheme.background),
             textAlign: TextAlign.center,
           ),
-          Text(
-            subtitle,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall!
-                .copyWith(color: Theme.of(context).colorScheme.background),
-            textAlign: TextAlign.center,
-          )
+          if (subtitle != null)
+            Text(
+              subtitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.background),
+              textAlign: TextAlign.center,
+            )
         ]),
         backgroundColor: Theme.of(context).colorScheme.onBackground,
       ),
