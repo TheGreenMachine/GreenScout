@@ -183,6 +183,8 @@ class MainAppData {
       var responseJson = jsonDecode(response.body);
       MainAppData.scouterName = responseJson["Username"];
       MainAppData.displayName = responseJson["DisplayName"];
+      MainAppData.lifeScore = responseJson["LifeScore"];
+      MainAppData.highScore = responseJson["HighScore"];
 
       if (!AchievementManager.isCheating()) {
         AchievementManager.syncAchievements(
