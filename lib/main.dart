@@ -5,6 +5,7 @@ import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 
 import 'utils/app_state.dart';
@@ -110,32 +111,44 @@ void main() async {
   Settings.update();
 }
 
+//These are the only 2 themes I bothered making. Feel free to make more if you want future devs, I'm just not great at color balancing.
+var lightTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: greenMachineGreen,
+    brightness: Brightness.light,
+  ),
+  useMaterial3: true,
+);
+
+var darkTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: greenMachineGreen,
+    brightness: Brightness.dark,
+  ),
+  useMaterial3: true,
+);
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    if (MainAppData.loggedIn) {
+      AchievementManager.appThemesUnlocked =
+          (App.getBool("Themes Unlocked") ?? false);
+    }
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
-
       title: appTitle,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
-        useMaterial3: true,
-      ),
-      // TODO: later
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: greenMachineGreen,
-        ),
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home:
           !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
-      themeMode: ThemeMode.light,
-
+      themeMode: AchievementManager.appThemesUnlocked
+          ? ThemeMode.system
+          : ThemeMode.light,
       debugShowCheckedModeBanner: false,
     );
   }

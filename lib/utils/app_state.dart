@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/no_animation_material_page_route.dart';
@@ -17,6 +18,10 @@ const serverHostName = 'tagciccone.com'; //Localhost!!!
 const serverPort = 443;
 
 const emptyMap = {"empty": " "};
+
+var isDarkMode =
+    MediaQuery.of(globalNavigatorKey.currentContext!).platformBrightness ==
+        Brightness.dark;
 
 Widget myPfp = const Icon(Icons.account_circle);
 
@@ -410,6 +415,17 @@ class App {
         ),
       ),
     );
+  }
+
+  static Brightness getThemeMode() {
+    return isDarkMode ? Brightness.dark : Brightness.light;
+  }
+
+  static void setThemeMode(
+    Brightness themeMode,
+  ) {
+    isDarkMode = themeMode == Brightness.dark;
+    App.setString("Theme Mode", themeMode.name);
   }
 
   static void promptAlert(BuildContext context, String title,

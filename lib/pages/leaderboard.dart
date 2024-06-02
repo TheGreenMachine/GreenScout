@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
@@ -316,7 +317,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
               height: 65,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(15)),
-                color: Colors.grey.shade100,
+                color: App.getThemeMode() == Brightness.light
+                    ? Colors.grey.shade100
+                    : Colors.grey.shade600,
               ),
               child: Row(
                 children: [

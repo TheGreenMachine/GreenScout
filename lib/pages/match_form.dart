@@ -346,8 +346,10 @@ class _MatchFormPage extends State<MatchFormPage> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingToggleButton(
-              initialColor:
-                  Theme.of(context).colorScheme.inversePrimary.withRed(255),
+              initialColor: Theme.of(context)
+                  .colorScheme
+                  .inversePrimary
+                  .withRed(App.getThemeMode() == Brightness.dark ? 225 : 255),
               pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
               labelText: "Is Replay?",
@@ -403,7 +405,9 @@ class _MatchFormPage extends State<MatchFormPage> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            collapsedBackgroundColor: Colors.grey.shade200,
+            collapsedBackgroundColor: App.getThemeMode() == Brightness.dark
+                ? Colors.grey.shade900
+                : Colors.grey.shade200,
             children: [
               SizedBox(
                 width: width,
@@ -536,7 +540,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                     initialColor: Theme.of(context)
                         .colorScheme
                         .inversePrimary
-                        .withRed(255),
+                        .withRed(
+                            App.getThemeMode() == Brightness.dark ? 225 : 255),
                     pressedColor: Theme.of(context).colorScheme.inversePrimary,
                     labelText: "Rescouting?",
                     initialIcon: const Icon(Icons.close),
@@ -629,21 +634,23 @@ class _MatchFormPage extends State<MatchFormPage> {
       title: Text("${info.time.toStringAsPrecision(3)} seconds"),
       subtitle: Text(info.location.toString()),
       leading: FloatingButton(
-        icon: switch (info.location) {
-          CycleTimeLocation.amp => const Icon(Icons.amp_stories),
-          CycleTimeLocation.speaker => const Icon(Icons.speaker),
-          CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
-          CycleTimeLocation.distance => const Icon(Icons.social_distance),
-          _ => const Icon(Icons.error),
-        },
-        onPressed: () {
-          // This loops around. We just avoid the 'none' cycle time location.
-          info.location = CycleTimeLocation.values[(info.location.index + 1) %
-              (CycleTimeLocation.values.length - 1)];
+          icon: switch (info.location) {
+            CycleTimeLocation.amp => const Icon(Icons.amp_stories),
+            CycleTimeLocation.speaker => const Icon(Icons.speaker),
+            CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
+            CycleTimeLocation.distance => const Icon(Icons.social_distance),
+            _ => const Icon(Icons.error),
+          },
+          onPressed: () {
+            // This loops around. We just avoid the 'none' cycle time location.
+            info.location = CycleTimeLocation.values[(info.location.index + 1) %
+                (CycleTimeLocation.values.length - 1)];
 
-          setState(() {});
-        },
-      ),
+            setState(() {});
+          },
+          color: App.getThemeMode() == Brightness.dark
+              ? Colors.grey.shade800
+              : Colors.white),
       onLongPress: () {
         App.promptAlert(
           context,
@@ -675,7 +682,10 @@ class _MatchFormPage extends State<MatchFormPage> {
         heroTag: null,
         backgroundColor: info.success
             ? Theme.of(context).colorScheme.inversePrimary
-            : Theme.of(context).colorScheme.inversePrimary.withRed(255),
+            : Theme.of(context)
+                .colorScheme
+                .inversePrimary
+                .withRed(App.getThemeMode() == Brightness.dark ? 225 : 255),
         elevation: 0,
         focusElevation: 0,
         hoverElevation: 0,

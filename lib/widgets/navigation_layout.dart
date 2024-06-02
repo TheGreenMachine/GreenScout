@@ -121,6 +121,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Yes",
                     () {
                       MainAppData.loggedIn = false;
+                      App.setThemeMode(Brightness.light);
                       App.gotoPage(context, const LoginPageForUsers());
                     }
                   ),

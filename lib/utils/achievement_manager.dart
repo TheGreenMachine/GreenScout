@@ -7,7 +7,7 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 
 const cheat =
-    true; //This is literally only here so i don't have an anyeurism while developing
+    false; //This is literally only here so i don't have an anyeurism while developing
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
@@ -59,8 +59,9 @@ class AchievementManager {
         "Scouted 100 matches",
         const Icon(Icons.workspace_premium_sharp, size: 100),
         () => MainAppData.lifeScore / 100.0,
-        unlocks: "App themes",
-        ref: Reference(appThemesUnlocked)),
+        unlocks: "App themes (Dark Mode!)",
+        ref: Reference(appThemesUnlocked),
+        setterKey: "Themes Unlocked"),
     PercentAchievement(
         "Scouting Enthusiast",
         "Scouted 500 matches",
@@ -301,6 +302,10 @@ class AchievementManager {
               !achievement.isFrontendProvided) {
             achivementsToNotify.add(achievement);
           }
+
+          if (achievement.setterKey != null) {
+            App.setBool(achievement.setterKey!, true);
+          }
         } else if (achievement.isFrontendProvided && achievement.met) {
           App.httpPost("/provideAdditions",
               '{"UUID": "${MainAppData.userUUID}", "Achievements": ["${achievement.name}"]}');
@@ -334,13 +339,15 @@ class Achievement {
       this.unlocks,
       this.showDescription = true,
       this.ref,
-      this.isFrontendProvided = false});
+      this.isFrontendProvided = false,
+      this.setterKey});
 
   final String name;
   String description;
   final Widget badge;
   final String? unlocks;
   final Reference<bool>? ref;
+  final String? setterKey;
   final bool isFrontendProvided;
 
   bool met;
@@ -353,7 +360,8 @@ class PercentAchievement extends Achievement {
       {super.met = cheat,
       super.unlocks,
       super.showDescription = true,
-      super.ref});
+      super.ref,
+      super.setterKey});
 
   double Function() percentCompletion;
 }

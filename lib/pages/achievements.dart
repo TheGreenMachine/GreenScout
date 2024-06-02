@@ -204,7 +204,9 @@ class _AchievementsPage extends State<AchievementsPage> {
                   child: Ink(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      color: Colors.grey.shade100,
+                      color: App.getThemeMode() == Brightness.light
+                          ? Colors.grey.shade100
+                          : Colors.grey.shade600,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
