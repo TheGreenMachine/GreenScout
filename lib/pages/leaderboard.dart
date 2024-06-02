@@ -20,18 +20,55 @@ class LeaderboardPage extends StatefulWidget {
   State<LeaderboardPage> createState() => _LeaderboardPage();
 }
 
+enum LeaderboardColor {
+  none,
+  green,
+  gold;
+
+  Color get colorValue {
+    return switch (this) {
+      LeaderboardColor.none => Colors.black,
+      LeaderboardColor.gold => Colors.amber,
+      LeaderboardColor.green => greenMachineGreen
+    };
+  }
+
+  static LeaderboardColor fromString(String str) {
+    switch (str) {
+      case "gold":
+        return gold;
+      case "green":
+        return green;
+      default:
+        return none;
+    }
+  }
+
+  static Map<String, LeaderboardColor> getUnlockedColors() {
+    var colorsToReturn = {none.name: none};
+    if (AchievementManager.greenUnlocked) {
+      colorsToReturn[green.name] = green;
+    }
+
+    if (AchievementManager.goldUnlocked) {
+      colorsToReturn[gold.name] = gold;
+    }
+
+    return colorsToReturn;
+  }
+}
+
 class RankingInfo {
-  RankingInfo(
-    this.username,
-    this.displayName,
-    this.score,
-    this.badges,
-  );
+  RankingInfo(this.username, this.displayName, this.score, this.badges,
+      this.leaderboardColor)
+      : this.leaderboardColorValue = leaderboardColor.colorValue;
 
   final String username;
   final String displayName;
   final int score;
+  final LeaderboardColor leaderboardColor;
   final Map<String, String> badges;
+  Color leaderboardColorValue;
 }
 
 class _LeaderboardPage extends State<LeaderboardPage> {
@@ -56,8 +93,13 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           badgeMap[asMap["ID"]!] = asMap["Description"]!;
         }
 
-        var info = (RankingInfo(personInfo["Username"],
-            personInfo["DisplayName"], personInfo["Score"], badgeMap));
+        var info = (RankingInfo(
+            personInfo["Username"],
+            personInfo["DisplayName"],
+            personInfo["Score"],
+            badgeMap,
+            LeaderboardColor.values.elementAtOrNull(personInfo["Color"]) ??
+                LeaderboardColor.none));
 
         rankings.add(info);
       }
@@ -209,10 +251,10 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                     Text(
                       info.displayName,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                      ),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 28,
+                          color: info.leaderboardColorValue),
                     ),
                     Text(
                       info.username,
@@ -305,8 +347,10 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                       info.displayName,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.start,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: info.leaderboardColorValue),
                     ),
                   ),
                   const Spacer(

@@ -7,7 +7,7 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 
 const cheat =
-    false; //This is literally only here so i don't have an anyeurism while developing
+    true; //This is literally only here so i don't have an anyeurism while developing
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
@@ -31,6 +31,9 @@ class AchievementManager {
   static var appThemesUnlocked = cheat;
 
   static var spreadsheetUnlocked = cheat;
+
+  static var goldUnlocked = cheat;
+  static var greenUnlocked = cheat;
 
   static final achievements = [
     PercentAchievement(
@@ -59,15 +62,15 @@ class AchievementManager {
         unlocks: "App themes",
         ref: Reference(appThemesUnlocked)),
     PercentAchievement(
-      "Scouting Enthusiast",
-      "Scouted 500 matches",
-      Image.asset("assets/accolades/goat.png",
-          width: 100,
-          height:
-              100), // Loads a goat image for some reason. I don't know ask tag - Michael
-      () => MainAppData.lifeScore / 500.0,
-      unlocks: "Gold leaderboard name color",
-    ),
+        "Scouting Enthusiast",
+        "Scouted 500 matches",
+        Image.asset("assets/accolades/goat.png",
+            width: 100,
+            height:
+                100), // Loads a goat image for some reason. I don't know ask tag - Michael
+        () => MainAppData.lifeScore / 500.0,
+        unlocks: "Gold leaderboard name color",
+        ref: Reference(goldUnlocked)),
     PercentAchievement("Locked In", "High Score of 50 matches",
         const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50.0,
         unlocks: "Display name changing", ref: Reference(displayNameUnlocked)),
@@ -75,13 +78,9 @@ class AchievementManager {
         const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78.0,
         unlocks: "Profile picture changing",
         ref: Reference(profileChangeUnlocked)),
-    PercentAchievement(
-      "👀",
-      "High score of 300 matches",
-      const Icon(Icons.timer, size: 100),
-      () => MainAppData.highScore / 300.0,
-      unlocks: "Green leaderboard name color",
-    ),
+    PercentAchievement("👀", "High score of 300 matches",
+        const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300.0,
+        unlocks: "Green leaderboard name color", ref: Reference(greenUnlocked)),
     Achievement(
       "Strategizer",
       "Opened the spreadsheet from the app",

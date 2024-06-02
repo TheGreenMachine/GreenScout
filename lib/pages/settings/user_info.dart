@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/reference.dart';
+import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -22,6 +24,9 @@ class _UserInfoPage extends State<UserInfoPage> {
   XFile xCustomImage = XFile("Fake");
   Reference displayName = Reference(MainAppData.displayName);
 
+  //Yes this is dumb but i don't know dart's rules for shallow vs deep copying well and i didn't want to risk a ref copy
+  int startingLbColor = Settings.selectedLeaderboardColor.ref.value.index;
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +36,8 @@ class _UserInfoPage extends State<UserInfoPage> {
   Widget build(BuildContext context) {
     bool unlockedDisplayname = AchievementManager.displayNameUnlocked;
     bool unlockedPfp = AchievementManager.profileChangeUnlocked;
+    bool unlockedColor =
+        AchievementManager.greenUnlocked || AchievementManager.goldUnlocked;
 
     final (width, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
@@ -50,7 +57,15 @@ class _UserInfoPage extends State<UserInfoPage> {
               createLabelAndTextInput("Display Name", widthPadding, width,
                   displayName.value, displayName),
             if (unlockedPfp)
-              createLabelAndImagePicker("Profile picture", widthPadding, width),
+              createLabelAndImagePicker("Profile Picture", widthPadding, width),
+            if (unlockedColor)
+              createLabelAndDropdown(
+                  "Leaderboard Color",
+                  widthPadding,
+                  width,
+                  LeaderboardColor.getUnlockedColors(),
+                  Settings.selectedLeaderboardColor.ref,
+                  Settings.selectedLeaderboardColor.value()),
             if (unlockedPfp || unlockedDisplayname)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -59,9 +74,25 @@ class _UserInfoPage extends State<UserInfoPage> {
                     bool success = false;
 
                     () async {
+                      if (unlockedColor) {
+                        if (Settings.selectedLeaderboardColor.ref.value.index !=
+                            startingLbColor) {
+                          success = await MainAppData.updateLeaderboardColor(
+                              Settings.selectedLeaderboardColor.ref.value);
+
+                          if (success) {
+                            MainAppData.displayName = displayName.value;
+                            App.showMessage(context,
+                                "Successfully updated color to ${Settings.selectedLeaderboardColor.ref.value.name}");
+                          } else {
+                            App.showMessage(context, "Unable to update color");
+                          }
+                        }
+                      }
+
                       if (unlockedDisplayname) {
                         if (displayName.value != MainAppData.displayName) {
-                          success = await MainAppData.updateUserData(
+                          success = await MainAppData.updateDisplayName(
                               displayName.value);
 
                           if (success) {
@@ -180,5 +211,43 @@ class _UserInfoPage extends State<UserInfoPage> {
       return customImage;
     }
     return App.getPfp();
+  }
+
+  Widget createLabelAndDropdown<V>(
+    String label,
+    double widthPadding,
+    double width,
+    Map<String, V> entries,
+    Reference<V> inValue,
+    V defaultValue,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: widthPadding,
+        vertical: 8,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: width * 0.65,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+          SizedBox(
+            width: width * 0.25,
+            child: Dropdown<V>(
+              entries: entries,
+              inValue: inValue,
+              defaultValue: defaultValue,
+              textStyle: Theme.of(context).textTheme.labelMedium,
+              padding: const EdgeInsets.only(left: 5),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

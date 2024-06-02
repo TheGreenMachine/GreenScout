@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/main.dart';
+import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:image_picker/image_picker.dart';
@@ -165,10 +166,18 @@ class MainAppData {
     App.setStringList(_allTimeMatchCacheKey, []);
   }
 
-  static Future<bool> updateUserData(String newDisplayName) async {
+  static Future<bool> updateDisplayName(String newDisplayName) async {
     return App.httpPostWithHeaders("/setDisplayName", "", {
       "Username": MainAppData.scouterName,
       "displayName": newDisplayName,
+    });
+  }
+
+  static Future<bool> updateLeaderboardColor(LeaderboardColor newColor) async {
+    return App.httpPostWithHeaders("/setColor", "", {
+      "Username": MainAppData.scouterName,
+      "uuid": MainAppData.userUUID,
+      "color": newColor.name,
     });
   }
 
@@ -184,6 +193,9 @@ class MainAppData {
       MainAppData.displayName = responseJson["DisplayName"];
       MainAppData.lifeScore = responseJson["LifeScore"];
       MainAppData.highScore = responseJson["HighScore"];
+      Settings.selectedLeaderboardColor.ref.value =
+          LeaderboardColor.values.elementAtOrNull(responseJson["Color"]) ??
+              LeaderboardColor.none;
 
       if (!AchievementManager.isCheating()) {
         AchievementManager.syncAchievements(

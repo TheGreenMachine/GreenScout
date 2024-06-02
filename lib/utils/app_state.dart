@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/no_animation_material_page_route.dart';
 import 'package:green_scout/utils/reference.dart';
@@ -38,6 +39,24 @@ class BoolSettingOption {
   }
 }
 
+class EnumSettingOption<T> {
+  EnumSettingOption(this.optionStr, T defaultValue,
+      T Function(String) constructEnumFromString)
+      : ref = Reference(constructEnumFromString(
+            App.getString(optionStr) ?? defaultValue.toString()));
+
+  String optionStr;
+  Reference<T> ref;
+
+  T value() {
+    return ref.value;
+  }
+
+  void update() {
+    App.setString(optionStr, ref.value.toString());
+  }
+}
+
 class Settings {
   static BoolSettingOption flipNumberCounter = BoolSettingOption(
     "[Settings] Flip Number Counter",
@@ -53,6 +72,10 @@ class Settings {
     "[Settings] Enable Match Rescouting",
     false,
   );
+
+  static EnumSettingOption<LeaderboardColor> selectedLeaderboardColor =
+      EnumSettingOption("Leaderboard Color", LeaderboardColor.none,
+          LeaderboardColor.fromString);
 
   static void update() {
     flipNumberCounter.update();
