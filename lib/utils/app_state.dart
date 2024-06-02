@@ -116,8 +116,6 @@ class App {
 
   static void gotoPage(BuildContext context, Widget page,
       {bool canGoBack = false}) {
-    ScaffoldMessenger.of(context).clearMaterialBanners();
-
     final navigator = Navigator.of(context);
 
     if (canGoBack) {

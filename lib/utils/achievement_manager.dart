@@ -264,13 +264,21 @@ class AchievementManager {
   static void syncAchievements(
       dynamic responseBadges, dynamic responseAccolades) {
     if (MainAppData.loggedIn) {
-      //Yes this is over iterative and dumb HOWEVER it's less painful that making it a map
+      Map<String, String> retrievedBadges = {};
+
+      for (var responseBadge in responseBadges) {
+        retrievedBadges[responseBadge["ID"]] = responseBadge["Description"];
+      }
+
       for (var badge in leaderboardBadges) {
-        if ((responseBadges as List<dynamic>).contains(badge.name)) {
+        if (retrievedBadges.keys.contains(badge.name)) {
           badge.met = true;
           if (badge.ref != null) {
             badge.ref!.value = true;
           }
+          badge.showDescription = retrievedBadges[badge.name].toString() != "";
+
+          badge.description = retrievedBadges[badge.name].toString();
         }
       }
 

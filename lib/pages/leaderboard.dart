@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
@@ -133,20 +136,45 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         return null;
       }
 
+      List<Widget> buildBadges(RankingInfo info, double size) {
+        List<Widget> badges = [];
+        for (var leaderboardBadge in AchievementManager.leaderboardBadges) {
+          Widget badgeImage = leaderboardBadge.badge;
+          if (leaderboardBadge.badge is Icon) {
+            badgeImage = Icon(
+              (leaderboardBadge.badge as Icon).icon,
+            );
+          }
+
+          badges.add(SizedBox(
+              width: size,
+              height: size,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                // width: size,
+                // height: size,
+                child: badgeImage,
+              )));
+        }
+
+        return badges;
+      }
+
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: widthPadding),
         child: SizedBox(
           width: width,
           child: ExpansionTile(
-            dense: true,
-
+            dense: false,
             leading: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  (index + 1).toString(),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                index + 1 < 4
+                    ? getNumberedBadgeAsset(index)!
+                    : Text(
+                        (index + 1).toString(),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                 const SizedBox(width: 8),
                 App.getProfileImage(info.username)
               ],
@@ -155,28 +183,17 @@ class _LeaderboardPage extends State<LeaderboardPage> {
               info.displayName,
               style: Theme.of(context).textTheme.labelLarge,
             ),
-
             subtitle: Text(
               "${info.score} ${info.score > 1 ? "Points" : "Point"}",
               style: Theme.of(context).textTheme.labelMedium,
             ),
-
-            // trailing: const Icon(Icons.badge),
             trailing: SizedBox(
-              width: width * 0.40,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  info.badges.containsKey("2024mnmi2")
-                      ? Image.asset(
-                          "assets/leaderboard/badges/st cloud mvp badge.png")
-                      : const Padding(padding: EdgeInsets.zero),
-                  getNumberedBadgeAsset(index) ??
-                      const Padding(padding: EdgeInsets.zero),
-                ],
+              width: width * 0.60,
+              child: Wrap(
+                // mainAxisAlignment: MainAxisAlignment.end,
+                children: buildBadges(info, width * 0.04),
               ),
             ),
-
             children: [
               Text("Username: ${info.username}"),
               info.badges.containsKey("2024mnmi2")
