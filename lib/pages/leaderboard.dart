@@ -110,68 +110,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   }
 
   Widget buildUnloadedLeaderboard(BuildContext context) {
-    // Temp.
-    // return buildRankingsList(
-    //   context, 
-    //   [
-    //     RankingInfo(
-    //       "Billy", 
-    //       "Bob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Willy", 
-    //       "Wob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Rilly", 
-    //       "Rob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Yilly", 
-    //       "Yob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Pilly", 
-    //       "Pob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Cilly", 
-    //       "Cob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Dilly", 
-    //       "Dob", 
-    //       10000, 
-    //       {},
-    //     ),
-
-    //     RankingInfo(
-    //       "Jilly", 
-    //       "Job", 
-    //       10000, 
-    //       {},
-    //     ),
-    //   ],
-    // );
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 40),
       child: Text(
@@ -206,6 +144,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         List<Widget> badges = [];
         for (var leaderboardBadge in AchievementManager.leaderboardBadges) {
           Widget badgeImage = leaderboardBadge.badge;
+          String description = leaderboardBadge.description;
           if (leaderboardBadge.badge is Icon) {
             badgeImage = Icon(
               (leaderboardBadge.badge as Icon).icon,
@@ -215,12 +154,16 @@ class _LeaderboardPage extends State<LeaderboardPage> {
           badges.add(SizedBox(
               width: size,
               height: size,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                // width: size,
-                // height: size,
-                child: badgeImage,
-              )));
+              child: Tooltip( 
+                message: description,
+                preferBelow: true,
+
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  // width: size,
+                  // height: size,
+                  child: badgeImage,
+                ))));
         }
 
         if (badges.length < 3 && capBadgesShowcased) {

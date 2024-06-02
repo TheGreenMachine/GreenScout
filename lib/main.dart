@@ -131,9 +131,8 @@ class MyApp extends StatelessWidget {
           seedColor: greenMachineGreen,
         ),
       ),
-      // home:
-      //     !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
-      home: const LeaderboardPage(),
+      home:
+          !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
       themeMode: ThemeMode.light,
 
