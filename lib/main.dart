@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:green_scout/pages/home.dart';
+import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -130,8 +131,9 @@ class MyApp extends StatelessWidget {
           seedColor: greenMachineGreen,
         ),
       ),
-      home:
-          !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
+      // home:
+      //     !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
+      home: const LeaderboardPage(),
       themeAnimationCurve: Curves.easeInOut,
       themeMode: ThemeMode.light,
 

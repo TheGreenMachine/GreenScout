@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
+import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
@@ -72,13 +74,15 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createDefaultActionBar(),
+        title: const Text(
+          "Leaderboard",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       drawer: const NavigationLayoutDrawer(),
       body: ListView(
         children: [
-          const Padding(padding: EdgeInsets.all(4)),
-          const HeaderLabel("Leaderboard"),
-          const Padding(padding: EdgeInsets.all(8)),
           StreamBuilder(
             stream: rankingsStream,
             builder: (context, snapshot) {
@@ -106,6 +110,68 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   }
 
   Widget buildUnloadedLeaderboard(BuildContext context) {
+    // Temp.
+    // return buildRankingsList(
+    //   context, 
+    //   [
+    //     RankingInfo(
+    //       "Billy", 
+    //       "Bob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Willy", 
+    //       "Wob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Rilly", 
+    //       "Rob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Yilly", 
+    //       "Yob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Pilly", 
+    //       "Pob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Cilly", 
+    //       "Cob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Dilly", 
+    //       "Dob", 
+    //       10000, 
+    //       {},
+    //     ),
+
+    //     RankingInfo(
+    //       "Jilly", 
+    //       "Job", 
+    //       10000, 
+    //       {},
+    //     ),
+    //   ],
+    // );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 40),
       child: Text(
@@ -136,7 +202,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         return null;
       }
 
-      List<Widget> buildBadges(RankingInfo info, double size) {
+      List<Widget> buildBadges(RankingInfo info, double size, bool capBadgesShowcased) {
         List<Widget> badges = [];
         for (var leaderboardBadge in AchievementManager.leaderboardBadges) {
           Widget badgeImage = leaderboardBadge.badge;
@@ -157,84 +223,177 @@ class _LeaderboardPage extends State<LeaderboardPage> {
               )));
         }
 
-        return badges;
+        if (badges.length < 3 && capBadgesShowcased) {
+          for (int i = 0; i < 3; i++) {
+            badges.add(
+              SizedBox(width: size, height: size,),
+            );
+          }
+        }
+
+        // Maybe this is a little too terse.
+        return badges.sublist(0, capBadgesShowcased ? 3 : badges.length);
+      }
+
+      void showInfoPopup(
+        BuildContext context, 
+        RankingInfo info,
+        double width, 
+        double widthPadding,
+      ) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 50),
+              child: Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Padding(padding: EdgeInsets.all(6)),
+                    Text(
+                      info.displayName,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.all(2)),
+                    Text(
+                      "${info.score} ${info.score > 1 ? "Points" : "Point"}",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        // fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.all(20)),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: width / 4,
+                      ),
+
+                      child: App.getProfileImage(info.username),
+                    ),
+                    const Padding(padding: EdgeInsets.all(16)),
+                    
+                    Flexible( 
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        clipBehavior: Clip.antiAlias,
+                        alignment: WrapAlignment.center,
+                        children: buildBadges(info, width * 0.15, false),
+                      ),
+                    ),
+
+                    const Padding(padding: EdgeInsets.all(16)),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
       }
 
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: widthPadding),
-        child: SizedBox(
-          width: width,
-          child: ExpansionTile(
-            dense: false,
-            leading: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                index + 1 < 4
-                    ? getNumberedBadgeAsset(index)!
-                    : Text(
-                        (index + 1).toString(),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                const SizedBox(width: 8),
-                App.getProfileImage(info.username)
-              ],
-            ),
-            title: Text(
-              info.displayName,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            subtitle: Text(
-              "${info.score} ${info.score > 1 ? "Points" : "Point"}",
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            trailing: SizedBox(
-              width: width * 0.60,
-              child: Wrap(
-                // mainAxisAlignment: MainAxisAlignment.end,
-                children: buildBadges(info, width * 0.04),
+        padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 4),
+
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: width * 0.05,
+            minHeight: width * 0.02,
+          ),
+
+          child: InkWell(
+            onTap: () {
+              showInfoPopup(context, info, width, widthPadding);
+            },
+
+            child: Ink(
+              width: width,
+              height: 65,
+
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+
+                color: Colors.grey.shade100,
+              ),
+
+              child: Row(
+                children: [
+                  const Padding(padding: EdgeInsets.all(6)),
+
+                  Text(
+                    (index + 1).toStringAsPrecision(3).replaceAll(".00", "   ").replaceAll(".0", "  "),
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                  ),
+
+                  const Padding(padding: EdgeInsets.all(10)),
+
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: App.getProfileImage(info.username),
+                    ),
+                  ),
+
+                  const Padding(padding: EdgeInsets.all(6)),
+                  
+                  Flexible(
+                    flex: 8,
+                    fit: FlexFit.tight,
+                    child: Text( 
+                      info.displayName,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+
+                  const Spacer(flex: 3,),
+
+                  Text(
+                    "${info.score} ${info.score > 1 ? "Points" : "Point"}",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal, fontStyle: FontStyle.italic),
+                  ),
+
+                  const Padding(padding: EdgeInsets.all(12)),
+
+                  ...buildBadges(info, width * 0.04, true),
+
+                  const Padding(padding: EdgeInsets.all(10)),
+                ],
               ),
             ),
-            children: [
-              Text("Username: ${info.username}"),
-              info.badges.containsKey("2024mnmi2")
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        "[MVP] Scouted The Most During The St. Cloud Regional",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    )
-                  : const Padding(padding: EdgeInsets.zero),
-            ],
           ),
         ),
       );
     }
 
-    double widthRatio = 1.0;
-
-    const ratioThresold = 460;
-
-    {
-      final width = MediaQuery.of(context).size.width;
-
-      final percent =
-          clampDouble(((width - ratioThresold) / (ratioThresold)), 0.0, 1.0);
-
-      widthRatio = (1.0 - 0.55 * percent);
-    }
-
-    final width = MediaQuery.of(context).size.width * widthRatio;
-    final widthPadding =
-        MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
+    final (width, widthPadding) = screenScaler(
+      MediaQuery.of(context).size.width, 
+      460,
+      0.45, 
+      1.0,
+    );
 
     return SizedBox(
       width: width,
-      height: MediaQuery.of(context).size.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.92,
       child: ListView.builder(
         itemBuilder: (context, index) =>
             buildRankingEntry(context, index, rankings, width, widthPadding),
         itemCount: rankings.length,
+
+        clipBehavior: Clip.antiAlias,
       ),
     );
   }

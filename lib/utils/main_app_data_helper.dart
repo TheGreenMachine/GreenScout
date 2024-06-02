@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:js';
 
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
