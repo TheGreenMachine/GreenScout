@@ -140,37 +140,48 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         return null;
       }
 
-      List<Widget> buildBadges(RankingInfo info, double size, bool capBadgesShowcased) {
+      List<Widget> buildBadges(
+          RankingInfo info, double size, bool capBadgesShowcased) {
         List<Widget> badges = [];
         for (var leaderboardBadge in AchievementManager.leaderboardBadges) {
-          Widget badgeImage = leaderboardBadge.badge;
-          String description = leaderboardBadge.description;
-          if (leaderboardBadge.badge is Icon) {
-            badgeImage = Icon(
-              (leaderboardBadge.badge as Icon).icon,
-            );
+          if (info.badges.keys.contains(leaderboardBadge.name)) {
+            Widget badgeImage = leaderboardBadge.badge;
+            String description = leaderboardBadge.description;
+            if (leaderboardBadge.badge is Icon) {
+              badgeImage = Icon(
+                (leaderboardBadge.badge as Icon).icon,
+              );
+            }
+
+            String message = leaderboardBadge.name;
+            if (info.badges[leaderboardBadge.name]! != "") {
+              description = info.badges[leaderboardBadge.name]!;
+              message = "${leaderboardBadge.name}: $description";
+            }
+
+            badges.add(SizedBox(
+                width: size,
+                height: size,
+                child: Tooltip(
+                    message: message,
+                    preferBelow: true,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      // width: size,
+                      // height: size,
+                      child: badgeImage,
+                    ))));
           }
 
-          badges.add(SizedBox(
-              width: size,
-              height: size,
-              child: Tooltip( 
-                message: description,
-                preferBelow: true,
-
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  // width: size,
-                  // height: size,
-                  child: badgeImage,
-                ))));
-        }
-
-        if (badges.length < 3 && capBadgesShowcased) {
-          for (int i = 0; i < 3; i++) {
-            badges.add(
-              SizedBox(width: size, height: size,),
-            );
+          if (badges.length < 3 && capBadgesShowcased) {
+            for (int i = 0; i < 3; i++) {
+              badges.add(
+                SizedBox(
+                  width: size,
+                  height: size,
+                ),
+              );
+            }
           }
         }
 
@@ -179,16 +190,17 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       }
 
       void showInfoPopup(
-        BuildContext context, 
+        BuildContext context,
         RankingInfo info,
-        double width, 
+        double width,
         double widthPadding,
       ) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 50),
+              padding:
+                  EdgeInsets.symmetric(horizontal: widthPadding, vertical: 50),
               child: Card(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -200,6 +212,14 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 28,
+                      ),
+                    ),
+                    Text(
+                      info.username,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
                       ),
                     ),
                     const Padding(padding: EdgeInsets.all(2)),
@@ -217,12 +237,10 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                       constraints: BoxConstraints(
                         maxWidth: width / 4,
                       ),
-
                       child: App.getProfileImage(info.username),
                     ),
                     const Padding(padding: EdgeInsets.all(16)),
-                    
-                    Flexible( 
+                    Flexible(
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 6,
@@ -231,7 +249,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                         children: buildBadges(info, width * 0.15, false),
                       ),
                     ),
-
                     const Padding(padding: EdgeInsets.all(16)),
                   ],
                 ),
@@ -243,75 +260,68 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 4),
-
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minWidth: width * 0.05,
             minHeight: width * 0.02,
           ),
-
           child: InkWell(
             onTap: () {
               showInfoPopup(context, info, width, widthPadding);
             },
-
             child: Ink(
               width: width,
               height: 65,
-
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(15)),
-
                 color: Colors.grey.shade100,
               ),
-
               child: Row(
                 children: [
                   const Padding(padding: EdgeInsets.all(6)),
-
                   Text(
-                    (index + 1).toStringAsPrecision(3).replaceAll(".00", "   ").replaceAll(".0", "  "),
+                    (index + 1)
+                        .toStringAsPrecision(3)
+                        .replaceAll(".00", "   ")
+                        .replaceAll(".0", "  "),
                     textAlign: TextAlign.start,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w900),
                   ),
-
                   const Padding(padding: EdgeInsets.all(10)),
-
                   SizedBox(
                     width: 32,
                     height: 32,
-
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: App.getProfileImage(info.username),
                     ),
                   ),
-
                   const Padding(padding: EdgeInsets.all(6)),
-                  
                   Flexible(
                     flex: 8,
                     fit: FlexFit.tight,
-                    child: Text( 
+                    child: Text(
                       info.displayName,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.start,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-
-                  const Spacer(flex: 3,),
-
+                  const Spacer(
+                    flex: 3,
+                  ),
                   Text(
                     "${info.score} ${info.score > 1 ? "Points" : "Point"}",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal, fontStyle: FontStyle.italic),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        fontStyle: FontStyle.italic),
                   ),
-
                   const Padding(padding: EdgeInsets.all(12)),
-
                   ...buildBadges(info, width * 0.04, true),
-
                   const Padding(padding: EdgeInsets.all(10)),
                 ],
               ),
@@ -322,9 +332,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
     }
 
     final (width, widthPadding) = screenScaler(
-      MediaQuery.of(context).size.width, 
+      MediaQuery.of(context).size.width,
       460,
-      0.45, 
+      0.45,
       1.0,
     );
 
@@ -335,7 +345,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         itemBuilder: (context, index) =>
             buildRankingEntry(context, index, rankings, width, widthPadding),
         itemCount: rankings.length,
-
         clipBehavior: Clip.antiAlias,
       ),
     );

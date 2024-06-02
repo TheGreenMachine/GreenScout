@@ -113,7 +113,50 @@ class AchievementManager {
     ),
   ];
 
+  // These are ordered by when they should appear on the leaderboard.
+
   static final leaderboardBadges = [
+    Achievement(
+      "Test",
+      "This user is used for testing.",
+      const Icon(Icons.smart_toy_outlined, size: 100),
+    ),
+    Achievement(
+      "App Dev",
+      "App Developer",
+      const Icon(Icons.computer, size: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "Super Admin",
+      "Super Administrator",
+      const Icon(Icons.admin_panel_settings, size: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "HOF",
+      "In the Hall of Fame",
+      const Icon(Icons.emoji_events_sharp, size: 100),
+    ),
+    Achievement(
+      "App Mentor",
+      "App Mentor",
+      Image.asset("assets/leaderboard/badges/gopher.png",
+          width: 100, height: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "Captain",
+      "Team Captain",
+      const Icon(Icons.star, size: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "Admin",
+      "Administrator",
+      const Icon(Icons.admin_panel_settings_outlined, size: 100),
+      showDescription: false,
+    ),
     Achievement(
       "St Cloud MVP 2024",
       "Scouted the most matches during the 2024 Granite City Regional",
@@ -121,9 +164,22 @@ class AchievementManager {
           width: 100, height: 100),
     ),
     Achievement(
-      "App Dev",
-      "App Developer",
-      const Icon(Icons.computer, size: 100),
+      "Strategy Lead",
+      "Strategy lead",
+      Image.asset("assets/leaderboard/badges/sheets.png",
+          width: 100, height: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "Assistant Captain",
+      "Team Assistant Captain",
+      const Icon(Icons.star_border, size: 100),
+      showDescription: false,
+    ),
+    Achievement(
+      "Mentor",
+      "Mentor",
+      const Icon(Icons.engineering, size: 100),
       showDescription: false,
     ),
     Achievement(
@@ -139,28 +195,9 @@ class AchievementManager {
       showDescription: false,
     ),
     Achievement(
-      "Strategy Lead",
-      "Strategy lead",
-      Image.asset("assets/leaderboard/badges/sheets.png",
-          width: 100, height: 100),
-      showDescription: false,
-    ),
-    Achievement(
       "Leadership",
       "Leadership",
       const Icon(Icons.supervisor_account, size: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "Captain",
-      "Team Captain",
-      const Icon(Icons.star, size: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "Assistant Captain",
-      "Team Assistant Captain",
-      const Icon(Icons.star_border, size: 100),
       showDescription: false,
     ),
     Achievement(
@@ -177,44 +214,9 @@ class AchievementManager {
       showDescription: false,
     ),
     Achievement(
-      "Mentor",
-      "Mentor",
-      const Icon(Icons.engineering, size: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "App Mentor",
-      "App Mentor",
-      Image.asset("assets/leaderboard/badges/gopher.png",
-          width: 100, height: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "Admin",
-      "Administrator",
-      const Icon(Icons.admin_panel_settings_outlined, size: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "Super Admin",
-      "Super Administrator",
-      const Icon(Icons.admin_panel_settings, size: 100),
-      showDescription: false,
-    ),
-    Achievement(
-      "Test",
-      "This user is used for testing.",
-      const Icon(Icons.smart_toy_outlined, size: 100),
-    ),
-    Achievement(
       "Driveteam",
       "Member of the driveteam",
       const Icon(Icons.drive_eta, size: 100),
-    ),
-    Achievement(
-      "HOF",
-      "In the Hall of Fame",
-      const Icon(Icons.emoji_events_sharp, size: 100),
     ),
     Achievement(
       "Bug Finder",
