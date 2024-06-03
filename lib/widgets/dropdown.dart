@@ -12,6 +12,7 @@ class Dropdown<V> extends StatefulWidget {
     this.menuMaxHeight,
     this.onTap,
     this.onChanged,
+    this.changeOnNewValue = false,
     this.isDense = false,
     this.isExpanded = false,
     this.alignment = AlignmentDirectional.centerStart,
@@ -29,6 +30,7 @@ class Dropdown<V> extends StatefulWidget {
 
   final Function()? onTap;
   final Function()? onChanged;
+  final bool changeOnNewValue;
 
   final bool isDense;
   final bool isExpanded;
@@ -89,10 +91,15 @@ class _Dropdown<V> extends State<Dropdown> {
         }
 
         if (widget.onChanged != null && newValue != widget.inValue!.value) {
+          if (widget.changeOnNewValue) {
+            widget.inValue!.value = newValue ?? widget.defaultValue;
+          }
           widget.onChanged!.call();
         }
 
-        widget.inValue!.value = newValue ?? widget.defaultValue;
+        if (!widget.changeOnNewValue) {
+          widget.inValue!.value = newValue ?? widget.defaultValue;
+        }
 
         if (widget.setState != null) {
           widget.setState!();
