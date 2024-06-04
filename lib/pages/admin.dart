@@ -109,7 +109,7 @@ class _AdminPage extends State<AdminPage> {
               color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
               onPressed: () {
                 App.gotoPage(context, const EditUsersAdminPage(),
-                    canGoBack: true);
+                    canGoBack: false);
               },
             ),
           ),
