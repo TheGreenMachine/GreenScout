@@ -1,18 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
-import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
+import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
-import 'package:green_scout/widgets/header.dart';
 
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({super.key});
@@ -59,6 +54,9 @@ enum LeaderboardColor {
   }
 }
 
+// ignore: constant_identifier_names
+enum LeaderboardType { Score, HighScore, LifeScore }
+
 class RankingInfo {
   RankingInfo(this.username, this.displayName, this.score, this.badges,
       this.leaderboardColor)
@@ -102,43 +100,102 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             LeaderboardColor.values.elementAtOrNull(personInfo["Color"]) ??
                 LeaderboardColor.none));
 
-        rankings.add(info);
+        if (info.score != 0) {
+          rankings.add(info);
+        }
       }
 
       rankingsController.add(rankings);
-    });
+    }, {"type": LeaderboardType.Score.name});
 
     rankingsStream = rankingsController.stream;
+  }
+
+  void switchParameters(LeaderboardType type) {
+    App.httpGet('leaderboard', '', (response) {
+      final responseJson = jsonDecode(response.body);
+
+      final responseArray = responseJson as List<dynamic>;
+      List<RankingInfo> rankings = [];
+      for (int i = 0; i < responseArray.length; i++) {
+        var personInfo = responseArray[i];
+        Map<String, String> badgeMap = {};
+
+        for (var badge in personInfo["Badges"]) {
+          Map<String, String> asMap = Map.from(badge);
+          badgeMap[asMap["ID"]!] = asMap["Description"]!;
+        }
+
+        var info = (RankingInfo(
+            personInfo["Username"],
+            personInfo["DisplayName"],
+            personInfo[type.name],
+            badgeMap,
+            LeaderboardColor.values.elementAtOrNull(personInfo["Color"]) ??
+                LeaderboardColor.none));
+
+        if (info.score != 0) {
+          rankings.add(info);
+        }
+      }
+
+      rankingsController.add(rankings);
+    }, {"type": type.name});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: createDefaultActionBar(),
-        title: const Text(
-          "Leaderboard",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      drawer: const NavigationLayoutDrawer(),
-      body: ListView(
-        children: [
-          StreamBuilder(
-            stream: rankingsStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return buildRankingsList(context, snapshot.requireData);
-              }
-
-              return buildUnloadedLeaderboard(context);
-            },
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: createDefaultActionBar(),
+          title: const Text(
+            "Leaderboard",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
-    );
+          centerTitle: true,
+        ),
+        drawer: const NavigationLayoutDrawer(),
+        body: ListView(
+          children: [
+            StreamBuilder(
+              stream: rankingsStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return buildRankingsList(context, snapshot.requireData);
+                }
+
+                return buildUnloadedLeaderboard(context);
+              },
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FittedBox(
+                fit: BoxFit.contain,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    ElevatedButton(
+                      onPressed: () => switchParameters(LeaderboardType.Score),
+                      child: Text('Score'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () =>
+                          switchParameters(LeaderboardType.HighScore),
+                      child: Text('High Score'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () =>
+                          switchParameters(LeaderboardType.LifeScore),
+                      child: Text('Lifetime Score'),
+                    ),
+                  ],
+                )),
+          ),
+        ));
   }
 
   Widget buildFailedLoad(BuildContext context) {
@@ -384,6 +441,13 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       0.45,
       1.0,
     );
+
+    if (rankings.isEmpty) {
+      return SizedBox(
+          width: width,
+          height: MediaQuery.of(context).size.height * 0.92,
+          child: const HeaderLabel("No entries!"));
+    }
 
     return SizedBox(
       width: width,
