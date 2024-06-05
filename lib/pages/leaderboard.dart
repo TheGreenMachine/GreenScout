@@ -180,17 +180,17 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () => switchParameters(LeaderboardType.Score),
-                      child: Text('Score'),
+                      child: const Text('Score'),
                     ),
                     ElevatedButton(
                       onPressed: () =>
                           switchParameters(LeaderboardType.HighScore),
-                      child: Text('High Score'),
+                      child: const Text('High Score'),
                     ),
                     ElevatedButton(
                       onPressed: () =>
                           switchParameters(LeaderboardType.LifeScore),
-                      child: Text('Lifetime Score'),
+                      child: const Text('Lifetime Score'),
                     ),
                   ],
                 )),
@@ -271,17 +271,6 @@ class _LeaderboardPage extends State<LeaderboardPage> {
                       // height: size,
                       child: badgeImage,
                     ))));
-          }
-
-          if (badges.length < 3 && capBadgesShowcased) {
-            for (int i = 0; i < 3; i++) {
-              badges.add(
-                SizedBox(
-                  width: size,
-                  height: size,
-                ),
-              );
-            }
           }
         }
 
