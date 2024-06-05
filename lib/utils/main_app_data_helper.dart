@@ -19,6 +19,7 @@ class MainAppData {
   static const _loginStatusKey = "Logged In";
   static const _userRoleKey = "User Role";
   static const _adminStatusKey = "Admin";
+  static const _teamVerifiedKey = "Verified";
   static const _userCertificateKey = "User Certificate";
   static const _userUUIDKey = "User UUID";
   static const _allTimeMatchCacheKey = "Match JSONS";
@@ -28,6 +29,7 @@ class MainAppData {
 
   static void autoSetAdminStatus() {
     isAdmin = userRole == "admin" || userRole == "super";
+    isTeamVerified = isAdmin || userRole == "1816";
   }
 
   static String get scouterName {
@@ -60,6 +62,14 @@ class MainAppData {
 
   static set isAdmin(bool value) {
     App.setBool(_adminStatusKey, value);
+  }
+
+  static bool get isTeamVerified {
+    return App.getBool(_teamVerifiedKey) ?? false;
+  }
+
+  static set isTeamVerified(bool value) {
+    App.setBool(_teamVerifiedKey, value);
   }
 
   static String get userRole {
@@ -255,6 +265,19 @@ class MainAppData {
     }
   }
 
+  static void triggerStrategizer(BuildContext context) {
+    if (!AchievementManager.isCheating() && MainAppData.loggedIn) {
+      App.showAchievementUnlocked(
+          context, "Achievement Unlocked: Strategizer =- ",
+          subtitle:
+              "Opened the spreadsheet link - Unlocked Naz Reid highlights (Re-open Extras!)");
+      App.setBool("Strategizer", true);
+      AchievementManager.nazHighlightsUnlocked = true;
+      App.httpPost("/provideAdditions",
+          '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Strategizer"]}');
+    }
+  }
+
   static void notifyAchievement(Achievement achievement) {
     App.showAchievementUnlocked(globalNavigatorKey.currentContext!,
         "Achievement Unlocked: ${achievement.name}",
@@ -269,5 +292,13 @@ class MainAppData {
     for (var achievement in achievements) {
       notifyAchievement(achievement);
     }
+  }
+
+  static Future<String> getSpreadsheetLink() async {
+    String link = "";
+    await App.httpGet("/spreadsheet", "", (response) {
+      link = response.body;
+    });
+    return link;
   }
 }

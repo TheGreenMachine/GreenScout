@@ -7,6 +7,7 @@ import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/extras/gallery.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
+import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/action_bar.dart';
@@ -42,6 +43,7 @@ class _ExtrasPage extends State<ExtrasPage> {
         children: [
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Extras"),
+          if (MainAppData.isTeamVerified) buildSpreadsheetRedirect(context),
           if (AchievementManager.nazHighlightsUnlocked)
             buildRedirectButton(context, Image.asset("assets/extras/naz.png"),
                 "Naz Reid highlights", naz),
@@ -69,8 +71,32 @@ class _ExtrasPage extends State<ExtrasPage> {
     "https://youtu.be/wskHuqMTdR4?si=j-D-1sgmqOg0j0Rw"
   ];
 
+  Widget buildSpreadsheetRedirect(BuildContext context) {
+    return ListTile(
+      onTap: () async {
+        await launchUrlString(await MainAppData.getSpreadsheetLink());
+        if (!AchievementManager.nazHighlightsUnlocked) {
+          MainAppData.triggerStrategizer(context);
+        }
+      },
+      hoverColor: Theme.of(context).colorScheme.inversePrimary,
+      visualDensity: VisualDensity.comfortable,
+      dense: true,
+      leading: Container(
+        color: Colors.transparent,
+        child: LayoutBuilder(builder: (context, constraint) {
+          return const Icon(Icons.grid_on_rounded);
+        }),
+      ),
+      title: Text(
+        "Spreadsheet link",
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+    );
+  }
+
   Widget buildRedirectButton(
-      BuildContext context, Image image, String label, List<String> urls) {
+      BuildContext context, Widget image, String label, List<String> urls) {
     return ListTile(
       onTap: () async {
         await launchUrlString(urls[Random().nextInt(urls.length)]);

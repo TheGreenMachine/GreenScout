@@ -86,7 +86,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     const AchievementsPage()),
                 if (AchievementManager.nazHighlightsUnlocked ||
                     AchievementManager.rudyHighlightsUnlocked ||
-                    AchievementManager.routerGalleryUnlocked)
+                    AchievementManager.routerGalleryUnlocked ||
+                    MainAppData.isTeamVerified)
                   buildNavigationButton(context, Icons.emoji_emotions_rounded,
                       "Extras", const ExtrasPage()),
                 ...buildAdminPanelNavigation(context),

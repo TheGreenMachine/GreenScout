@@ -22,7 +22,7 @@ class AchievementManager {
   );
 
   static var rudyHighlightsUnlocked = App.getBool("Foreign Fracas") ?? cheat;
-  static var nazHighlightsUnlocked = cheat; //TODO spreadsheet
+  static var nazHighlightsUnlocked = App.getBool("Strategizer") ?? cheat;
   static var routerGalleryUnlocked = cheat;
 
   static var displayNameUnlocked = cheat;
