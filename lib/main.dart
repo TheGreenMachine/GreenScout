@@ -138,6 +138,14 @@ class MyApp extends StatelessWidget {
       AchievementManager.appThemesUnlocked =
           (App.getBool("Themes Unlocked") ?? false);
     }
+
+    if (AchievementManager.appThemesUnlocked) {
+      if (!isDarkMode) {
+        App.setThemeMode(Brightness.light);
+      }
+    }
+    App.setThemeMode(Brightness.light);
+
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
       title: appTitle,
@@ -151,5 +159,7 @@ class MyApp extends StatelessWidget {
           : ThemeMode.light,
       debugShowCheckedModeBanner: false,
     );
+
+    // print(app.themeMode);
   }
 }

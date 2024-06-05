@@ -367,7 +367,8 @@ class App {
           TextButton(
             child: const Text('Dismiss'),
             onPressed: () =>
-                ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+                ScaffoldMessenger.of(globalNavigatorKey.currentContext!)
+                    .hideCurrentMaterialBanner(),
           ),
         ],
         content: Column(children: [
