@@ -1,9 +1,6 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/extras/gallery.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -11,7 +8,6 @@ import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ExtrasPage extends StatefulWidget {

@@ -44,7 +44,7 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
         MainAppData.triggerDebug(context);
       }
 
-      await App.httpGet("generalInfo", "", (response) {
+      await App.httpRequest("generalInfo", "", onGet: (response) {
         Map<dynamic, dynamic> json = jsonDecode(response.body);
         String? nameFromJson = json["EventName"];
         String? keyFromJson = json["EventKey"];

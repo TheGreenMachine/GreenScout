@@ -7,6 +7,7 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/dropdown.dart';
+import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -68,8 +69,8 @@ class _UserInfoPage extends State<UserInfoPage> {
                   Settings.selectedLeaderboardColor.value()),
             if (unlockedPfp || unlockedDisplayname)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: ElevatedButton(
+                padding: EdgeInsets.symmetric(horizontal: widthPadding),
+                child: FloatingButton(
                   onPressed: () {
                     bool success = false;
 
@@ -79,9 +80,14 @@ class _UserInfoPage extends State<UserInfoPage> {
                             startingLbColor) {
                           success = await MainAppData.updateLeaderboardColor(
                               Settings.selectedLeaderboardColor.ref.value);
+                            
+                          if (!context.mounted) {
+                            return;
+                          }
 
                           if (success) {
                             MainAppData.displayName = displayName.value;
+
                             App.showMessage(context,
                                 "Successfully updated color to ${Settings.selectedLeaderboardColor.ref.value.name}");
                           } else {
@@ -94,6 +100,10 @@ class _UserInfoPage extends State<UserInfoPage> {
                         if (displayName.value != MainAppData.displayName) {
                           success = await MainAppData.updateDisplayName(
                               displayName.value);
+
+                          if (!context.mounted) {
+                            return;
+                          }
 
                           if (success) {
                             MainAppData.displayName = displayName.value;
@@ -109,9 +119,17 @@ class _UserInfoPage extends State<UserInfoPage> {
                       if (hasCustomImage) {
                         success = await MainAppData.updateUserPfp(xCustomImage);
 
+                        if (!context.mounted) {
+                          return;
+                        }
+
                         if (success) {
                           App.setPfp(
                               Image.memory(await xCustomImage.readAsBytes()));
+                          
+                          if (!context.mounted) {
+                            return;
+                          }
 
                           App.showMessage(context, "Successfully updated pfp");
                         } else {
@@ -120,7 +138,7 @@ class _UserInfoPage extends State<UserInfoPage> {
                       }
                     }();
                   },
-                  child: const Text("Submit"),
+                  labelText: "Submit",
                 ),
               ),
           ],

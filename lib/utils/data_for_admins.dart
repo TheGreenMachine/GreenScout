@@ -25,7 +25,7 @@ class AdminData {
       "None": noActiveUserSelected,
     };
 
-    await App.httpGet("allUsers", "", (response) {
+    await App.httpRequest("allUsers", "", onGet: (response) {
       final respList = jsonDecode(response.body);
 
       respList.forEach((element) {
@@ -52,7 +52,7 @@ class AdminData {
 
   static Future<bool> updateLeaderboardColor(
       LeaderboardColor newColor, UserInfo info) async {
-    return App.httpPostWithHeaders("/setColor", "", {
+    return App.httpRequest("/setColor", "", headers: {
       "Username": info.username,
       "uuid": info.uuid,
       "color": newColor.name,
@@ -61,7 +61,7 @@ class AdminData {
 
   static Future<bool> updateDisplayName(
       String newDisplayName, UserInfo info) async {
-    return App.httpPostWithHeaders("/setDisplayName", "", {
+    return App.httpRequest("/setDisplayName", "", headers: {
       "Username": info.username,
       "uuid": info.uuid,
       "displayName": newDisplayName,
@@ -69,8 +69,8 @@ class AdminData {
   }
 
   static Future<bool> updateUserPfp(XFile file, UserInfo info) async {
-    return App.httpPostWithHeaders("/setUserPfp", await file.readAsBytes(),
-        {"Username": info.username, "Filename": file.name});
+    return App.httpRequest("/setUserPfp", await file.readAsBytes(),
+        headers: {"Username": info.username, "Filename": file.name});
   }
 
   static Future<UserInfo> adminGetUserInfo(String uuid) async {
@@ -78,7 +78,7 @@ class AdminData {
     LeaderboardColor color = LeaderboardColor.none;
     String username = "";
 
-    await App.httpGet("/adminUserInfo", "", (response) {
+    await App.httpRequest("/adminUserInfo", "", onGet: (response) {
       var responseJson = jsonDecode(response.body);
 
       displayName = responseJson["DisplayName"];
@@ -91,16 +91,16 @@ class AdminData {
       //   AchievementManager.syncAchievements(
       //       responseJson["Badges"], responseJson["Accolades"]);
       // }
-    }, {"uuid": uuid});
+    }, headers: {"uuid": uuid});
 
     late Widget pfp;
-    await App.httpGet("getPfp", "", (response) {
+    await App.httpRequest("getPfp", "", onGet: (response) {
       if (response.statusCode == 200) {
         pfp = Image.memory(response.bodyBytes);
       } else {
         pfp = const Icon(Icons.account_circle);
       }
-    }, {"username": username});
+    }, headers: {"username": username});
 
     return UserInfo(
         Reference(displayName), Reference(color), username, uuid, pfp);

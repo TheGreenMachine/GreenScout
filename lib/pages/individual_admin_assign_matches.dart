@@ -88,22 +88,17 @@ class _IndividualAdminAssignMatchesPage
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
             ),
-            child: StreamBuilder(
-              stream: AdminData.usersController.stream,
-              builder: (context, snapshot) {
-                return Dropdown<String>(
-                  padding: const EdgeInsets.only(left: 10),
-                  isExpanded: true,
-                  entries: AdminData.users,
-                  inValue: currentUser,
-                  defaultValue: AdminData.noActiveUserSelected,
-                  textStyle: null,
-                  alignment: Alignment.center,
-                  menuMaxHeight: 175,
-                  setState: () => setState(() {}),
-                );
-              },
-            ),
+            child: Dropdown<String>(
+              padding: const EdgeInsets.only(left: 10),
+              isExpanded: true,
+              entries: AdminData.users,
+              inValue: currentUser,
+              defaultValue: AdminData.noActiveUserSelected,
+              textStyle: null,
+              alignment: Alignment.center,
+              menuMaxHeight: 175,
+              setState: () => setState(() {}),
+            )
           ),
           const Padding(padding: EdgeInsets.all(12)),
           ...buildAssignmentFields(context),
@@ -120,8 +115,8 @@ class _IndividualAdminAssignMatchesPage
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () async {
           for (var match in matchesAssigned) {
-            final success = await App.httpPostWithHeaders("/addSchedule",
-                match.toJson(), {"userInput": match.scouterName});
+            final success = await App.httpRequest("/addSchedule",
+                match.toJson(), headers: {"userInput": match.scouterName});
 
             if (!success && context.mounted) {
               App.showMessage(context, "Failed To Send To Server!");
