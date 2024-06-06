@@ -8,6 +8,7 @@ import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
+import 'package:green_scout/widgets/subheader.dart';
 
 class LeaderboardPage extends StatefulWidget {
   const LeaderboardPage({super.key});
@@ -158,6 +159,10 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         drawer: const NavigationLayoutDrawer(),
         body: ListView(
           children: [
+            const SubheaderLabel(
+                "Data from the 2024 season was not maintained well and as such is made up of scores from State 2024."),
+            const SubheaderLabel(
+                "2024 seniors were given ballpark estimates, as they won't have any more opportunities to earn points."),
             StreamBuilder(
               stream: rankingsStream,
               builder: (context, snapshot) {
@@ -254,7 +259,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
             }
 
             String message = leaderboardBadge.name;
-            if (info.badges[leaderboardBadge.name]! != "") {
+            if (info.badges[leaderboardBadge.name]! != "" &&
+                info.badges[leaderboardBadge.name]! != leaderboardBadge.name) {
               description = info.badges[leaderboardBadge.name]!;
               message = "${leaderboardBadge.name}: $description";
             }

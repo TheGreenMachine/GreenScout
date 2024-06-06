@@ -176,8 +176,9 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                   if (!listEquals(info.currentBadges, info.originalBadges)) {
                     List<String> jsonToSend = [];
                     for (var badge in info.currentBadges) {
-                      jsonToSend.add(EncodableBadge(id: badge, description: "")
-                          .toString());
+                      jsonToSend.add(
+                          EncodableBadge(id: badge, description: badge)
+                              .toString());
                     }
 
                     success = await App.httpRequest(
