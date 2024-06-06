@@ -36,22 +36,23 @@ Edge (web)        • edge    • web-javascript • Microsoft Edge 124.0.2478.5
 
 Choose whichever target you would like to build for and run the app.
 
+If you are building to the web, add the argument `--web-browser-flag=--disable-web-security`, as the backend CORS compatibility does not extend to localhost.
+
 P.S: If you are using VS Code, I highly recommend installing the [Flutter Extension](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) and [Dart Extension](https://marketplace.visualstudio.com/items?itemName=Dart-Code.dart-code) as they provide code highlighting, code suggestions, an integrated build system, and debug console into the editor.
 
 Also, any additional documentation can be found [here](./docs/).
 
 
-# Roadmap
+# Roadmap (Things for future developers to add)
   * Admin Features
     * Impersonation of other users.
-    * Removing assigned matches from users.
+    * Removing assigned matches from users. (Mutable schedules - talk to Lydia for specifics of what she wants)
 
   * Settings
-    * Page for user info. (Display names, etc..)
     * Match Form Builder 
     * More menus for customizing the app further.
   
-  * Pit Scouting
+  * Pit Scouting - Already implemented on the backend
 
 # Contributers
 
