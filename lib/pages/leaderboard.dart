@@ -42,11 +42,11 @@ enum LeaderboardColor {
 
   static Map<String, LeaderboardColor> getUnlockedColors() {
     var colorsToReturn = {none.name: none};
-    if (AchievementManager.greenUnlocked) {
+    if (AchievementManager.greenUnlocked.value) {
       colorsToReturn[green.name] = green;
     }
 
-    if (AchievementManager.goldUnlocked) {
+    if (AchievementManager.goldUnlocked.value) {
       colorsToReturn[gold.name] = gold;
     }
 
@@ -283,7 +283,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
           return badges.sublist(0, capBadgesShowcased ? cap : badges.length);
         }
-        return [SizedBox()];
+        return [const SizedBox()];
       }
 
       void showInfoPopup(

@@ -40,13 +40,13 @@ class _ExtrasPage extends State<ExtrasPage> {
           const Padding(padding: EdgeInsets.all(4)),
           const HeaderLabel("Extras"),
           if (MainAppData.isTeamVerified) buildSpreadsheetRedirect(context),
-          if (AchievementManager.nazHighlightsUnlocked)
+          if (AchievementManager.nazHighlightsUnlocked.value)
             buildRedirectButton(context, Image.asset("assets/extras/naz.png"),
                 "Naz Reid highlights", naz),
-          if (AchievementManager.rudyHighlightsUnlocked)
+          if (AchievementManager.rudyHighlightsUnlocked.value)
             buildRedirectButton(context, Image.asset("assets/extras/rudy.png"),
                 "Rudy Gobert highlights", rudy),
-          if (AchievementManager.routerGalleryUnlocked)
+          if (AchievementManager.routerGalleryUnlocked.value)
             buildNavigationButton(context, Icons.camera_alt,
                 "Ryan McGoff Photo Gallery", const PhotoGalleryPage())
         ],
@@ -71,7 +71,7 @@ class _ExtrasPage extends State<ExtrasPage> {
     return ListTile(
       onTap: () async {
         await launchUrlString(await MainAppData.getSpreadsheetLink());
-        if (!AchievementManager.nazHighlightsUnlocked) {
+        if (!AchievementManager.nazHighlightsUnlocked.value) {
           MainAppData.triggerStrategizer(context);
         }
       },

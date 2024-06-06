@@ -35,10 +35,10 @@ class _UserInfoPage extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool unlockedDisplayname = AchievementManager.displayNameUnlocked;
-    bool unlockedPfp = AchievementManager.profileChangeUnlocked;
-    bool unlockedColor =
-        AchievementManager.greenUnlocked || AchievementManager.goldUnlocked;
+    bool unlockedDisplayname = AchievementManager.displayNameUnlocked.value;
+    bool unlockedPfp = AchievementManager.profileChangeUnlocked.value;
+    bool unlockedColor = AchievementManager.greenUnlocked.value ||
+        AchievementManager.goldUnlocked.value;
 
     final (width, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
@@ -80,7 +80,7 @@ class _UserInfoPage extends State<UserInfoPage> {
                             startingLbColor) {
                           success = await MainAppData.updateLeaderboardColor(
                               Settings.selectedLeaderboardColor.ref.value);
-                            
+
                           if (!context.mounted) {
                             return;
                           }
@@ -126,7 +126,7 @@ class _UserInfoPage extends State<UserInfoPage> {
                         if (success) {
                           App.setPfp(
                               Image.memory(await xCustomImage.readAsBytes()));
-                          
+
                           if (!context.mounted) {
                             return;
                           }

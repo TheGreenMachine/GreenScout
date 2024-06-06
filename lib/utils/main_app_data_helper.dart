@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/main.dart';
+import 'package:green_scout/pages/edit_users.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -241,7 +242,7 @@ class MainAppData {
           context, "Achievement Unlocked: Foreign Fracas",
           subtitle:
               "Opened the app while outside of the United States - Unlocked Rudy Gobert highlights in Extras");
-      AchievementManager.rudyHighlightsUnlocked = true;
+      AchievementManager.rudyHighlightsUnlocked.value = true;
       App.setBool("Foreign Fracas", true);
       App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Foreign Fracas"]}');
@@ -275,7 +276,7 @@ class MainAppData {
           subtitle:
               "Opened the spreadsheet link - Unlocked Naz Reid highlights (Re-open Extras!)");
       App.setBool("Strategizer", true);
-      AchievementManager.nazHighlightsUnlocked = true;
+      AchievementManager.nazHighlightsUnlocked.value = true;
       App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Strategizer"]}');
     }

@@ -30,7 +30,10 @@ class _AchievementsPage extends State<AchievementsPage> {
           AchievementManager.syncAchievements(
               responseJson["Badges"], responseJson["Accolades"]);
         }
-      }, headers: {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
+      }, headers: {
+        "username": MainAppData.scouterName,
+        "uuid": MainAppData.userUUID
+      });
 
       setState(() {});
     }();
@@ -208,7 +211,6 @@ class _AchievementsPage extends State<AchievementsPage> {
                           ? Colors.grey.shade100
                           : Colors.grey.shade600,
                     ),
-
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,

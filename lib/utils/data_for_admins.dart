@@ -77,6 +77,7 @@ class AdminData {
     String displayName = "";
     LeaderboardColor color = LeaderboardColor.none;
     String username = "";
+    List<String> badges = [];
 
     await App.httpRequest("/adminUserInfo", "", onGet: (response) {
       var responseJson = jsonDecode(response.body);
@@ -87,10 +88,9 @@ class AdminData {
       color = LeaderboardColor.values.elementAtOrNull(responseJson["Color"]) ??
           LeaderboardColor.none;
 
-      // if (!AchievementManager.isCheating()) {
-      //   AchievementManager.syncAchievements(
-      //       responseJson["Badges"], responseJson["Accolades"]);
-      // }
+      for (var responseBadge in responseJson["Badges"]) {
+        badges.add(responseBadge["ID"]);
+      }
     }, headers: {"uuid": uuid});
 
     late Widget pfp;
@@ -103,6 +103,7 @@ class AdminData {
     }, headers: {"username": username});
 
     return UserInfo(
-        Reference(displayName), Reference(color), username, uuid, pfp);
+        Reference(displayName), Reference(color), username, uuid, pfp,
+        currentBadges: badges);
   }
 }

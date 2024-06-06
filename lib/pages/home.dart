@@ -52,7 +52,7 @@ class _HomePage extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       MatchesData.parseMatches();
 
-      if (!AchievementManager.rudyHighlightsUnlocked) {
+      if (!AchievementManager.rudyHighlightsUnlocked.value) {
         MainAppData.checkIpForeign(context);
       }
     });

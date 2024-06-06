@@ -107,7 +107,7 @@ void main() async {
     }
   }
 
-  if (AchievementManager.appThemesUnlocked && MainAppData.loggedIn) {
+  if (AchievementManager.appThemesUnlocked.value && MainAppData.loggedIn) {
     if (!isDarkMode) {
       App.setThemeMode(Brightness.light);
     }
@@ -142,7 +142,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (MainAppData.loggedIn) {
-      AchievementManager.appThemesUnlocked =
+      AchievementManager.appThemesUnlocked.value =
           (App.getBool("Themes Unlocked") ?? false);
     }
 
@@ -154,12 +154,10 @@ class MyApp extends StatelessWidget {
       home:
           !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
-      themeMode: AchievementManager.appThemesUnlocked
+      themeMode: AchievementManager.appThemesUnlocked.value
           ? ThemeMode.system
           : ThemeMode.light,
       debugShowCheckedModeBanner: false,
     );
-
-    // print(app.themeMode);
   }
 }

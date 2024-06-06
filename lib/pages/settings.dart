@@ -49,11 +49,10 @@ class _SettingsPage extends State<SettingsPage> {
             "Match Form Layout",
             const SettingsMatchFormLayoutPage(),
           ),
-
           buildSettingTile(context, widthPadding, width, Icons.developer_board,
               "Debug Info", const SettingsDebugInfoPage()),
-
-          if (AchievementManager.displayNameUnlocked || AchievementManager.profileChangeUnlocked)
+          if (AchievementManager.displayNameUnlocked.value ||
+              AchievementManager.profileChangeUnlocked.value)
             buildSettingTile(context, widthPadding, width, Icons.dataset_sharp,
                 "Edit User Info", const UserInfoPage()),
         ],

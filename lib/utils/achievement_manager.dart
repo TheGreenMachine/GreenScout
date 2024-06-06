@@ -18,19 +18,21 @@ class AchievementManager {
     height: 100,
   );
 
-  static var rudyHighlightsUnlocked = App.getBool("Foreign Fracas") ?? cheat;
-  static var nazHighlightsUnlocked = App.getBool("Strategizer") ?? cheat;
-  static var routerGalleryUnlocked = cheat;
+  static var rudyHighlightsUnlocked =
+      Reference(App.getBool("Foreign Fracas") ?? cheat);
+  static var nazHighlightsUnlocked =
+      Reference(App.getBool("Strategizer") ?? cheat);
+  static var routerGalleryUnlocked = Reference(cheat);
 
-  static var displayNameUnlocked = cheat;
-  static var profileChangeUnlocked = cheat;
+  static var displayNameUnlocked = Reference(cheat);
+  static var profileChangeUnlocked = Reference(cheat);
 
-  static var appThemesUnlocked = cheat;
+  static var appThemesUnlocked = Reference(cheat);
 
-  static var spreadsheetUnlocked = cheat;
+  static var spreadsheetUnlocked = Reference(cheat);
 
-  static var goldUnlocked = cheat;
-  static var greenUnlocked = cheat;
+  static var goldUnlocked = Reference(cheat);
+  static var greenUnlocked = Reference(cheat);
 
   static final achievements = [
     PercentAchievement(
@@ -57,7 +59,7 @@ class AchievementManager {
         const Icon(Icons.workspace_premium_sharp, size: 100),
         () => MainAppData.lifeScore / 100.0,
         unlocks: "App themes (Dark Mode!)",
-        ref: Reference(appThemesUnlocked),
+        ref: (appThemesUnlocked),
         setterKey: "Themes Unlocked"),
     PercentAchievement(
         "Scouting Enthusiast",
@@ -68,24 +70,23 @@ class AchievementManager {
                 100), // Loads a goat image for some reason. I don't know ask tag - Michael
         () => MainAppData.lifeScore / 500.0,
         unlocks: "Gold leaderboard name color",
-        ref: Reference(goldUnlocked)),
+        ref: (goldUnlocked)),
     PercentAchievement("Locked In", "High Score of 50 matches",
         const Icon(Icons.lock, size: 100), () => MainAppData.highScore / 50.0,
-        unlocks: "Display name changing", ref: Reference(displayNameUnlocked)),
+        unlocks: "Display name changing", ref: (displayNameUnlocked)),
     PercentAchievement("Déjà vu", "High score of 78 matches",
         const Icon(Icons.loop, size: 100), () => MainAppData.highScore / 78.0,
-        unlocks: "Profile picture changing",
-        ref: Reference(profileChangeUnlocked)),
+        unlocks: "Profile picture changing", ref: (profileChangeUnlocked)),
     PercentAchievement("👀", "High score of 300 matches",
         const Icon(Icons.timer, size: 100), () => MainAppData.highScore / 300.0,
-        unlocks: "Green leaderboard name color", ref: Reference(greenUnlocked)),
+        unlocks: "Green leaderboard name color", ref: (greenUnlocked)),
     Achievement(
       "Strategizer",
       "Opened the spreadsheet from the app",
       const Icon(Icons.grid_on, size: 100),
       unlocks: "Naz Reid highlights",
       isFrontendProvided: true,
-      ref: Reference(nazHighlightsUnlocked),
+      ref: (nazHighlightsUnlocked),
     ),
     Achievement(
       "Foreign Fracas",
@@ -93,7 +94,7 @@ class AchievementManager {
       const Icon(Icons.public, size: 100),
       unlocks: "Rudy Gobert highlights",
       isFrontendProvided: true,
-      ref: Reference(rudyHighlightsUnlocked),
+      ref: (rudyHighlightsUnlocked),
     ),
     Achievement(
       "Detective",
@@ -233,14 +234,14 @@ class AchievementManager {
       "Survived the router dungeon",
       Image.asset("assets/accolades/ryanMcgoff.png", width: 100, height: 100),
       unlocks: "Ryan McGoff photo gallery",
-      ref: Reference(routerGalleryUnlocked),
+      ref: routerGalleryUnlocked,
     ),
     Achievement(
       "1816",
       "Member of Team 1816",
       gearEye,
       unlocks: "Spreadsheet link",
-      ref: Reference(spreadsheetUnlocked),
+      ref: (spreadsheetUnlocked),
     ),
   ];
 
@@ -319,7 +320,8 @@ class AchievementManager {
       }
 
       for (var silentBadge in silentBadges) {
-        if ((retrivedAccolades).keys.contains(silentBadge.name)) {
+        if ((retrievedBadges).keys.contains(silentBadge.name) ||
+            (retrivedAccolades).keys.contains(silentBadge.name)) {
           silentBadge.met = true;
           if (silentBadge.ref != null) {
             silentBadge.ref!.value = true;

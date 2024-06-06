@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
@@ -19,12 +22,7 @@ class EditUsersAdminPage extends StatefulWidget {
   State<EditUsersAdminPage> createState() => _EditUsersAdminPage();
 }
 
-// class UserInfo2 {
-//   final String username;
-//   final String uuid;
-//   final Reference<String> displayName;
-//   final Reference<LeaderboardColor>
-// }
+///!!! We never frontend-implemented custom descriptions for badges. They exist on the backend, so if you want, future devs can implement it !!!///
 
 class UserInfo {
   final String username;
@@ -38,18 +36,43 @@ class UserInfo {
   bool hasChangedImage;
   XFile? xCustomImage;
 
+  List<String> originalBadges;
+  List<String> currentBadges;
+
   UserInfo(
-    this.displayName, 
-    this.selectedColor, 
-    this.username, 
-    this.uuid, 
-    this.pfp,
-    {
-      this.hasChangedImage = false,
+      this.displayName, this.selectedColor, this.username, this.uuid, this.pfp,
+      {this.hasChangedImage = false, this.currentBadges = const []})
+      : startingColor = LeaderboardColor.values.indexOf(selectedColor.value),
+        startingDisplayName = displayName.value.toString(),
+        originalBadges = List.from(currentBadges);
+}
+
+class EncodableBadge {
+  String id;
+  String description;
+
+  EncodableBadge({
+    required this.id,
+    required this.description,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'ID': id,
+        'Description': description,
+      };
+
+  factory EncodableBadge.fromJson(Map<String, dynamic> json) {
+    if (json['ID'] is! String || json['Description'] is! String) {
+      throw TypeError();
     }
-  ) : 
-    startingColor       = LeaderboardColor.values.indexOf(selectedColor.value),
-    startingDisplayName = displayName.value.toString();
+    return EncodableBadge(
+      id: json['ID'] as String,
+      description: json['Description'] as String,
+    );
+  }
+
+  @override
+  String toString() => jsonEncode(toJson());
 }
 
 class _EditUsersAdminPage extends State<EditUsersAdminPage> {
@@ -62,11 +85,14 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
     "Loading...",
     Image.asset("nuh uh"),
   );
-  
+
   Image customImage = Image.asset("nuh uh");
 
   // Need some way to initialize this data.
-  final badgesSelected = List.filled(AchievementManager.leaderboardBadges.length, false);
+  final badgesSelected = List.filled(
+      AchievementManager.leaderboardBadges.length +
+          AchievementManager.silentBadges.length,
+      false);
 
   @override
   void initState() {
@@ -147,6 +173,25 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                       App.showMessage(context, "Unable to update pfp");
                     }
                   }
+                  if (!listEquals(info.currentBadges, info.originalBadges)) {
+                    List<String> jsonToSend = [];
+                    for (var badge in info.currentBadges) {
+                      jsonToSend.add(EncodableBadge(id: badge, description: "")
+                          .toString());
+                    }
+
+                    success = await App.httpRequest(
+                        "/badgeConfig", jsonToSend.toString(),
+                        headers: {"username": info.username});
+
+                    if (success) {
+                      info.originalBadges = List.from(info.currentBadges);
+                      App.showMessage(context,
+                          "Successfully updated badges of ${info.username}");
+                    } else {
+                      App.showMessage(context, "Unable to update badges");
+                    }
+                  }
                 }();
               },
               child: const Text("Submit"),
@@ -169,8 +214,9 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
       ),
       drawer: const NavigationLayoutDrawer(),
       body: RefreshIndicator(
-        onRefresh: () async { setState(() {}); },
-
+        onRefresh: () async {
+          setState(() {});
+        },
         child: ListView(
           children: [
             const Padding(padding: EdgeInsets.all(8)),
@@ -178,7 +224,8 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
             const Padding(padding: EdgeInsets.all(2)),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
+                horizontal:
+                    MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
               ),
               child: Dropdown<String>(
                 padding: const EdgeInsets.only(left: 10),
@@ -196,9 +243,27 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                   displayNameController.text =
                       currentUserInfo.displayName.value;
 
-                  // TODO: This is for testing, please implement logic for 
-                  // checking for these badges.
                   badgesSelected.fillRange(0, badgesSelected.length, false);
+                  for (var i = 0;
+                      i <
+                          AchievementManager.leaderboardBadges.length +
+                              AchievementManager.silentBadges.length;
+                      i++) {
+                    if (i < AchievementManager.leaderboardBadges.length) {
+                      if (currentUserInfo.currentBadges.contains(
+                          AchievementManager.leaderboardBadges
+                              .elementAt(i)
+                              .name)) {
+                        badgesSelected[i] = true;
+                      }
+                    } else if (currentUserInfo.currentBadges.contains(
+                        AchievementManager
+                            .silentBadges[
+                                i - AchievementManager.leaderboardBadges.length]
+                            .name)) {
+                      badgesSelected[i] = true;
+                    }
+                  }
                   setState(() {});
                 },
               ),
@@ -207,7 +272,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
             if (currentUserInfo.displayName.value != "")
               buildUserInfoScreen(context, widthPadding, width, currentUserInfo)
           ],
-      ),
+        ),
       ),
     );
   }
@@ -330,7 +395,8 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
   Widget buildBadgesView(double width, double widthPadding) {
     List<Widget> buildBadgeList2() {
       final result = <Widget>[];
-      final badges = AchievementManager.leaderboardBadges;
+      final badges = AchievementManager.leaderboardBadges +
+          AchievementManager.silentBadges;
 
       for (final (index, badge) in badges.indexed) {
         result.add(
@@ -341,30 +407,26 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                 onLongPress: () {
                   App.showMessage(context, badge.description);
                 },
-
                 onTap: () {
                   badgesSelected[index] = !badgesSelected[index];
+                  updateCurrentUserBadges();
                   setState(() {});
                 },
-
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: width / 8,
                     minWidth: width / 8,
                   ),
-
                   child: Ink(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(16)),
                       color: App.getThemeMode() == Brightness.light
                           ? Colors.grey.shade100
                           : Colors.grey.shade600,
-                      
                       border: Border.all(
                         color: badgesSelected[index]
-                        ? Colors.lightGreen
-                        : Colors.redAccent,
-
+                            ? Colors.lightGreen
+                            : Colors.redAccent,
                         width: 3.5,
                       ),
                     ),
@@ -395,37 +457,35 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                   ),
                 ),
               ),
-
               ClipPath(
                 clipper: CustomClipPathTopContainer(),
                 child: Container(
                   height: 55,
                   width: 55,
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(topRight: Radius.circular(20)),
-
+                    borderRadius:
+                        const BorderRadius.only(topRight: Radius.circular(20)),
                     color: badgesSelected[index]
-                    ? Colors.lightGreen
-                    : Colors.redAccent,
-
+                        ? Colors.lightGreen
+                        : Colors.redAccent,
                     border: Border.all(
                       color: badgesSelected[index]
-                      ? Colors.lightGreen
-                      : Colors.redAccent,
-
+                          ? Colors.lightGreen
+                          : Colors.redAccent,
                       width: 5,
                     ),
                   ),
                 ),
               ),
-
               Positioned(
                 right: 5,
                 top: 8,
-
-                child: badgesSelected[index] 
-                ? const Icon(Icons.check, color: Colors.white,) 
-                : const Padding(padding: EdgeInsets.zero), 
+                child: badgesSelected[index]
+                    ? const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )
+                    : const Padding(padding: EdgeInsets.zero),
               ),
             ],
           ),
@@ -489,6 +549,42 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
     }
     return toReturn;
   }
+
+  void updateCurrentUserBadges() {
+    for (var i = 0; i < badgesSelected.length; i++) {
+      if (badgesSelected[i]) {
+        if (i < AchievementManager.leaderboardBadges.length) {
+          if (!currentUserInfo.currentBadges.contains(
+              AchievementManager.leaderboardBadges.elementAt(i).name)) {
+            currentUserInfo.currentBadges
+                .add(AchievementManager.leaderboardBadges.elementAt(i).name);
+          }
+        } else if (!currentUserInfo.currentBadges.contains(AchievementManager
+            .silentBadges
+            .elementAt(i - AchievementManager.leaderboardBadges.length)
+            .name)) {
+          currentUserInfo.currentBadges.add(AchievementManager.silentBadges
+              .elementAt(i - AchievementManager.leaderboardBadges.length)
+              .name);
+        }
+      } else {
+        if (i < AchievementManager.leaderboardBadges.length) {
+          if (currentUserInfo.currentBadges.contains(
+              AchievementManager.leaderboardBadges.elementAt(i).name)) {
+            currentUserInfo.currentBadges
+                .remove(AchievementManager.leaderboardBadges.elementAt(i).name);
+          }
+        } else if (currentUserInfo.currentBadges.contains(AchievementManager
+            .silentBadges
+            .elementAt(i - AchievementManager.leaderboardBadges.length)
+            .name)) {
+          currentUserInfo.currentBadges.remove(AchievementManager.silentBadges
+              .elementAt(i - AchievementManager.leaderboardBadges.length)
+              .name);
+        }
+      }
+    }
+  }
 }
 
 // Code comes from:
@@ -497,10 +593,10 @@ class CustomClipPathTopContainer extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path0 = Path();
-    path0.moveTo(0,0);
-    path0.lineTo(size.width,0);
-    path0.lineTo(size.width,size.height);
-    path0.lineTo(0,0);
+    path0.moveTo(0, 0);
+    path0.lineTo(size.width, 0);
+    path0.lineTo(size.width, size.height);
+    path0.lineTo(0, 0);
     return path0;
   }
 
