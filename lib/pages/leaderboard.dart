@@ -275,7 +275,10 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         }
 
         // Maybe this is a little too terse.
-        return badges.sublist(0, capBadgesShowcased ? 3 : badges.length);
+        if (badges.length != 0) {
+          return badges.sublist(0, capBadgesShowcased ? 3 : badges.length);
+        }
+        return [SizedBox()];
       }
 
       void showInfoPopup(
