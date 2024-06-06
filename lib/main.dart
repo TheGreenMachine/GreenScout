@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:green_scout/pages/home.dart';
-import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
@@ -38,7 +37,7 @@ void main() async {
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    await App.httpPost("/", "", ignoreOutput: true);
+    await App.httpRequest("/", "", ignoreOutput: true);
 
     if (wasOnline &&
         App.internetOff &&
@@ -65,7 +64,7 @@ void main() async {
 
     if (matches.isNotEmpty && App.internetOn) {
       for (var match in matches) {
-        final _ = await App.httpPost("dataEntry", match);
+        final _ = await App.httpRequest("dataEntry", match);
 
         MainAppData.confirmMatchMangled(match, App.responseSucceeded);
       }
@@ -91,12 +90,12 @@ void main() async {
   runApp(const MyApp());
 
   if (MainAppData.loggedIn && MainAppData.userCertificate.isNotEmpty) {
-    var connected = await App.httpPost("/", "", ignoreOutput: true);
+    var connected = await App.httpRequest("/", "", ignoreOutput: true);
 
     if (connected) {
       // Start up check to ensure that we're logged out when
       // the certificate becomes invalid on the server.
-      bool postSucceeded = await App.httpPost("certificateValid", '');
+      bool postSucceeded = await App.httpRequest("certificateValid", '');
 
       if (!postSucceeded) {
         MainAppData.loggedIn = false;

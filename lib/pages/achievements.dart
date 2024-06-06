@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -24,14 +23,14 @@ class _AchievementsPage extends State<AchievementsPage> {
     super.initState();
 
     () async {
-      await App.httpGet("/userInfo", "", (response) {
+      await App.httpRequest("/userInfo", "", onGet: (response) {
         var responseJson = jsonDecode(response.body);
 
         if (!AchievementManager.isCheating()) {
           AchievementManager.syncAchievements(
               responseJson["Badges"], responseJson["Accolades"]);
         }
-      }, {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
+      }, headers: {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
 
       setState(() {});
     }();
@@ -111,7 +110,7 @@ class _AchievementsPage extends State<AchievementsPage> {
       context: context,
       builder: (BuildContext context) {
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 30),
+          padding: EdgeInsets.symmetric(horizontal: widthPadding, vertical: 60),
           child: Card(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -160,9 +159,9 @@ class _AchievementsPage extends State<AchievementsPage> {
       double width,
       double widthPadding,
       bool displayProgressBar) {
-    List<Widget> built = List.empty(growable: true);
+    final built = <Widget>[];
 
-    for (var value in achievements) {
+    for (final value in achievements) {
       if (!unlockable && !value.met) {
         continue;
       }
@@ -189,15 +188,16 @@ class _AchievementsPage extends State<AchievementsPage> {
               InkWell(
                 // Weird hack, but what this does is make it so the button
                 // doesn't have a clickable state when it doesn't have a description.
+                // - Michael
                 onTap: !(value.showDescription && value.met)
                     ? null
                     : () {
-                        // App.gotoPage(context, AchievementDescriptionPage(value), canGoBack: true);
                         showInfoPopup(context, value, width, widthPadding);
                       },
 
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
+                    // TODO: Might need a better way to scale this. It looks odd with some items on smaller screens. - Michael.
                     minHeight: width / 4,
                     minWidth: width / 4,
                   ),
@@ -208,6 +208,7 @@ class _AchievementsPage extends State<AchievementsPage> {
                           ? Colors.grey.shade100
                           : Colors.grey.shade600,
                     ),
+
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,

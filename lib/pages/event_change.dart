@@ -47,7 +47,7 @@ class _EventConfigPage extends State<EventConfigPage> {
     eventData = eventDataController.stream;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await App.httpGet("generalInfo", "", (response) {
+      await App.httpRequest("generalInfo", "", onGet: (response) {
         Map responseJson = jsonDecode(response.body);
 
         MapEntry<String, String>? keyFromJson = MapEntry(
@@ -60,7 +60,7 @@ class _EventConfigPage extends State<EventConfigPage> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await App.httpGet("allEvents", "", (response) {
+      await App.httpRequest("allEvents", "", onGet: (response) {
         Map<dynamic, dynamic> eventsJson = jsonDecode(response.body);
         Map<String, String> properMap = {"Select a new event": ""};
 
@@ -139,8 +139,14 @@ class _EventConfigPage extends State<EventConfigPage> {
                         () async {
                           Navigator.of(context).pop();
 
-                          success = await App.httpPost(
-                              "keyChange", currentEvent.value);
+                          success = await App.httpRequest(
+                            "keyChange", 
+                            currentEvent.value,
+                          );
+
+                          if (!context.mounted) {
+                            return;
+                          }
 
                           if (success) {
                             App.showMessage(context,

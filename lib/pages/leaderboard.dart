@@ -78,7 +78,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
   void initState() {
     super.initState();
 
-    App.httpGet('leaderboard', '', (response) {
+    App.httpRequest('leaderboard', '', onGet: (response) {
       final responseJson = jsonDecode(response.body);
 
       final responseArray = responseJson as List<dynamic>;

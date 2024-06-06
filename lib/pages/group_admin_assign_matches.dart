@@ -137,8 +137,8 @@ class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
         onPressed: () async {
           for (var match in matchesAssigned) {
             for (var i = 0; i < match.userIds.length; i++) {
-              final success = await App.httpPostWithHeaders("addSchedule",
-                  match.toJsonGeneric(i + 1), {"userInput": match.userIds[i]});
+              final success = await App.httpRequest("addSchedule",
+                  match.toJsonGeneric(i + 1), headers: {"userInput": match.userIds[i]});
 
               if (!success && context.mounted) {
                 App.showMessage(context, "Failed To Send To Server!");

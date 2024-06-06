@@ -177,14 +177,14 @@ class MainAppData {
   }
 
   static Future<bool> updateDisplayName(String newDisplayName) async {
-    return App.httpPostWithHeaders("/setDisplayName", "", {
+    return App.httpRequest("/setDisplayName", "", headers: {
       "Username": MainAppData.scouterName,
       "displayName": newDisplayName,
     });
   }
 
   static Future<bool> updateLeaderboardColor(LeaderboardColor newColor) async {
-    return App.httpPostWithHeaders("/setColor", "", {
+    return App.httpRequest("/setColor", "", headers: {
       "Username": MainAppData.scouterName,
       "uuid": MainAppData.userUUID,
       "color": newColor.name,
@@ -192,12 +192,12 @@ class MainAppData {
   }
 
   static Future<bool> updateUserPfp(XFile file) async {
-    return App.httpPostWithHeaders("/setUserPfp", await file.readAsBytes(),
-        {"Username": MainAppData.scouterName, "Filename": file.name});
+    return App.httpRequest("/setUserPfp", await file.readAsBytes(),
+        headers: {"Username": MainAppData.scouterName, "Filename": file.name});
   }
 
   static Future<void> setUserInfo() async {
-    await App.httpGet("/userInfo", "", (response) {
+    await App.httpRequest("/userInfo", "", onGet: (response) {
       var responseJson = jsonDecode(response.body);
       MainAppData.scouterName = responseJson["Username"];
       MainAppData.displayName = responseJson["DisplayName"];
@@ -211,21 +211,21 @@ class MainAppData {
         AchievementManager.syncAchievements(
             responseJson["Badges"], responseJson["Accolades"]);
       }
-    }, {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
+    }, headers: {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
 
-    await App.httpGet("getPfp", "", (response) {
+    await App.httpRequest("getPfp", "", onGet: (response) {
       if (response.statusCode == 200) {
         App.setPfp(Image.memory(response.bodyBytes));
       } else {
         App.setPfp(const Icon(Icons.account_circle));
       }
-    }, {"username": MainAppData.scouterName});
+    }, headers: {"username": MainAppData.scouterName});
   }
 
   static Future<void> checkIpForeign(BuildContext context) async {
     var ip = await Ipify.ipv4();
     var response = await http.get(Uri.parse("https://ipinfo.io/$ip/json"));
-    if (jsonDecode(response.body)["country"] != "US") {
+    if (jsonDecode(response.body)["country"] != "US" && context.mounted) {
       triggerForeign(context);
     }
   }
@@ -240,7 +240,7 @@ class MainAppData {
               "Opened the app while outside of the United States - Unlocked Rudy Gobert highlights in Extras");
       AchievementManager.rudyHighlightsUnlocked = true;
       App.setBool("Foreign Fracas", true);
-      App.httpPost("/provideAdditions",
+      App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Foreign Fracas"]}');
     }
   }
@@ -250,7 +250,7 @@ class MainAppData {
       App.showAchievementUnlocked(context, "Achievement Unlocked: Debugger",
           subtitle: "Opened the debug menu");
       App.setBool("Debugger", true);
-      App.httpPost("/provideAdditions",
+      App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Debugger"]}');
     }
   }
@@ -260,7 +260,7 @@ class MainAppData {
       App.showAchievementUnlocked(context, "Achievement Unlocked: Detective",
           subtitle: "Changed the match layout");
       App.setBool("Detective", true);
-      App.httpPost("/provideAdditions",
+      App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Detective"]}');
     }
   }

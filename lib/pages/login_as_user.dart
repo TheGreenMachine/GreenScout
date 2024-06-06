@@ -72,15 +72,15 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
       // storeCertificate("");
 
-      await App.httpGet(
+      await App.httpRequest(
         "login",
         '''
         {
           "Username": "${_userController.text.toLowerCase()}",
           "EncryptedPassword": "${await encryptPassword64(passwordStr)}"
         }
-      ''',
-        (response) {
+        ''',
+        onGet: (response) {
           MainAppData.userRole = response.headers["role"] ?? "None";
           log(MainAppData.userRole);
 

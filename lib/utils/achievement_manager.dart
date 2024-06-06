@@ -1,13 +1,10 @@
-import 'dart:convert';
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 
 const cheat =
-    false; //This is literally only here so i don't have an anyeurism while developing
+    true; //This is literally only here so i don't have an anyeurism while developing
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {
@@ -307,7 +304,7 @@ class AchievementManager {
             App.setBool(achievement.setterKey!, true);
           }
         } else if (achievement.isFrontendProvided && achievement.met) {
-          App.httpPost("/provideAdditions",
+          App.httpRequest("/provideAdditions",
               '{"UUID": "${MainAppData.userUUID}", "Achievements": ["${achievement.name}"]}');
         } else if (!cheat) {
           achievement.met = false;

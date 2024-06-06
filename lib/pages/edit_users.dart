@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/leaderboard.dart';
-import 'package:green_scout/pages/settings/user_info.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/data_for_admins.dart';
 import 'package:green_scout/utils/general_utils.dart';
-import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
-import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
-import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
-import 'package:green_scout/widgets/toggle_floating_button.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditUsersAdminPage extends StatefulWidget {
@@ -23,6 +18,13 @@ class EditUsersAdminPage extends StatefulWidget {
   @override
   State<EditUsersAdminPage> createState() => _EditUsersAdminPage();
 }
+
+// class UserInfo2 {
+//   final String username;
+//   final String uuid;
+//   final Reference<String> displayName;
+//   final Reference<LeaderboardColor>
+// }
 
 class UserInfo {
   final String username;
@@ -37,22 +39,35 @@ class UserInfo {
   XFile? xCustomImage;
 
   UserInfo(
-      this.displayName, this.selectedColor, this.username, this.uuid, this.pfp,
-      {this.hasChangedImage = false})
-      : startingColor = LeaderboardColor.values.indexOf(selectedColor.value),
-        startingDisplayName = displayName.value.toString();
+    this.displayName, 
+    this.selectedColor, 
+    this.username, 
+    this.uuid, 
+    this.pfp,
+    {
+      this.hasChangedImage = false,
+    }
+  ) : 
+    startingColor       = LeaderboardColor.values.indexOf(selectedColor.value),
+    startingDisplayName = displayName.value.toString();
 }
 
 class _EditUsersAdminPage extends State<EditUsersAdminPage> {
   TextEditingController displayNameController = TextEditingController();
   Reference<String> currentUser = Reference(AdminData.noActiveUserSelected);
   UserInfo currentUserInfo = UserInfo(
-      Reference(""),
-      Reference(LeaderboardColor.none),
-      "Loading...",
-      "Loading...",
-      Image.asset("nuh uh"));
+    Reference(""),
+    Reference(LeaderboardColor.none),
+    "Loading...",
+    "Loading...",
+    Image.asset("nuh uh"),
+  );
+  
   Image customImage = Image.asset("nuh uh");
+
+  // Need some way to initialize this data.
+  final badgesSelected = List.filled(AchievementManager.leaderboardBadges.length, false);
+
   @override
   void initState() {
     super.initState();
@@ -78,7 +93,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
           const Padding(padding: EdgeInsets.all(6)),
           createLabelAndTextInput(
               "Display Name", widthPadding, width, info.displayName),
-          buildBadgesView(width),
+          buildBadgesView(width, widthPadding),
           createLabelAndImagePicker(
               "Profile Picture", widthPadding, width, info),
           createLabelAndDropdown(
@@ -153,49 +168,51 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
         actions: createEmptyActionBar(),
       ),
       drawer: const NavigationLayoutDrawer(),
-      body: ListView(
-        children: [
-          const Padding(padding: EdgeInsets.all(8)),
-          const SubheaderLabel("User"),
-          const Padding(padding: EdgeInsets.all(2)),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
+      body: RefreshIndicator(
+        onRefresh: () async { setState(() {}); },
+
+        child: ListView(
+          children: [
+            const Padding(padding: EdgeInsets.all(8)),
+            const SubheaderLabel("User"),
+            const Padding(padding: EdgeInsets.all(2)),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
+              ),
+              child: Dropdown<String>(
+                padding: const EdgeInsets.only(left: 10),
+                isExpanded: true,
+                entries: AdminData.users,
+                inValue: currentUser,
+                defaultValue: AdminData.noActiveUserSelected,
+                textStyle: null,
+                alignment: Alignment.center,
+                menuMaxHeight: 175,
+                changeOnNewValue: true,
+                onChanged: () async {
+                  currentUserInfo =
+                      await AdminData.adminGetUserInfo(currentUser.value);
+                  displayNameController.text =
+                      currentUserInfo.displayName.value;
+
+                  // TODO: This is for testing, please implement logic for 
+                  // checking for these badges.
+                  badgesSelected.fillRange(0, badgesSelected.length, false);
+                  setState(() {});
+                },
+              ),
             ),
-            child: StreamBuilder(
-              stream: AdminData.usersController.stream,
-              builder: (context, snapshot) {
-                return Dropdown<String>(
-                  padding: const EdgeInsets.only(left: 10),
-                  isExpanded: true,
-                  entries: AdminData.users,
-                  inValue: currentUser,
-                  defaultValue: AdminData.noActiveUserSelected,
-                  textStyle: null,
-                  alignment: Alignment.center,
-                  menuMaxHeight: 175,
-                  changeOnNewValue: true,
-                  onChanged: () async {
-                    currentUserInfo =
-                        await AdminData.adminGetUserInfo(currentUser.value);
-                    displayNameController.text =
-                        currentUserInfo.displayName.value;
-                    setState(() {});
-                  },
-                  setState: () => setState(() {}),
-                );
-              },
-            ),
-          ),
-          const Padding(padding: EdgeInsets.all(12)),
-          if (currentUserInfo.displayName.value != "")
-            buildUserInfoScreen(context, widthPadding, width, currentUserInfo)
-        ],
+            const Padding(padding: EdgeInsets.all(12)),
+            if (currentUserInfo.displayName.value != "")
+              buildUserInfoScreen(context, widthPadding, width, currentUserInfo)
+          ],
+      ),
       ),
     );
   }
 
-  Widget createLabelAndTextInput<V>(
+  Widget createLabelAndTextInput(
       String label, double widthPadding, double width, Reference refToChange) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -235,7 +252,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
     );
   }
 
-  Widget createLabelAndImagePicker<V>(
+  Widget createLabelAndImagePicker(
       String label, double widthPadding, double width, UserInfo info) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -252,7 +269,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
-          GestureDetector(
+          InkWell(
               onTap: () async {
                 final ImagePicker picker = ImagePicker();
                 final XFile? xFile = await picker.pickImage(
@@ -266,7 +283,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                   setState(() {});
                 }
               },
-              child: SizedBox(width: width * 0.25, child: info.pfp))
+              child: Ink(width: width * 0.25, child: info.pfp))
         ],
       ),
     );
@@ -310,9 +327,120 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
     );
   }
 
-  Widget buildBadgesView(double width) {
+  Widget buildBadgesView(double width, double widthPadding) {
+    List<Widget> buildBadgeList2() {
+      final result = <Widget>[];
+      final badges = AchievementManager.leaderboardBadges;
+
+      for (final (index, badge) in badges.indexed) {
+        result.add(
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              InkWell(
+                onLongPress: () {
+                  App.showMessage(context, badge.description);
+                },
+
+                onTap: () {
+                  badgesSelected[index] = !badgesSelected[index];
+                  setState(() {});
+                },
+
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: width / 8,
+                    minWidth: width / 8,
+                  ),
+
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      color: App.getThemeMode() == Brightness.light
+                          ? Colors.grey.shade100
+                          : Colors.grey.shade600,
+                      
+                      border: Border.all(
+                        color: badgesSelected[index]
+                        ? Colors.lightGreen
+                        : Colors.redAccent,
+
+                        width: 3.5,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: badge.badge,
+                          ),
+                          const Padding(padding: EdgeInsets.all(4)),
+                          Text(
+                            badge.name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              ClipPath(
+                clipper: CustomClipPathTopContainer(),
+                child: Container(
+                  height: 55,
+                  width: 55,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(topRight: Radius.circular(20)),
+
+                    color: badgesSelected[index]
+                    ? Colors.lightGreen
+                    : Colors.redAccent,
+
+                    border: Border.all(
+                      color: badgesSelected[index]
+                      ? Colors.lightGreen
+                      : Colors.redAccent,
+
+                      width: 5,
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                right: 5,
+                top: 8,
+
+                child: badgesSelected[index] 
+                ? const Icon(Icons.check, color: Colors.white,) 
+                : const Padding(padding: EdgeInsets.zero), 
+              ),
+            ],
+          ),
+        );
+      }
+
+      return result;
+    }
+
     return Wrap(
-        children: buildBadgeList(AchievementManager.leaderboardBadges, width));
+      alignment: WrapAlignment.center,
+      spacing: 5,
+      runSpacing: 5,
+      children: buildBadgeList2(),
+    );
   }
 
   List<Widget> buildBadgeList(List<Achievement> badges, double width) {
@@ -361,4 +489,21 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
     }
     return toReturn;
   }
+}
+
+// Code comes from:
+// https://stackoverflow.com/questions/73193650/in-flutter-how-to-design-container-with-tick-mark-in-top-right-edge-like-in-the
+class CustomClipPathTopContainer extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path0 = Path();
+    path0.moveTo(0,0);
+    path0.lineTo(size.width,0);
+    path0.lineTo(size.width,size.height);
+    path0.lineTo(0,0);
+    return path0;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

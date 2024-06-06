@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
 
-const serverHostName = 'tagciccone.com'; //Localhost!!!
+const serverHostName = 'tagciccone.com';
 const serverPort = 443;
 
 const emptyMap = {"empty": " "};
@@ -175,55 +175,16 @@ class App {
     return myPfp;
   }
 
-  static Future<bool> httpPost(String path, String message,
-      {bool ignoreOutput = false}) async {
-    dynamic err;
-    dynamic responseErr;
-
-    final uriPath = Uri(
-      scheme: 'https',
-      host: serverHostName,
-      path: path,
-      port: serverPort,
-    );
-
-    await http
-        .post(
-      uriPath,
-      headers: {
-        "Certificate": MainAppData.userCertificate,
-      },
-      body: message,
-    )
-        .then((response) {
-      if (response.statusCode == 500) {
-        responseErr = "Encountered Invalid Status Code";
-        log(responseErr);
-      }
-
-      if (ignoreOutput) {
-        return;
-      }
-
-      log("Response Status: ${response.statusCode}");
-      log("Response body: ${response.body}");
-    }).catchError((error) {
-      err = error;
-      log(error.toString());
-    });
-
-    // Logic: If there no error, that means we successfully
-    // sent a post request through the internet
-    internetOn = err == null;
-    responseStatus = responseErr == null;
-
-    return internetOn && responseErr == null;
-  }
-
-  static Future<bool> httpPostWithHeaders(
-      String path, dynamic message, Map<String, String> headers,
-      {bool ignoreOutput = false}) async {
-    dynamic err;
+  static Future<bool> httpRequest(
+    String path,
+    dynamic message,
+    {
+      Map<String, String> headers = emptyMap,
+      Function(http.Response)? onGet,
+      bool ignoreOutput = false,
+    }
+  ) async {
+    dynamic genericErr;
     dynamic responseErr;
 
     final uriPath = Uri(
@@ -239,82 +200,49 @@ class App {
     };
     headersToSend.addAll(headers);
 
-    await http
-        .post(
+    await http.post(
       uriPath,
       headers: headersToSend,
       body: message,
-    )
-        .then((response) {
-      if (response.statusCode == 500) {
-        responseErr = "Encountered Invalid Status Code";
-        log(responseErr);
+    ).then(
+      (response) {
+        if (response.statusCode == 500) {
+          responseErr = "Encountered Invalid Status Code";
+          log(responseErr);
+        }
+
+        if (onGet != null) {
+          onGet(response);
+        }
+
+        if (ignoreOutput) {
+          return;
+        }
+
+        log("Path: $path");
+        log("Response Status: ${response.statusCode}");
+
+        // Come up with better solution for logging large stuff so it doesn't
+        // crash the app.
+        if (response.body.length >= 1000) {
+          log("Response body: ${response.body.substring(0, 1000)}\n");
+        } else {
+          log("Response body: ${response.body}\n");
+        }
       }
-
-      if (ignoreOutput) {
-        return;
+    ).catchError(
+      (error) {
+        genericErr = error;
+        log(error.toString());
       }
-
-      log("Response Status: ${response.statusCode}");
-      log("Response body: ${response.body}");
-    }).catchError((error) {
-      err = error;
-      log(error.toString());
-    });
-
-    // Logic: If there no error, that means we successfully
-    // sent a post request through the internet
-    internetOn = err == null;
-    responseStatus = responseErr == null;
-
-    return internetOn && responseErr == null;
-  }
-
-  static Future<bool> httpGet(
-      String path, String? message, Function(http.Response) onGet,
-      [Map<String, String> headers = emptyMap]) async {
-    dynamic err;
-    dynamic responseErr;
-
-    final uriPath = Uri(
-      scheme: 'https',
-      host: serverHostName,
-      path: path,
-      port: serverPort,
     );
 
-    Map<String, String> headersToSend = {
-      "Certificate": MainAppData.userCertificate
-    };
-
-    headersToSend.addAll(headers);
-    await http
-        .post(
-      uriPath,
-      headers: headersToSend,
-      body: message,
-    )
-        .then((response) {
-      if (response.statusCode == 500) {
-        responseErr = "Encountered Invalid Status Code";
-        log(responseErr);
-      } else {
-        onGet(response);
-      }
-
-      log("Response Status: ${response.statusCode}");
-      log("Response body: ${response.body}");
-    }).catchError((error) {
-      err = error;
-      log(error.toString());
-    });
-
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet
-    internetOn = err == null;
+    internetOn = genericErr == null;
     responseStatus = responseErr == null;
 
-    return internetOn && responseErr == null;
+    return internetOn && responseSucceeded;
   }
 
   static Image getProfileImage(String arg) {
