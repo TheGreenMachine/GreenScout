@@ -11,7 +11,7 @@ To get started, you'll first need the [Flutter SDK](https://docs.flutter.dev/get
 
 Once you have all that installed, open up your terminal and enter this command
 ```bash
-git clone https://github.com/mp768/GreenScout
+git clone https://github.com/TheGreenMachine/GreenScout.git
 ```
 
 This will download the repository onto your computer and to move into it type this
