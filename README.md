@@ -42,6 +42,8 @@ P.S: If you are using VS Code, I highly recommend installing the [Flutter Extens
 
 Also, any additional documentation can be found [here](./docs/).
 
+# Important setup information
+Make sure to set serverHostName in app_state.dart to the address of the actual server you'll be using as the backend.
 
 # Roadmap (Things for future developers to add)
   * Admin Features
