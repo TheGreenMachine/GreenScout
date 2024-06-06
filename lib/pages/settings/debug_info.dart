@@ -40,7 +40,11 @@ class _SettingsDeveloperInfoPage extends State<SettingsDebugInfoPage> {
     eventKey = eventKeyController.stream;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await App.httpGet("generalInfo", "", (response) {
+      if (!(App.getBool("Debugger") ?? false)) {
+        MainAppData.triggerDebug(context);
+      }
+
+      await App.httpRequest("generalInfo", "", onGet: (response) {
         Map<dynamic, dynamic> json = jsonDecode(response.body);
         String? nameFromJson = json["EventName"];
         String? keyFromJson = json["EventKey"];

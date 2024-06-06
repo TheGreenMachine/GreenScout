@@ -1,6 +1,7 @@
-import 'dart:convert';
-
+import 'package:green_scout/pages/achievements.dart';
+import 'package:green_scout/pages/extras.dart';
 import 'package:green_scout/pages/hall_of_fame.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
 import 'package:green_scout/pages/home.dart';
@@ -81,6 +82,14 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Leaderboards", const LeaderboardPage()),
                 buildNavigationButton(context, Icons.emoji_events_sharp,
                     "Hall of Fame", const HallOfFamePage()),
+                buildNavigationButton(context, Icons.star, "Achievements",
+                    const AchievementsPage()),
+                if (AchievementManager.nazHighlightsUnlocked.value ||
+                    AchievementManager.rudyHighlightsUnlocked.value ||
+                    AchievementManager.routerGalleryUnlocked.value ||
+                    MainAppData.isTeamVerified)
+                  buildNavigationButton(context, Icons.emoji_emotions_rounded,
+                      "Extras", const ExtrasPage()),
                 ...buildAdminPanelNavigation(context),
               ],
             ),
@@ -113,6 +122,7 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     "Yes",
                     () {
                       MainAppData.loggedIn = false;
+                      App.setThemeMode(Brightness.light);
                       App.gotoPage(context, const LoginPageForUsers());
                     }
                   ),

@@ -1,3 +1,4 @@
+import 'package:green_scout/pages/edit_users.dart';
 import 'package:green_scout/pages/event_change.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/data_for_admins.dart';
@@ -94,6 +95,21 @@ class _AdminPage extends State<AdminPage> {
               onPressed: () {
                 App.gotoPage(context, const GroupAdminAssignMatchesPage(),
                     canGoBack: true);
+              },
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(16)),
+          const SubheaderLabel("Edit information of users"),
+          const Padding(padding: EdgeInsets.all(2)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
+            child: FloatingButton(
+              icon: const Icon(Icons.supervised_user_circle),
+              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              onPressed: () {
+                App.gotoPage(context, const EditUsersAdminPage(),
+                    canGoBack: false);
               },
             ),
           ),

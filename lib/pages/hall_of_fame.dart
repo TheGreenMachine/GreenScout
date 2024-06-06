@@ -31,7 +31,7 @@ class HOFEntry {
 }
 
 //The UI is pretty much copied wholesale from https://gist.githubusercontent.com/adarshchauhan095/f7ed128ad7c489a1ad1c4e66520db0c7/raw/c2106d190becd4159cbf66378726e01229a3ead2/main.dart
-//bcs i'm a bum
+//bcs i'm a bum - Tag
 class _HOFPage extends State<HallOfFamePage> {
   @override
   void initState() {
@@ -87,7 +87,7 @@ class _HOFPage extends State<HallOfFamePage> {
       //This used to say "500+ commits, 100k+ lines of code" but i thought that sounded too braggy, same with "I thought it'd be bad when nico and keerthi left, but look at us, we've got 2000 autos" from venna @ duluth 2024
       //Feel free to change this one since i'm bad at talking about myself
       //-Tag
-      '"I had tell this man to eat his Jimmy Johns instead of coding" -Michael P, 2024',
+      '"I had to tell this man to eat his Jimmy Johns instead of coding" -Michael P, 2024',
       "assets/hof/tag.png",
     )
   ];
@@ -151,7 +151,7 @@ class _HOFPage extends State<HallOfFamePage> {
     }
   }
 
-  Widget buildUserLayout(BuildContext context, HOFEntry entry) {
+  Widget buildInfoCardLayout(BuildContext context, HOFEntry entry) {
     final (width, widthPadding) = screenScaler(MediaQuery.of(context).size.width, 670, 0.5, 1.0);
 
     return Padding(
@@ -167,6 +167,7 @@ class _HOFPage extends State<HallOfFamePage> {
             children: [
               Text(
                 entry.name,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 52,
@@ -252,7 +253,7 @@ class _HOFPage extends State<HallOfFamePage> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
-                  itemBuilder: (context, index) => buildUserLayout(context, entries[index]),
+                  itemBuilder: (context, index) => buildInfoCardLayout(context, entries[index]),
                   separatorBuilder: (context, index) => const SizedBox(
                     width: 10.0,
                   ),

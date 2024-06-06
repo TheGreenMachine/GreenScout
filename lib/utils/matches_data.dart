@@ -26,11 +26,11 @@ class MatchesData {
   static const String assignedMatchScheduleJsonKey = "Assigned Matches Schedule";
 
   static void getAllMatchesFromServer() async {
-    await App.httpGet("schedule", "", (response) {
+    await App.httpRequest("schedule", "", onGet: (response) {
       App.setString(matchScheduleJsonKey, response.body);
     });
 
-    await App.httpGet("singleSchedule", MainAppData.scouterName, (response) {
+    await App.httpRequest("singleSchedule", MainAppData.scouterName, onGet: (response) {
       App.setString(assignedMatchScheduleJsonKey, response.body);
     });
 

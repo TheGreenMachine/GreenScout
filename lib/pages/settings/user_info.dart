@@ -1,18 +1,15 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:green_scout/pages/leaderboard.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/reference.dart';
+import 'package:green_scout/widgets/dropdown.dart';
+import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'package:green_scout/widgets/subheader.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -28,6 +25,9 @@ class _UserInfoPage extends State<UserInfoPage> {
   XFile xCustomImage = XFile("Fake");
   Reference displayName = Reference(MainAppData.displayName);
 
+  //Yes this is dumb but i don't know dart's rules for shallow vs deep copying well and i didn't want to risk a ref copy
+  int startingLbColor = Settings.selectedLeaderboardColor.ref.value.index;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +35,11 @@ class _UserInfoPage extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool unlockedDisplayname = AchievementManager.displayNameUnlocked.value;
+    bool unlockedPfp = AchievementManager.profileChangeUnlocked.value;
+    bool unlockedColor = AchievementManager.greenUnlocked.value ||
+        AchievementManager.goldUnlocked.value;
+
     final (width, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
@@ -49,47 +54,93 @@ class _UserInfoPage extends State<UserInfoPage> {
           children: [
             const HeaderLabel("User Information"),
             const Padding(padding: EdgeInsets.all(6)),
-            createLabelAndTextInput("Display Name", widthPadding, width,
-                displayName.value, displayName),
-            createLabelAndImagePicker("Profile picture", widthPadding, width),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  bool success = false;
+            if (unlockedDisplayname)
+              createLabelAndTextInput("Display Name", widthPadding, width,
+                  displayName.value, displayName),
+            if (unlockedPfp)
+              createLabelAndImagePicker("Profile Picture", widthPadding, width),
+            if (unlockedColor)
+              createLabelAndDropdown(
+                  "Leaderboard Color",
+                  widthPadding,
+                  width,
+                  LeaderboardColor.getUnlockedColors(),
+                  Settings.selectedLeaderboardColor.ref,
+                  Settings.selectedLeaderboardColor.value()),
+            if (unlockedPfp || unlockedDisplayname)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: widthPadding),
+                child: FloatingButton(
+                  onPressed: () {
+                    bool success = false;
 
-                  () async {
-                    if (displayName.value != MainAppData.displayName) {
-                      success =
-                          await MainAppData.updateUserData(displayName.value);
+                    () async {
+                      if (unlockedColor) {
+                        if (Settings.selectedLeaderboardColor.ref.value.index !=
+                            startingLbColor) {
+                          success = await MainAppData.updateLeaderboardColor(
+                              Settings.selectedLeaderboardColor.ref.value);
 
-                      if (success) {
-                        MainAppData.displayName = displayName.value;
-                        App.showMessage(context,
-                            "Successfully updated display name to ${displayName.value}");
-                      } else {
-                        App.showMessage(
-                            context, "Unable to update display name");
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          if (success) {
+                            MainAppData.displayName = displayName.value;
+
+                            App.showMessage(context,
+                                "Successfully updated color to ${Settings.selectedLeaderboardColor.ref.value.name}");
+                          } else {
+                            App.showMessage(context, "Unable to update color");
+                          }
+                        }
                       }
-                    }
 
-                    if (hasCustomImage) {
-                      success = await MainAppData.updateUserPfp(xCustomImage);
+                      if (unlockedDisplayname) {
+                        if (displayName.value != MainAppData.displayName) {
+                          success = await MainAppData.updateDisplayName(
+                              displayName.value);
 
-                      if (success) {
-                        App.setPfp(
-                            Image.memory(await xCustomImage.readAsBytes()));
+                          if (!context.mounted) {
+                            return;
+                          }
 
-                        App.showMessage(context, "Successfully updated pfp");
-                      } else {
-                        App.showMessage(context, "Unable to update pfp");
+                          if (success) {
+                            MainAppData.displayName = displayName.value;
+                            App.showMessage(context,
+                                "Successfully updated display name to ${displayName.value}");
+                          } else {
+                            App.showMessage(
+                                context, "Unable to update display name");
+                          }
+                        }
                       }
-                    }
-                  }();
-                },
-                child: const Text("Submit"),
+
+                      if (hasCustomImage) {
+                        success = await MainAppData.updateUserPfp(xCustomImage);
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        if (success) {
+                          App.setPfp(
+                              Image.memory(await xCustomImage.readAsBytes()));
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          App.showMessage(context, "Successfully updated pfp");
+                        } else {
+                          App.showMessage(context, "Unable to update pfp");
+                        }
+                      }
+                    }();
+                  },
+                  labelText: "Submit",
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -178,5 +229,43 @@ class _UserInfoPage extends State<UserInfoPage> {
       return customImage;
     }
     return App.getPfp();
+  }
+
+  Widget createLabelAndDropdown<V>(
+    String label,
+    double widthPadding,
+    double width,
+    Map<String, V> entries,
+    Reference<V> inValue,
+    V defaultValue,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: widthPadding,
+        vertical: 8,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: width * 0.65,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+          SizedBox(
+            width: width * 0.25,
+            child: Dropdown<V>(
+              entries: entries,
+              inValue: inValue,
+              defaultValue: defaultValue,
+              textStyle: Theme.of(context).textTheme.labelMedium,
+              padding: const EdgeInsets.only(left: 5),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:green_scout/pages/home.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
+import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 
 import 'utils/app_state.dart';
@@ -36,7 +37,7 @@ void main() async {
     // we're connected or not.
     bool wasOnline = App.internetOn;
 
-    await App.httpPost("/", "", ignoreOutput: true);
+    await App.httpRequest("/", "", ignoreOutput: true);
 
     if (wasOnline &&
         App.internetOff &&
@@ -63,7 +64,7 @@ void main() async {
 
     if (matches.isNotEmpty && App.internetOn) {
       for (var match in matches) {
-        final _ = await App.httpPost("dataEntry", match);
+        final _ = await App.httpRequest("dataEntry", match);
 
         MainAppData.confirmMatchMangled(match, App.responseSucceeded);
       }
@@ -80,26 +81,59 @@ void main() async {
     }
   });
 
+  Timer.periodic(const Duration(minutes: 1), (timer) async {
+    if (MainAppData.loggedIn) {
+      MainAppData.setUserInfo();
+    }
+  });
+
   runApp(const MyApp());
 
-  if (MainAppData.loggedIn && MainAppData.userCertificate != null) {
-    var connected = await App.httpPost("/", "", ignoreOutput: true);
+  if (MainAppData.loggedIn && MainAppData.userCertificate.isNotEmpty) {
+    var connected = await App.httpRequest("/", "", ignoreOutput: true);
 
     if (connected) {
       // Start up check to ensure that we're logged out when
       // the certificate becomes invalid on the server.
-      bool postSucceeded = await App.httpPost("certificateValid", '');
+      bool postSucceeded = await App.httpRequest("certificateValid", '');
 
       if (!postSucceeded) {
         MainAppData.loggedIn = false;
         App.gotoPage(
             globalNavigatorKey.currentContext!, const LoginPageForUsers());
+      } else {
+        MainAppData.setUserInfo();
       }
     }
   }
 
+  if (AchievementManager.appThemesUnlocked.value && MainAppData.loggedIn) {
+    if (!isDarkMode) {
+      App.setThemeMode(Brightness.light);
+    }
+  } else {
+    App.setThemeMode(Brightness.light);
+  }
+
   Settings.update();
 }
+
+//These are the only 2 themes I bothered making. Feel free to make more if you want future devs, I'm just not great at color balancing.
+var lightTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: greenMachineGreen,
+    brightness: Brightness.light,
+  ),
+  useMaterial3: true,
+);
+
+var darkTheme = ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: greenMachineGreen,
+    brightness: Brightness.dark,
+  ),
+  useMaterial3: true,
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -107,26 +141,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    if (MainAppData.loggedIn) {
+      AchievementManager.appThemesUnlocked.value =
+          (App.getBool("Themes Unlocked") ?? false);
+    }
+
     return MaterialApp(
       navigatorKey: globalNavigatorKey,
-
       title: appTitle,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: greenMachineGreen),
-        useMaterial3: true,
-      ),
-      // TODO: later
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: greenMachineGreen,
-        ),
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home:
           !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
-      themeMode: ThemeMode.light,
-
+      themeMode: AchievementManager.appThemesUnlocked.value
+          ? ThemeMode.system
+          : ThemeMode.light,
       debugShowCheckedModeBanner: false,
     );
   }
