@@ -4,7 +4,7 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 
 const cheat =
-    true; //This is literally only here so i don't have an anyeurism while developing
+    false; //This is literally only here so i don't have an anyeurism while developing
 
 //Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
 class AchievementManager {

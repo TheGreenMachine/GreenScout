@@ -107,7 +107,7 @@ void main() async {
     }
   }
 
-  if (AchievementManager.appThemesUnlocked) {
+  if (AchievementManager.appThemesUnlocked && MainAppData.loggedIn) {
     if (!isDarkMode) {
       App.setThemeMode(Brightness.light);
     }

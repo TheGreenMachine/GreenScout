@@ -211,7 +211,10 @@ class MainAppData {
         AchievementManager.syncAchievements(
             responseJson["Badges"], responseJson["Accolades"]);
       }
-    }, headers: {"username": MainAppData.scouterName, "uuid": MainAppData.userUUID});
+    }, headers: {
+      "username": MainAppData.scouterName,
+      "uuid": MainAppData.userUUID
+    });
 
     await App.httpRequest("getPfp", "", onGet: (response) {
       if (response.statusCode == 200) {
@@ -273,7 +276,7 @@ class MainAppData {
               "Opened the spreadsheet link - Unlocked Naz Reid highlights (Re-open Extras!)");
       App.setBool("Strategizer", true);
       AchievementManager.nazHighlightsUnlocked = true;
-      App.httpPost("/provideAdditions",
+      App.httpRequest("/provideAdditions",
           '{"UUID": "${MainAppData.userUUID}", "Achievements": ["Strategizer"]}');
     }
   }
@@ -296,7 +299,7 @@ class MainAppData {
 
   static Future<String> getSpreadsheetLink() async {
     String link = "";
-    await App.httpGet("/spreadsheet", "", (response) {
+    await App.httpRequest("/spreadsheet", "", onGet: (response) {
       link = response.body;
     });
     return link;

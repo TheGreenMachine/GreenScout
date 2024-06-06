@@ -106,13 +106,13 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       }
 
       rankingsController.add(rankings);
-    }, {"type": LeaderboardType.Score.name});
+    }, headers: {"type": LeaderboardType.Score.name});
 
     rankingsStream = rankingsController.stream;
   }
 
   void switchParameters(LeaderboardType type) {
-    App.httpGet('leaderboard', '', (response) {
+    App.httpRequest('leaderboard', '', onGet: (response) {
       final responseJson = jsonDecode(response.body);
 
       final responseArray = responseJson as List<dynamic>;
@@ -140,7 +140,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       }
 
       rankingsController.add(rankings);
-    }, {"type": type.name});
+    }, headers: {"type": type.name});
   }
 
   @override
@@ -275,8 +275,13 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         }
 
         // Maybe this is a little too terse.
-        if (badges.length != 0) {
-          return badges.sublist(0, capBadgesShowcased ? 3 : badges.length);
+        if (badges.isNotEmpty) {
+          int cap = 3;
+          if (badges.length < cap) {
+            cap = badges.length;
+          }
+
+          return badges.sublist(0, capBadgesShowcased ? cap : badges.length);
         }
         return [SizedBox()];
       }
