@@ -2,7 +2,7 @@
 
 Make sure that nobody runs the app using incognito mode during competition. We learned this out the hard way when running into issues related to the server. When trying to correct the issue, it turned out that some people were using incognito, which made the match data irrecoverable. 
 
-## Make sure to connect to internet first.
+## Make sure to connect to the internet first.
 
 The app requires an initial internet connection to function. This is due to the fact that it's a web app hosted on a github page. This is a limitation that can be solved, but hasn't yet, mainly for the fact that distribution for mobile platforms (Android and IOS) is a lot of effort. 
 
