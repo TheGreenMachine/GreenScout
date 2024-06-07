@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
 const timerPeriodicMilliseconds = 115;
 
-const serverHostName = 'tagciccone.com';
+const serverHostName = 'localhost'; // TODO Put your server name here!
 const serverPort = 443;
 
 const emptyMap = {"empty": " "};
@@ -177,13 +177,11 @@ class App {
 
   static Future<bool> httpRequest(
     String path,
-    dynamic message,
-    {
-      Map<String, String> headers = emptyMap,
-      Function(http.Response)? onGet,
-      bool ignoreOutput = false,
-    }
-  ) async {
+    dynamic message, {
+    Map<String, String> headers = emptyMap,
+    Function(http.Response)? onGet,
+    bool ignoreOutput = false,
+  }) async {
     dynamic genericErr;
     dynamic responseErr;
 
@@ -200,42 +198,40 @@ class App {
     };
     headersToSend.addAll(headers);
 
-    await http.post(
+    await http
+        .post(
       uriPath,
       headers: headersToSend,
       body: message,
-    ).then(
-      (response) {
-        if (response.statusCode == 500) {
-          responseErr = "Encountered Invalid Status Code";
-          log(responseErr);
-        }
-
-        if (onGet != null) {
-          onGet(response);
-        }
-
-        if (ignoreOutput) {
-          return;
-        }
-
-        log("Path: $path");
-        log("Response Status: ${response.statusCode}");
-
-        // Come up with better solution for logging large stuff so it doesn't
-        // crash the app.
-        if (response.body.length >= 1000) {
-          log("Response body: ${response.body.substring(0, 1000)}\n");
-        } else {
-          log("Response body: ${response.body}\n");
-        }
+    )
+        .then((response) {
+      if (response.statusCode == 500) {
+        responseErr = "Encountered Invalid Status Code";
+        log(responseErr);
       }
-    ).catchError(
-      (error) {
-        genericErr = error;
-        log(error.toString());
+
+      if (onGet != null) {
+        onGet(response);
       }
-    );
+
+      if (ignoreOutput) {
+        return;
+      }
+
+      log("Path: $path");
+      log("Response Status: ${response.statusCode}");
+
+      // Come up with better solution for logging large stuff so it doesn't
+      // crash the app.
+      if (response.body.length >= 1000) {
+        log("Response body: ${response.body.substring(0, 1000)}\n");
+      } else {
+        log("Response body: ${response.body}\n");
+      }
+    }).catchError((error) {
+      genericErr = error;
+      log(error.toString());
+    });
 
     // Logic: If there no error, that means we successfully
     // sent a post request through the internet

@@ -346,6 +346,7 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                   );
                   info.xCustomImage = xFile;
                   currentUserInfo.hasChangedImage = true;
+                  info.pfp = customImage;
                   setState(() {});
                 }
               },
