@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
+/// Page for modifying the current listed event on the backend.
 class EventConfigPage extends StatefulWidget {
   const EventConfigPage({super.key});
 
@@ -41,8 +41,9 @@ class _EventConfigPage extends State<EventConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    final (width, widthPadding) =
-        screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
+    // Doesn't get used here.
+    // final (width, widthPadding) =
+    //     screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
     eventData = eventDataController.stream;
 
@@ -50,12 +51,11 @@ class _EventConfigPage extends State<EventConfigPage> {
       await App.httpRequest("generalInfo", "", onGet: (response) {
         Map responseJson = jsonDecode(response.body);
 
-        MapEntry<String, String>? keyFromJson = MapEntry(
+        MapEntry<String, String> keyFromJson = MapEntry(
             responseJson["EventKey"].toString(),
             responseJson["EventName"].toString());
-        if (keyFromJson != null) {
-          eventDataController.add(keyFromJson);
-        }
+
+        eventDataController.add(keyFromJson);
       });
     });
 

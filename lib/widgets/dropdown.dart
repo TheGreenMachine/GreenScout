@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/reference.dart';
 
+/// A reusable widget to create a dropdown menu and button.
 class Dropdown<V> extends StatefulWidget {
   const Dropdown({
     super.key,

@@ -34,7 +34,7 @@ import 'dart:ui';
   return (screenSize * ratio, screenSize * (1.0 - ratio) / 2);
 }
 
-/// A function that returns the absolute value of any numeric value.
+/// A function that returns the absolute value of any numeric.
 double abs(double value) {
   return value < 0.0 ? -value : value;
 }

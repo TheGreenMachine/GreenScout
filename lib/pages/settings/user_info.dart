@@ -12,6 +12,11 @@ import 'package:green_scout/widgets/header.dart';
 
 import 'package:image_picker/image_picker.dart';
 
+/// This page is dedicated to editing information related to the user.
+/// E.g. Display Names, Profile Pictures, Leaderboard Colors, etc..
+/// 
+/// I think the page could use a little bit of a redesign, so yeah
+/// feel free to redo it. - Michael.
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
 
@@ -25,7 +30,7 @@ class _UserInfoPage extends State<UserInfoPage> {
   XFile xCustomImage = XFile("Fake");
   Reference displayName = Reference(MainAppData.displayName);
 
-  //Yes this is dumb but i don't know dart's rules for shallow vs deep copying well and i didn't want to risk a ref copy
+  //Yes this is dumb but i don't know dart's rules for shallow vs deep copying well and i didn't want to risk a ref copy - Tag.
   int startingLbColor = Settings.selectedLeaderboardColor.ref.value.index;
 
   @override

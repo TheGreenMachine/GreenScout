@@ -83,9 +83,9 @@ class _LeaderboardPage extends State<LeaderboardPage> {
       final responseJson = jsonDecode(response.body);
 
       final responseArray = responseJson as List<dynamic>;
+
       List<RankingInfo> rankings = [];
-      for (int i = 0; i < responseArray.length; i++) {
-        var personInfo = responseArray[i];
+      for (final personInfo in responseArray) {
         Map<String, String> badgeMap = {};
 
         for (var badge in personInfo["Badges"]) {
@@ -118,8 +118,7 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
       final responseArray = responseJson as List<dynamic>;
       List<RankingInfo> rankings = [];
-      for (int i = 0; i < responseArray.length; i++) {
-        var personInfo = responseArray[i];
+      for (final personInfo in responseArray) {
         Map<String, String> badgeMap = {};
 
         for (var badge in personInfo["Badges"]) {
@@ -159,6 +158,8 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         drawer: const NavigationLayoutDrawer(),
         body: ListView(
           children: [
+            /// Potentially make these messages come from the server, that way the app doesn't need
+            /// to be updated for simplying notifying the user about something related to the leaderboard.
             const SubheaderLabel(
                 "Data from the 2024 season was not maintained well and as such is made up of scores from State 2024."),
             const SubheaderLabel(
@@ -230,6 +231,12 @@ class _LeaderboardPage extends State<LeaderboardPage> {
         List<RankingInfo> rankings, double width, double widthPadding) {
       final info = rankings[index];
 
+      /// This function is left unused, but what it does is pull
+      /// images for 1st, 2nd, and 3rd place people on the leaderboards.
+      /// 
+      /// I ended up not reusing it in the redesign of the leaderboards
+      /// page, but if you can find somewhere to fit it into the design,
+      /// I think that'd be nice. - Michael.
       Image? getNumberedBadgeAsset(int index) {
         switch (index) {
           case 0:
@@ -289,9 +296,17 @@ class _LeaderboardPage extends State<LeaderboardPage> {
 
           return badges.sublist(0, capBadgesShowcased ? cap : badges.length);
         }
+
         return [const SizedBox()];
       }
 
+      /// A simple function that pushes info on top of the screen.
+      /// 
+      /// NOTE: I really liked this functionality, it made it so you 
+      /// could avoid jumping to another page for a little bit of info.
+      /// So, I would love if you'd keep this and make it more generic.
+      /// That way it can be used more in the app (of course, where it 
+      /// makes sense). - Michael
       void showInfoPopup(
         BuildContext context,
         RankingInfo info,

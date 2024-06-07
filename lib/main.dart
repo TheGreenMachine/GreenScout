@@ -9,6 +9,18 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 
 import 'utils/app_state.dart';
 
+/// A simple string to dictate the title of the app.
+const appTitle = "Green Scout";
+
+/// A global that allows us to easily access the current context we're in.
+/// 
+/// Simply access: 
+/// ```dart
+/// // This is an optional, so you will have to check whether or not it's null.
+/// globalNavigatorKey.currentContext
+/// ```
+final globalNavigatorKey = GlobalKey<NavigatorState>();
+
 class DevHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -18,10 +30,10 @@ class DevHttpOverrides extends HttpOverrides {
   }
 }
 
-const appTitle = "Green Scout";
-
-final globalNavigatorKey = GlobalKey<NavigatorState>();
-
+/// The main entry point of the app.
+/// 
+/// Make sure to call start up essential services
+/// and logic here.
 void main() async {
   HttpOverrides.global = DevHttpOverrides();
 
@@ -32,9 +44,10 @@ void main() async {
   Timer.periodic(const Duration(seconds: 15), (timer) async {
     final matches = MainAppData.immediateMatchCache;
 
-    // This is to test whether or not we have connection.
-    // It may be wasteful but it shows our users that
-    // we're connected or not.
+    // This is used to test whether or not we're connected
+    // to the server. It may be wasteful sending it every
+    // 15 seconds, but it hopefully helpful information
+    // for the user.
     bool wasOnline = App.internetOn;
 
     await App.httpRequest("/", "", ignoreOutput: true);
@@ -87,8 +100,9 @@ void main() async {
     }
   });
 
+  // This is where the app actually gets ran.
   runApp(const MyApp());
-
+  
   if (MainAppData.loggedIn && MainAppData.userCertificate.isNotEmpty) {
     var connected = await App.httpRequest("/", "", ignoreOutput: true);
 
@@ -107,6 +121,7 @@ void main() async {
     }
   }
 
+  // I honestly don't know what this logic is supposed to achieve. - Michael.
   if (AchievementManager.appThemesUnlocked.value && MainAppData.loggedIn) {
     if (!isDarkMode) {
       App.setThemeMode(Brightness.light);
@@ -115,10 +130,16 @@ void main() async {
     App.setThemeMode(Brightness.light);
   }
 
+  // Make sure that before we leave the app that any settings changed in 
+  // one of the settings pages gets saved.
   Settings.update();
 }
 
-//These are the only 2 themes I bothered making. Feel free to make more if you want future devs, I'm just not great at color balancing.
+//These are the only 2 themes I bothered making. Feel free to make more if you want future devs, I'm just not great at color balancing. - Tag
+// 
+// You'll probably have to go through some hoops to get this to work at runtime. If you truly want themes, then you're probably going
+// to have to change some stuff in every page. Maybe try making a custom themes manager to hold all the color information, then you can ignore
+// the context and pull the color data from there. That, at least, would be how I'd approach it. - Michael.
 var lightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: greenMachineGreen,
@@ -127,6 +148,7 @@ var lightTheme = ThemeData(
   useMaterial3: true,
 );
 
+// This theme looks a little weird - Michael.
 var darkTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: greenMachineGreen,

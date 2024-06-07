@@ -14,7 +14,11 @@ import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
-// The main area to place all relevent navigation.
+/// A widget for placing navigational items into.
+/// 
+/// It's what connects most of the app together and it's
+/// what the little hamburger icon in the top left corner
+/// of the app is. 
 class NavigationLayoutDrawer extends StatelessWidget {
   const NavigationLayoutDrawer({super.key});
 
@@ -37,7 +41,6 @@ class NavigationLayoutDrawer extends StatelessWidget {
         children: [
           const Padding(padding: EdgeInsets.all(6)),
           ListTile(
-            // subtitle: Text("TODO User / Admin / Super"),
             visualDensity: VisualDensity.comfortable,
 
             dense: false,

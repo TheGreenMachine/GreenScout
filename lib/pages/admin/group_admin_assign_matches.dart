@@ -8,52 +8,77 @@ import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/floating_button.dart';
-import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
-import 'package:green_scout/widgets/toggle_floating_button.dart';
 
-class IndividualAdminAssignMatchesPage extends StatefulWidget {
-  const IndividualAdminAssignMatchesPage({super.key});
+/// Page for mass assigning of matches to users.
+class GroupAdminAssignMatchesPage extends StatefulWidget {
+  const GroupAdminAssignMatchesPage({
+    super.key,
+  });
 
   @override
-  State<IndividualAdminAssignMatchesPage> createState() =>
-      _IndividualAdminAssignMatchesPage();
+  State<GroupAdminAssignMatchesPage> createState() =>
+      _GroupAdminAssignMatchesPage();
 }
 
-class IndividualMatchRangeInfo {
-  const IndividualMatchRangeInfo(this.start, this.end, this.isBlue,
-      this.driveTeamNumber, this.scouterName);
+class GroupMatchRangeInfo {
+  const GroupMatchRangeInfo(
+    this.start,
+    this.end,
+    this.userIds,
+  );
 
   final int start;
   final int end;
-  final bool isBlue;
-  final int driveTeamNumber;
-  final String scouterName;
 
-  String toJson() {
+  // It has to be of length 6.
+  // 0-2 for red, 3-5 for blue
+  final List<String> userIds;
+
+  // 0-2 for blue, 3-5 for red
+  String toJsonGeneric(int id) {
     return jsonEncode({
       "Ranges": [
         [
           start,
           end,
-          (isBlue ? 3 : 0) + driveTeamNumber,
+          id,
         ]
       ]
     });
   }
 }
 
-class _IndividualAdminAssignMatchesPage
-    extends State<IndividualAdminAssignMatchesPage> {
-  Reference<String> currentUser = Reference(AdminData.noActiveUserSelected);
+extension GroupMatchRangeInfoList on List<GroupMatchRangeInfo> {
+  // 1-3 for red, 4-6 for blue
+  String toJsonGeneric(int id) {
+    List<List<int>> values = [];
+
+    for (final match in this) {
+      values.add([
+        match.start,
+        match.end,
+        id,
+      ]);
+    }
+
+    return jsonEncode(values);
+  }
+}
+
+class _GroupAdminAssignMatchesPage extends State<GroupAdminAssignMatchesPage> {
+  Reference<String> blue1User = Reference(AdminData.noActiveUserSelected);
+  Reference<String> blue2User = Reference(AdminData.noActiveUserSelected);
+  Reference<String> blue3User = Reference(AdminData.noActiveUserSelected);
+
+  Reference<String> red1User = Reference(AdminData.noActiveUserSelected);
+  Reference<String> red2User = Reference(AdminData.noActiveUserSelected);
+  Reference<String> red3User = Reference(AdminData.noActiveUserSelected);
 
   final fromTextController = TextEditingController();
   final toTextController = TextEditingController();
 
-  Reference<bool> isBlue = Reference(true);
-  Reference<int> driverTeamNumber = Reference(1);
-
-  List<IndividualMatchRangeInfo> matchesAssigned = [];
+  List<GroupMatchRangeInfo> matchesAssigned = [];
 
   @override
   void initState() {
@@ -81,27 +106,24 @@ class _IndividualAdminAssignMatchesPage
       ),
       body: ListView(
         children: [
-          const Padding(padding: EdgeInsets.all(8)),
-          const SubheaderLabel("User"),
-          const Padding(padding: EdgeInsets.all(2)),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * (1.0 - 0.65) / 2,
-            ),
-            child: Dropdown<String>(
-              padding: const EdgeInsets.only(left: 10),
-              isExpanded: true,
-              entries: AdminData.users,
-              inValue: currentUser,
-              defaultValue: AdminData.noActiveUserSelected,
-              textStyle: null,
-              alignment: Alignment.center,
-              menuMaxHeight: 175,
-              setState: () => setState(() {}),
-            )
-          ),
           const Padding(padding: EdgeInsets.all(12)),
-          ...buildAssignmentFields(context),
+          const SubheaderLabel("Blues"),
+          const Padding(padding: EdgeInsets.all(2)),
+          buildUserDropdowns(context, "BLUE 1", blue1User),
+          const Padding(padding: EdgeInsets.all(2)),
+          buildUserDropdowns(context, "BLUE 2", blue2User),
+          const Padding(padding: EdgeInsets.all(2)),
+          buildUserDropdowns(context, "BLUE 3", blue3User),
+          const Padding(padding: EdgeInsets.all(16)),
+          const SubheaderLabel("Reds"),
+          buildUserDropdowns(context, "RED 1", red1User),
+          const Padding(padding: EdgeInsets.all(2)),
+          buildUserDropdowns(context, "RED 2", red2User),
+          const Padding(padding: EdgeInsets.all(2)),
+          buildUserDropdowns(context, "RED 3", red3User),
+          const Padding(padding: EdgeInsets.all(16)),
+          ...buildAssignmentList(context),
+          const Padding(padding: EdgeInsets.all(32)),
         ],
       ),
     );
@@ -115,12 +137,14 @@ class _IndividualAdminAssignMatchesPage
         color: Theme.of(context).colorScheme.inversePrimary,
         onPressed: () async {
           for (var match in matchesAssigned) {
-            final success = await App.httpRequest("/addSchedule",
-                match.toJson(), headers: {"userInput": match.scouterName});
+            for (var i = 0; i < match.userIds.length; i++) {
+              final success = await App.httpRequest("addSchedule",
+                  match.toJsonGeneric(i + 1), headers: {"userInput": match.userIds[i]});
 
-            if (!success && context.mounted) {
-              App.showMessage(context, "Failed To Send To Server!");
-              return;
+              if (!success && context.mounted) {
+                App.showMessage(context, "Failed To Send To Server!");
+                return;
+              }
             }
           }
 
@@ -136,21 +160,30 @@ class _IndividualAdminAssignMatchesPage
     );
   }
 
-  List<Widget> buildAssignmentFields(BuildContext context) {
-    if (currentUser.value == AdminData.noActiveUserSelected) {
-      return [];
+  List<Widget> buildAssignmentList(BuildContext context) {
+    for (var user in [
+      blue1User,
+      blue2User,
+      blue3User,
+      red1User,
+      red2User,
+      red3User
+    ]) {
+      if (user.value == AdminData.noActiveUserSelected) {
+        return [];
+      }
     }
 
     const matchRangeWidthRatio = 0.75;
 
+    final matchRangeWidthPadding =
+        MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
     final matchRangeWidth =
         MediaQuery.of(context).size.width * matchRangeWidthRatio;
 
-    final matchRangeWidthPadding =
-        MediaQuery.of(context).size.width * (1.0 - matchRangeWidthRatio) / 2;
-
     return [
       const SubheaderLabel("Match Range"),
+      const Padding(padding: EdgeInsets.all(2)),
       Padding(
         padding: EdgeInsets.symmetric(
           horizontal: matchRangeWidthPadding,
@@ -210,47 +243,6 @@ class _IndividualAdminAssignMatchesPage
           ],
         ),
       ),
-      const Padding(padding: EdgeInsets.all(16)),
-      Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: matchRangeWidthPadding,
-        ),
-        child: FloatingToggleButton(
-          pressedColor: Colors.blue,
-          pressedIcon: const Text("BLUE"),
-          initialColor: Colors.red,
-          initialIcon: const Text("RED"),
-          // onPressed: (pressed) {
-          //   isBlue = !pressed;
-          // },
-
-          inValue: isBlue,
-        ),
-      ),
-      const Padding(padding: EdgeInsets.all(4)),
-      Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: matchRangeWidthPadding,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              width: matchRangeWidth * 0.45,
-              child: Text(
-                "DRIVE TEAM NUMBER",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            NumberCounterButton(
-              number: driverTeamNumber,
-              lowerBound: 1,
-              upperBound: 3,
-              widthRatio: 0.35,
-            )
-          ],
-        ),
-      ),
       const Padding(padding: EdgeInsets.all(18)),
       const SubheaderLabel("Add Match Range To List"),
       Padding(
@@ -267,12 +259,18 @@ class _IndividualAdminAssignMatchesPage
             }
 
             matchesAssigned.add(
-              IndividualMatchRangeInfo(
-                  int.parse(fromTextController.text),
-                  int.parse(toTextController.text),
-                  isBlue.value,
-                  driverTeamNumber.value,
-                  currentUser.value),
+              GroupMatchRangeInfo(
+                int.parse(fromTextController.text),
+                int.parse(toTextController.text),
+                [
+                  red1User.value,
+                  red2User.value,
+                  red3User.value,
+                  blue1User.value,
+                  blue2User.value,
+                  blue3User.value,
+                ],
+              ),
             );
 
             setState(() {});
@@ -304,14 +302,27 @@ class _IndividualAdminAssignMatchesPage
       BuildContext context, int index, double width) {
     final match = matchesAssigned[index];
 
+    StringBuffer firstTwoLetters = StringBuffer();
+
+    for (final userId in match.userIds) {
+      AdminData.users.forEach((key, value) {
+        if (value == userId) {
+          firstTwoLetters.write(key.substring(0, 2));
+          firstTwoLetters.write(" ");
+
+          return;
+        }
+      });
+    }
+
     return ExpansionTile(
       title: Text("${match.start} - ${match.end}"),
       leading: Text(
-        match.isBlue ? "B" : "R",
+        "G",
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
-        "Drive Team: ${match.driveTeamNumber}",
+        firstTwoLetters.toString(),
         style: Theme.of(context).textTheme.labelSmall,
       ),
       trailing: ElevatedButton(
@@ -336,6 +347,36 @@ class _IndividualAdminAssignMatchesPage
       ),
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       collapsedBackgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    );
+  }
+
+  Widget buildUserDropdowns(
+      BuildContext context, String message, Reference<String> user) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75) / 2,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            message,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * (0.75) * 0.55,
+            child: Dropdown<String>(
+              isExpanded: true,
+              entries: AdminData.users,
+              inValue: user,
+              defaultValue: AdminData.noActiveUserSelected,
+              textStyle: null,
+              alignment: AlignmentDirectional.center,
+              setState: () => setState(() {}),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 
+/// Generic class for holding data related to prefilling match schedules.
 class MatchInfo {
   const MatchInfo(this.matchNum, this.team, this.isBlue, this.driveTeamNum);
 
@@ -15,6 +16,8 @@ class MatchInfo {
   final int driveTeamNum;
 }
 
+/// A class designed to pull and store data related to match scouting, which 
+/// is all and assigned matches.
 class MatchesData {
   static List<MatchInfo> allParsedMatches = [];
   static List<MatchInfo> allAssignedMatches = [];

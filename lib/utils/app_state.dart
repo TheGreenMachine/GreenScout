@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:green_scout/main.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -25,7 +24,10 @@ var isDarkMode =
 
 Widget myPfp = const Icon(Icons.account_circle);
 
-///This always updates the match form achievement because that's all it's currently being used for.
+/// A wrapper class that handles the logic for updating and retrieving 
+/// boolean setting values.
+/// 
+/// NOTE: This always updates the match form achievement because that's all it's currently being used for. - Tag
 class BoolSettingOption {
   BoolSettingOption(
     this.optionStr,
@@ -44,6 +46,8 @@ class BoolSettingOption {
   }
 }
 
+/// A wrapper class that handles the logic for updating and retrieving 
+/// enum setting values.
 class EnumSettingOption<T> {
   EnumSettingOption(this.optionStr, T defaultValue,
       T Function(String) constructEnumFromString)
@@ -89,6 +93,12 @@ class Settings {
   }
 }
 
+/// The main class that stores everything related to the state of the program.
+/// 
+/// Which includes
+/// - Whether or not a connection to the server is available
+/// - The status of the latest response.
+/// - Storage for items like username, display name, uuids, etc...
 class App {
   static SharedPreferences? localStorage;
   static var internetOn = true;
@@ -105,6 +115,10 @@ class App {
   static bool get responseSucceeded {
     return responseStatus;
   }
+
+  // These are meant to make it easier to access stored
+  // data via the shared preferences api.
+  /* START OF SHARED PREFERENCE WRAPPERS */
 
   static Future<void> setStringList(String key, List<String> value) async {
     localStorage!.setStringList(key, value);
@@ -138,33 +152,43 @@ class App {
     return localStorage!.getInt(key);
   }
 
+  /* END OF SHARED PREFERENCE WRAPPERS */
+
+  /// A function meant to be called at the entry point of 
+  /// the program.
+  /// 
+  /// Initializes the shared preferences api for the app.
   static Future<void> start() async {
     localStorage = await SharedPreferences.getInstance();
   }
 
+  /// A wrapper function to easily navigate to another page/widget
+  /// in the app. 
+  /// 
+  /// How to use it:
+  /// ```dart
+  /// App.gotoPage(context, const SettingsPage());
+  /// 
+  /// // Additionally, you can make it add a back button for going
+  /// // back a page.
+  /// App.gotoPage(context, const SettingsPage(), canGoBack: true);
+  /// ```
   static void gotoPage(BuildContext context, Widget page,
       {bool canGoBack = false}) {
     final navigator = Navigator.of(context);
+    final route = NoAnimationMaterialPageRoute(
+      builder: (context) => page,
+    );
 
     if (canGoBack) {
-      navigator.push(
-        NoAnimationMaterialPageRoute(
-          builder: (context) => page,
-        ),
-      );
+      navigator.push(route);
+    } else {
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
 
-      return;
+      navigator.pushReplacement(route);
     }
-
-    if (navigator.canPop()) {
-      navigator.pop();
-    }
-
-    navigator.pushReplacement(
-      NoAnimationMaterialPageRoute(
-        builder: (context) => page,
-      ),
-    );
   }
 
   static void setPfp(Widget pfp) {
@@ -175,6 +199,34 @@ class App {
     return myPfp;
   }
 
+  /// A generic wrapper to make requesting items from the server
+  /// simpler.
+  /// 
+  /// It contains logic to ensure that if a request does fail,
+  /// we can report it back in several ways.
+  /// 
+  /// A real example of how'd you use it for a post request and using custom headers (found in `individual_admin_assign_matches.dart`):
+  /// ```dart
+  /// App.httpRequest(
+  ///   "/addSchedule",
+  ///   match.toJson(), 
+  ///   headers: {
+  ///     "userInput": 
+  ///     match.scouterName,
+  ///   },
+  /// );
+  /// ```
+  /// 
+  /// A real example of how'd you use it for a get request (found in `settings/debug_info.dart`):
+  /// ```dart
+  /// App.httpRequest(
+  ///   "generalInfo", 
+  ///   "", 
+  ///   onGet: (response) {
+  ///     // Logic related to getting general info...
+  ///   },
+  /// );
+  /// ```
   static Future<bool> httpRequest(
     String path,
     dynamic message, {
@@ -205,6 +257,8 @@ class App {
       body: message,
     )
         .then((response) {
+      // This is a case of where we successfully get something back
+      // but what is given is not valid for the app to use.
       if (response.statusCode == 500) {
         responseErr = "Encountered Invalid Status Code";
         log(responseErr);
@@ -230,11 +284,13 @@ class App {
       }
     }).catchError((error) {
       genericErr = error;
+
+      log("Path: $path");
       log(error.toString());
     });
 
-    // Logic: If there no error, that means we successfully
-    // sent a post request through the internet
+    // Logic: If there is no error, that means we successfully
+    // sent a request through the internet.
     internetOn = genericErr == null;
     responseStatus = responseErr == null;
 
@@ -266,6 +322,19 @@ class App {
         ));
   }
 
+  /// A simplified way to show a message to the user via the 
+  /// built-in snackbar.
+  /// 
+  /// An example of how this can be used:
+  /// ```dart
+  /// App.showMessage(context, "You've scouted 1000 matches!");
+  /// ```
+  /// Results in:
+  /// ```txt
+  /// -----------------------------------------------------
+  /// | You've scouted 1000 matches!                      |
+  /// -----------------------------------------------------
+  /// ```
   static void showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -319,6 +388,20 @@ class App {
     );
   }
 
+  /// Similar to `showMessage`, this function shows a message
+  /// and contains an additional button with it that can be 
+  /// programmed with a special action.
+  /// 
+  /// An example of how this could be used:
+  /// ```dart
+  /// App.promptAction(context, "Deleted Record", "(Undo?)", () => log("You undid the operation!"));
+  /// ```
+  /// Results in:
+  /// ```txt
+  /// -----------------------------------------------------
+  /// |  Deleted Record                         (Undo?)   |
+  /// -----------------------------------------------------
+  /// ```
   static void promptAction(BuildContext context, String message,
       String actionMessage, void Function() onPressed) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -353,6 +436,34 @@ class App {
     App.setString("Theme Mode", themeMode.name);
   }
 
+  /// A simple function for creating interactive prompts.
+  /// 
+  /// An example of how it could be used:
+  /// ```dart
+  /// App.promptAlert(
+  ///   context,
+  ///   "Would you like to save this match?",
+  ///   "By doing this, you understand that you'll be unable to edit it any further.",
+  ///   [
+  ///     ("No?", null), // defaults to cancelling and exiting the prompt box.
+  ///     ("Yes?", () { 
+  ///       // Do some logic here...
+  ///     }),
+  ///   ],
+  /// );
+  /// 
+  /// ```
+  /// Results in:
+  /// ```txt
+  /// -----------------------------------------------------
+  /// | Would you like to save this match?                |
+  /// |                                                   |
+  /// | By doing this, you understand that you'll be      |
+  /// | unable to edit it any further.                    |
+  /// |                                                   |
+  /// |                                       No?   Yes?  |
+  /// -----------------------------------------------------
+  /// ```
   static void promptAlert(BuildContext context, String title,
       String? mainMessage, List<(String, void Function()?)> actions) {
     void defaultAlertCancel() {

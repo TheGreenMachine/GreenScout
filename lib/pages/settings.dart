@@ -9,6 +9,8 @@ import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 
+/// A page that hosts buttons that redirect to other pages
+/// for things related to customization or debugging. 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 

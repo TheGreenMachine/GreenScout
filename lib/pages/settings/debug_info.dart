@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,14 @@ import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
-import 'package:http/http.dart' as http;
-
+/// An important page for displaying data related to the app.
+/// 
+/// It makes the life of us developers significantly easier.
+/// 
+/// Additionally, make sure that nobody runs the app in Incognito,
+/// we found that out the hard way. Because, when you do run the 
+/// app in that mode, the app won't store the data because it 
+/// leaves the cache of the browser once the page is left. 
 class SettingsDebugInfoPage extends StatefulWidget {
   const SettingsDebugInfoPage({super.key});
 

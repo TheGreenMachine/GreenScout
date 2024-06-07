@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// A wrapper widget to easily create a button that can have both
+/// an image and text at the same time.
 class FloatingButton extends StatefulWidget {
 	const FloatingButton({
 		super.key, 
@@ -58,12 +60,15 @@ class _FloatingButton extends State<FloatingButton> {
 			child: Column( 
 				mainAxisAlignment: MainAxisAlignment.center,
 				children: [
-					widget.labelText != null ? Text(
-						widget.labelText ?? "",
-						textAlign: TextAlign.center,
-						style: Theme.of(context).textTheme.labelMedium,
-					) : const Padding(padding: EdgeInsets.zero),
-					widget.icon ?? const Padding(padding: EdgeInsets.zero),
+					if (widget.labelText != null) 
+            Text(
+              widget.labelText ?? "",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          
+					if (widget.icon != null) 
+            widget.icon!,
 				],
 			),
 		);

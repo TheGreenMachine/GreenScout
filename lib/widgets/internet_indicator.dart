@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 
+/// A widget that's only purpose is to display an icon letting users know
+/// if there is problems connecting to the server.
 class InternetIndicator extends StatefulWidget {
   const InternetIndicator({super.key});
   

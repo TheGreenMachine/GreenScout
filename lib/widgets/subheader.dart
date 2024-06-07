@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A reusable widget for easily creating subheader or smaller text on a page.
 class SubheaderLabel extends StatelessWidget {
 	const SubheaderLabel(this.labelText, {super.key});
 

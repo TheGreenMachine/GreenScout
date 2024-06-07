@@ -6,12 +6,15 @@ import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/widgets/subheader.dart';
 
+/// A simple page to display photos of Ryan Mcgoff.
+/// 
+/// Probably made as a joke and for the fun of it.
 class PhotoGalleryPage extends StatelessWidget {
   const PhotoGalleryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final (width, widthPadding) =
+    final (_, widthPadding) =
         screenScaler(MediaQuery.of(context).size.width, 670, 0.95, 0.95);
 
     return Scaffold(

@@ -1,9 +1,9 @@
-import 'package:green_scout/pages/edit_users.dart';
-import 'package:green_scout/pages/event_change.dart';
+import 'package:green_scout/pages/admin/edit_users.dart';
+import 'package:green_scout/pages/admin/event_change.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/data_for_admins.dart';
-import 'package:green_scout/pages/group_admin_assign_matches.dart';
-import 'package:green_scout/pages/individual_admin_assign_matches.dart';
+import 'package:green_scout/pages/admin/group_admin_assign_matches.dart';
+import 'package:green_scout/pages/admin/individual_admin_assign_matches.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/floating_button.dart';
@@ -26,6 +26,10 @@ class MatchDisplayAdminData {
   final int driverStation;
 }
 
+/// The admin hub, known as the "Control Panel" in the app.
+/// 
+/// Contains a list of buttons that redirect to pages related
+/// to admin stuff... 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
@@ -109,7 +113,7 @@ class _AdminPage extends State<AdminPage> {
               color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
               onPressed: () {
                 App.gotoPage(context, const EditUsersAdminPage(),
-                    canGoBack: false);
+                    canGoBack: true);
               },
             ),
           ),

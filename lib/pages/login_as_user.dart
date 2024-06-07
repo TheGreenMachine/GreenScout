@@ -13,15 +13,22 @@ import "package:green_scout/utils/app_state.dart";
 
 import 'package:http/http.dart' as http;
 
+/// This is the main login page for users.
+/// 
+/// Initially I made this very rushed because we needed some way
+/// to authenticate who could actually use the app, but now
+/// that it's figured out on the backend, I feel the current frontend
+/// on this page is a little messy.
+/// 
+/// So, I'd say feel free to completely redo this page. - Michael.
+/// 
+/// P.S. Also have fun with the async code :)
 class LoginPageForUsers extends StatefulWidget {
   const LoginPageForUsers({super.key});
 
   @override
   State<LoginPageForUsers> createState() => _LoginPageForUsers();
 }
-
-// TODO: Redo this whole login screen.
-// It's sooooo bad....
 
 class _LoginPageForUsers extends State<LoginPageForUsers> {
   final _userController = TextEditingController();

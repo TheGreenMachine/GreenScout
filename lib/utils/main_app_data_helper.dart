@@ -5,15 +5,19 @@ import 'dart:developer';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/main.dart';
-import 'package:green_scout/pages/edit_users.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-/// A Helper Class That Centralizes All Data Integral
-/// For The App To Run.
+/// A helper class that simplifies accessing important data for the application.
+/// 
+/// It acts like a wrapper around the app state and provides a interface to the
+/// stored data within App's shared preferences.
+/// 
+/// Additionally, it contains logic related to maintaing match cache and achievement
+/// unlocking.
 class MainAppData {
   static const _scouterKey = "Scouter";
   static const _displayNameKey = "Display Name";

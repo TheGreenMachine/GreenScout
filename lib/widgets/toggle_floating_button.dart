@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/reference.dart';
 
+/// A reusable widget for creating a simple on/off switch style button. 
 class FloatingToggleButton extends StatefulWidget {
 	const FloatingToggleButton(
 		{

@@ -17,6 +17,18 @@ import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
+/// The main bread and butter of the app. 
+/// 
+/// This is where everything related to the actual scouting is stored.
+/// It's best to describe this as monolithic page that contains a whole toolset.
+/// 
+/// This page __will__ get updated overtime and as such, I'd recommend
+/// storing branches to the previous years versions. That way you can reference
+/// and take what you like UI-wise. 
+/// 
+/// I expect this part to have stuff ripped out when it makes sense to not have
+/// it anymore. So, feel free to absolutely demolish this and start from scrtach
+/// when it makes sense to. - Michael. 
 class MatchFormPage extends StatefulWidget {
   const MatchFormPage({
     super.key,
@@ -35,6 +47,8 @@ class MatchFormPage extends StatefulWidget {
   State<MatchFormPage> createState() => _MatchFormPage();
 }
 
+/// A simple enum to store the multiple
+/// locations where a team can shoot.
 enum CycleTimeLocation {
   amp,
   speaker,
@@ -59,6 +73,10 @@ enum CycleTimeLocation {
   }
 }
 
+/// A simple class to store data related to 
+/// a "cycle", which can be thought of as 
+/// "how long does it take to pick up and
+/// shoot a note."
 class CycleTimeInfo {
   CycleTimeInfo({
     this.time = 0.0,
@@ -72,7 +90,26 @@ class CycleTimeInfo {
 }
 
 class _MatchFormPage extends State<MatchFormPage> {
+  /// This will most likely never go away. Because I doubt
+  /// there won't be drivestations in the future.
   Reference<(bool, int)> driverStation = Reference((false, 1));
+
+  /* 
+  * I also highly doubt that the items below will be going away.
+  * Especially since they aren't really season specific.
+  */
+
+  Reference<bool> isReplay = Reference(false);
+  Reference<bool> isRescout = Reference(false);
+  Reference<String> matchNum = Reference("");
+  Reference<String> teamNum = Reference("");
+  String notes = "";
+
+  TextEditingController matchNumberController = TextEditingController();
+  TextEditingController teamNumberController = TextEditingController();
+  TextEditingController notesController = TextEditingController();
+
+  /* START OF SEASON SPECIFIC INFORMATION */
 
   Reference<bool> canClimbSuccessfully = Reference(false);
 
@@ -102,15 +139,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> scouterLostTrack = Reference(false);
   Reference<bool> disconnectOrDisabled = Reference(false);
 
-  TextEditingController matchNumberController = TextEditingController();
-  TextEditingController teamNumberController = TextEditingController();
-  TextEditingController notesController = TextEditingController();
-
-  Reference<bool> isReplay = Reference(false);
-  Reference<bool> isRescout = Reference(false);
-  Reference<String> matchNum = Reference("");
-  Reference<String> teamNum = Reference("");
-  String notes = "";
+  /* END OF SEASON SPECIFIC INFORMATION */
 
   @override
   void initState() {

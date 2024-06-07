@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/reference.dart';
 
+/// A widget that encapsulates reusable behavior for incrementing
+/// and decrementing a referenced number. 
+/// 
+/// NOTE: Mainly used in the pages/match_form.dart page, but is used 
+/// elsewhere since the logical was useful in other situations. - Michael
 class NumberCounterButton extends StatefulWidget {
   const NumberCounterButton({
     super.key,

@@ -11,6 +11,8 @@ import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+/// A page containg a list of buttons for redirecting the user 
+/// to extra content found inside or outside of the app.
 class ExtrasPage extends StatefulWidget {
   const ExtrasPage({super.key});
 
@@ -35,21 +37,29 @@ class _ExtrasPage extends State<ExtrasPage> {
         actions: createDefaultActionBar(),
       ),
       drawer: const NavigationLayoutDrawer(),
-      body: ListView(
-        children: [
-          const Padding(padding: EdgeInsets.all(4)),
-          const HeaderLabel("Extras"),
-          if (MainAppData.isTeamVerified) buildSpreadsheetRedirect(context),
-          if (AchievementManager.nazHighlightsUnlocked.value)
-            buildRedirectButton(context, Image.asset("assets/extras/naz.png"),
-                "Naz Reid highlights", naz),
-          if (AchievementManager.rudyHighlightsUnlocked.value)
-            buildRedirectButton(context, Image.asset("assets/extras/rudy.png"),
-                "Rudy Gobert highlights", rudy),
-          if (AchievementManager.routerGalleryUnlocked.value)
-            buildNavigationButton(context, Icons.camera_alt,
-                "Ryan McGoff Photo Gallery", const PhotoGalleryPage())
-        ],
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: widthPadding),
+
+        child: SizedBox(
+          width: width,
+
+          child: ListView(
+            children: [
+              const Padding(padding: EdgeInsets.all(4)),
+              const HeaderLabel("Extras"),
+              if (MainAppData.isTeamVerified) buildSpreadsheetRedirect(context),
+              if (AchievementManager.nazHighlightsUnlocked.value)
+                buildRedirectButton(context, Image.asset("assets/extras/naz.png"),
+                    "Naz Reid highlights", naz),
+              if (AchievementManager.rudyHighlightsUnlocked.value)
+                buildRedirectButton(context, Image.asset("assets/extras/rudy.png"),
+                    "Rudy Gobert highlights", rudy),
+              if (AchievementManager.routerGalleryUnlocked.value)
+                buildNavigationButton(context, Icons.camera_alt,
+                    "Ryan McGoff Photo Gallery", const PhotoGalleryPage())
+            ],
+          ),
+        ),
       ),
     );
   }

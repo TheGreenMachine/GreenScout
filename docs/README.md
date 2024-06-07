@@ -2,3 +2,4 @@ This folder contains additional documentation for understanding the codebase and
 
 You should check out:
 - [Explaining The Codebase Structure](./codebase_structure.md)
+- [Advice For Users](./things_to_advise_users_about.md)

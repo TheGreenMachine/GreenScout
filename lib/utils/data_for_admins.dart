@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:green_scout/pages/edit_users.dart';
+import 'package:green_scout/pages/admin/edit_users.dart';
 import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// A class that pulls and updates data related to admin activities.
 class AdminData {
   static const noActiveUserSelected =
       "[[CURRENTLY NO ACTIVE USER IS SELECTED AT THIS MOMENT]]";

@@ -3,10 +3,15 @@ import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
 import 'package:green_scout/utils/reference.dart';
 
-const cheat =
-    false; //This is literally only here so i don't have an anyeurism while developing
+/// This is useful for debugging and testing the achievements manager when you need
+/// to add new badges and achievements. 
+const cheat = false;
 
-//Why are these maps? No idea. I'm sure I had a good reason for it though. It could probably be done better as an enum, but i don't care enough.
+/// The achievemnt manager.
+/// 
+/// It's a global class that holds onto state regarding achievements and bagdes.
+/// 
+/// That's it.
 class AchievementManager {
   static bool isCheating() {
     return cheat;
@@ -259,6 +264,10 @@ class AchievementManager {
 
   static List<Achievement> allAchievements() {
     return achievements + leaderboardBadges + silentBadges;
+  }
+
+  static List<Achievement> allBadges() {
+    return leaderboardBadges + silentBadges;
   }
 
   static void syncAchievements(

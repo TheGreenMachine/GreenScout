@@ -12,6 +12,15 @@ import 'package:green_scout/widgets/subheader.dart';
 
 import '../utils/matches_data.dart';
 
+/// The home page!
+/// 
+/// It's essentially a page that holds a load of redirects for
+/// the users. 
+/// 
+/// NOTE: I feel that the home page compared to the rest of the 
+/// app has been lacking behind in terms of frontend UI. I think
+/// it'd be cool if anyone would be willing to redo the page
+/// and make it look nicer. - Michael.
 class HomePage extends StatefulWidget {
   const HomePage({
     super.key,

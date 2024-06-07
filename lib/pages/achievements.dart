@@ -10,6 +10,11 @@ import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
+/// The achievements page!
+/// 
+/// This place is just a fun little page to display acheivements
+/// and badges. It's also to help encourage our users to really
+/// use the app by making it a little like a game. - Michael.
 class AchievementsPage extends StatefulWidget {
   const AchievementsPage({super.key});
 

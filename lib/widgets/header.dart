@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A reusable widget for easily creating header text on a page.
 class HeaderLabel extends StatelessWidget {
 	const HeaderLabel(this.labelText, {super.key, this.bold=false});
 

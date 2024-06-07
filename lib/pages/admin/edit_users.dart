@@ -11,10 +11,12 @@ import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Admin page that hosts an interface for
+/// admins to modify user content like display names,
+/// profile pictures and more...
 class EditUsersAdminPage extends StatefulWidget {
   const EditUsersAdminPage({super.key});
 
@@ -22,7 +24,8 @@ class EditUsersAdminPage extends StatefulWidget {
   State<EditUsersAdminPage> createState() => _EditUsersAdminPage();
 }
 
-///!!! We never frontend-implemented custom descriptions for badges. They exist on the backend, so if you want, future devs can implement it !!!///
+// TODO, this might be an interesing challenge for future devs:
+///!!! We never frontend-implemented custom descriptions for badges. They exist on the backend, so if you want, future devs can implement it !!! - Tag///
 
 class UserInfo {
   final String username;
@@ -88,7 +91,6 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
 
   Image customImage = Image.asset("nuh uh");
 
-  // Need some way to initialize this data.
   final badgesSelected = List.filled(
       AchievementManager.leaderboardBadges.length +
           AchievementManager.silentBadges.length,
@@ -132,72 +134,105 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 bool success = false;
 
+                // Hack to get async code to execute in a
+                // synchronous scope.
                 () async {
+                  /// A quick little function to make the pattern of
+                  /// doing something and reporting it centralized.
+                  /// 
+                  /// This is also so we can ensure that context never goes
+                  /// invalid and make code look nicer too.
+                  void doActionAndReport(
+                    void Function() action,
+                    String successfulMessage,
+                    String failureMessage,
+                  ) {
+                    if (success) {
+                      action();
+                    }
+
+                    // This guarding clause ensures the app doesn't crash when 
+                    // you leave the page before the message pops up.
+                    if (context.mounted) {
+                      App.showMessage(
+                        context, 
+                        success
+                        ? successfulMessage
+                        : failureMessage,
+                      );
+                    }
+                  }
+
                   if (info.selectedColor.value.index != info.startingColor) {
                     success = await AdminData.updateLeaderboardColor(
-                        Settings.selectedLeaderboardColor.ref.value, info);
+                      Settings.selectedLeaderboardColor.ref.value, 
+                      info,
+                    );
 
-                    if (success) {
-                      info.startingColor = info.selectedColor.value.index;
-                      App.showMessage(context,
-                          "Successfully updated leaderboard color of ${info.username} to ${Settings.selectedLeaderboardColor.ref.value.name}");
-                    } else {
-                      App.showMessage(context, "Unable to update color");
-                    }
+                    doActionAndReport(
+                      () => info.startingColor = info.selectedColor.value.index, 
+                      "Successfully updated leaderboard color of ${info.username} to ${Settings.selectedLeaderboardColor.ref.value.name}", 
+                      "Unable to update color",
+                    );
                   }
 
                   if (info.displayName.value != info.startingDisplayName) {
                     success = await AdminData.updateDisplayName(
                         info.displayName.value, info);
 
-                    if (success) {
-                      info.startingDisplayName = info.displayName.value;
-                      App.showMessage(context,
-                          "Successfully updated display name of ${info.username} to ${info.displayName.value}");
-                    } else {
-                      App.showMessage(context, "Unable to update display name");
-                    }
+                    doActionAndReport(
+                      () => info.startingDisplayName = info.displayName.value, 
+                      "Successfully updated display name of ${info.username} to ${info.displayName.value}", 
+                      "Unable to update display name",
+                    );
                   }
 
                   if (info.hasChangedImage && info.xCustomImage != null) {
-                    success =
-                        await AdminData.updateUserPfp(info.xCustomImage!, info);
+                    success = await AdminData.updateUserPfp(
+                      info.xCustomImage!, 
+                      info,
+                    );
 
-                    if (success) {
-                      App.showMessage(context,
-                          "Successfully updated pfp of ${info.username}");
-                    } else {
-                      App.showMessage(context, "Unable to update pfp");
-                    }
+                    doActionAndReport(
+                      () {}, // do nothing.
+                      "Successfully updated pfp of ${info.username}", 
+                      "Unable to update pfp",
+                    );
                   }
+
                   if (!listEquals(info.currentBadges, info.originalBadges)) {
-                    List<String> jsonToSend = [];
-                    for (var badge in info.currentBadges) {
-                      jsonToSend.add(
-                          EncodableBadge(id: badge, description: badge)
-                              .toString());
-                    }
+                    // Transforms the currentBadges list into a list of encodeable badges.
+                    // Might be a little too terse.
+                    final jsonToSend = info.currentBadges.map(
+                      (badge) => EncodableBadge(id: badge, description: badge),
+                    ).toList();
 
                     success = await App.httpRequest(
-                        "/badgeConfig", jsonToSend.toString(),
-                        headers: {"username": info.username});
+                      "/badgeConfig", 
+                      jsonToSend.toString(),
+                      headers: {
+                        "username": info.username,
+                      },
+                    );
 
-                    if (success) {
-                      info.originalBadges = List.from(info.currentBadges);
-                      App.showMessage(context,
-                          "Successfully updated badges of ${info.username}");
-                    } else {
-                      App.showMessage(context, "Unable to update badges");
-                    }
+                    doActionAndReport(
+                      // Copies the list content and makes a new object.
+                      () => info.originalBadges = List.from(info.currentBadges), 
+
+                      "Successfully updated badges of ${info.username}", 
+                      "Unable to update badges",
+                    );
                   }
                 }();
               },
               child: const Text("Submit"),
             ),
           ),
+
+          const Padding(padding: EdgeInsets.all(4)),
         ],
       ),
     );
@@ -213,7 +248,6 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: createEmptyActionBar(),
       ),
-      drawer: const NavigationLayoutDrawer(),
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {});
@@ -239,32 +273,20 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                 menuMaxHeight: 175,
                 changeOnNewValue: true,
                 onChanged: () async {
-                  currentUserInfo =
-                      await AdminData.adminGetUserInfo(currentUser.value);
-                  displayNameController.text =
-                      currentUserInfo.displayName.value;
+                  currentUserInfo = await AdminData.adminGetUserInfo(currentUser.value);
+                  
+                  displayNameController.text = currentUserInfo.displayName.value;
 
-                  badgesSelected.fillRange(0, badgesSelected.length, false);
-                  for (var i = 0;
-                      i <
-                          AchievementManager.leaderboardBadges.length +
-                              AchievementManager.silentBadges.length;
-                      i++) {
-                    if (i < AchievementManager.leaderboardBadges.length) {
-                      if (currentUserInfo.currentBadges.contains(
-                          AchievementManager.leaderboardBadges
-                              .elementAt(i)
-                              .name)) {
-                        badgesSelected[i] = true;
-                      }
-                    } else if (currentUserInfo.currentBadges.contains(
-                        AchievementManager
-                            .silentBadges[
-                                i - AchievementManager.leaderboardBadges.length]
-                            .name)) {
-                      badgesSelected[i] = true;
-                    }
+                  // Updates the selected badges based off of 
+                  // what badges are currently equiped internally.
+                  final allBadges = AchievementManager.allBadges();
+
+                  for (final (index, badge) in allBadges.indexed) {
+                    final hasIt = currentUserInfo.currentBadges.contains(badge.name);
+
+                    badgesSelected[index] = hasIt;
                   }
+
                   setState(() {});
                 },
               ),
@@ -336,21 +358,22 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
             ),
           ),
           InkWell(
-              onTap: () async {
-                final ImagePicker picker = ImagePicker();
-                final XFile? xFile = await picker.pickImage(
-                    source: ImageSource.gallery, maxHeight: 512, maxWidth: 512);
-                if (xFile != null) {
-                  customImage = Image.memory(
-                    await xFile.readAsBytes(),
-                  );
-                  info.xCustomImage = xFile;
-                  currentUserInfo.hasChangedImage = true;
-                  info.pfp = customImage;
-                  setState(() {});
-                }
-              },
-              child: Ink(width: width * 0.25, child: info.pfp))
+            onTap: () async {
+              final ImagePicker picker = ImagePicker();
+              final XFile? xFile = await picker.pickImage(
+                  source: ImageSource.gallery, maxHeight: 512, maxWidth: 512);
+              if (xFile != null) {
+                customImage = Image.memory(
+                  await xFile.readAsBytes(),
+                );
+                info.xCustomImage = xFile;
+                currentUserInfo.hasChangedImage = true;
+                info.pfp = customImage;
+                setState(() {});
+              }
+            },
+            child: Ink(width: width * 0.25, child: info.pfp),
+          ),
         ],
       ),
     );
@@ -395,10 +418,9 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
   }
 
   Widget buildBadgesView(double width, double widthPadding) {
-    List<Widget> buildBadgeList2() {
+    List<Widget> buildBadgeList() {
       final result = <Widget>[];
-      final badges = AchievementManager.leaderboardBadges +
-          AchievementManager.silentBadges;
+      final badges = AchievementManager.allBadges();
 
       for (final (index, badge) in badges.indexed) {
         result.add(
@@ -411,6 +433,10 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
                 },
                 onTap: () {
                   badgesSelected[index] = !badgesSelected[index];
+                  
+                  // Updating all current badges every single time might
+                  // be wasteful. Maybe come up with some other way of
+                  // doing this?
                   updateCurrentUserBadges();
                   setState(() {});
                 },
@@ -501,89 +527,27 @@ class _EditUsersAdminPage extends State<EditUsersAdminPage> {
       alignment: WrapAlignment.center,
       spacing: 5,
       runSpacing: 5,
-      children: buildBadgeList2(),
+      children: buildBadgeList(),
     );
   }
 
-  List<Widget> buildBadgeList(List<Achievement> badges, double width) {
-    List<Widget> toReturn = [];
-    for (var badge in badges) {
-      toReturn.add(
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: width / 10,
-            minWidth: width / 10,
-          ),
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              color: App.getThemeMode() == Brightness.light
-                  ? Colors.grey.shade100
-                  : Colors.grey.shade600,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: badge.badge,
-                  ),
-                  const Padding(padding: EdgeInsets.all(4)),
-                  Text(
-                    badge.description,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-    return toReturn;
-  }
-
   void updateCurrentUserBadges() {
-    for (var i = 0; i < badgesSelected.length; i++) {
-      if (badgesSelected[i]) {
-        if (i < AchievementManager.leaderboardBadges.length) {
-          if (!currentUserInfo.currentBadges.contains(
-              AchievementManager.leaderboardBadges.elementAt(i).name)) {
-            currentUserInfo.currentBadges
-                .add(AchievementManager.leaderboardBadges.elementAt(i).name);
-          }
-        } else if (!currentUserInfo.currentBadges.contains(AchievementManager
-            .silentBadges
-            .elementAt(i - AchievementManager.leaderboardBadges.length)
-            .name)) {
-          currentUserInfo.currentBadges.add(AchievementManager.silentBadges
-              .elementAt(i - AchievementManager.leaderboardBadges.length)
-              .name);
-        }
-      } else {
-        if (i < AchievementManager.leaderboardBadges.length) {
-          if (currentUserInfo.currentBadges.contains(
-              AchievementManager.leaderboardBadges.elementAt(i).name)) {
-            currentUserInfo.currentBadges
-                .remove(AchievementManager.leaderboardBadges.elementAt(i).name);
-          }
-        } else if (currentUserInfo.currentBadges.contains(AchievementManager
-            .silentBadges
-            .elementAt(i - AchievementManager.leaderboardBadges.length)
-            .name)) {
-          currentUserInfo.currentBadges.remove(AchievementManager.silentBadges
-              .elementAt(i - AchievementManager.leaderboardBadges.length)
-              .name);
-        }
+    // Probably should cache this value elsewhere...
+    // Or maybe the compiler will optimize this out?
+    final allBadges = AchievementManager.allBadges();
+
+    for (final (index, badgeSelected) in badgesSelected.indexed) {
+      final badgeName = allBadges[index].name;
+      final hasIt = currentUserInfo.currentBadges.contains(badgeName);
+      
+      // Add it if it's not already there.
+      if (!hasIt && badgeSelected) {
+        currentUserInfo.currentBadges.add(badgeName);
+      } 
+
+      // Remove it if it's already there.
+      if (hasIt && !badgeSelected) {
+        currentUserInfo.currentBadges.remove(badgeName);
       }
     }
   }

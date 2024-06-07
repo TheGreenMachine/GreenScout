@@ -3,14 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/utils/general_utils.dart';
-import 'package:green_scout/widgets/circularIndicatorButton.dart';
-import 'package:green_scout/widgets/header.dart';
+import 'package:green_scout/widgets/circular_indicator_button.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-// I'm bad at design someone please make this better
-// -Tag
-
+/// A page dedicated to listing people that helped
+/// contribute to the app or the team in some way.
+/// 
+/// It's essentially used as a page for showing
+/// appreciation to those people by allowing others
+/// to see their achievements. 
 class HallOfFamePage extends StatefulWidget {
   const HallOfFamePage({super.key});
 
@@ -30,8 +32,8 @@ class HOFEntry {
       this.imagePath);
 }
 
-//The UI is pretty much copied wholesale from https://gist.githubusercontent.com/adarshchauhan095/f7ed128ad7c489a1ad1c4e66520db0c7/raw/c2106d190becd4159cbf66378726e01229a3ead2/main.dart
-//bcs i'm a bum - Tag
+/// The UI is pretty much copied wholesale from https://gist.githubusercontent.com/adarshchauhan095/f7ed128ad7c489a1ad1c4e66520db0c7/raw/c2106d190becd4159cbf66378726e01229a3ead2/main.dart
+/// bcs i'm a bum - Tag
 class _HOFPage extends State<HallOfFamePage> {
   @override
   void initState() {
@@ -87,7 +89,7 @@ class _HOFPage extends State<HallOfFamePage> {
       //This used to say "500+ commits, 100k+ lines of code" but i thought that sounded too braggy, same with "I thought it'd be bad when nico and keerthi left, but look at us, we've got 2000 autos" from venna @ duluth 2024
       //Feel free to change this one since i'm bad at talking about myself
       //-Tag
-      '"I had to tell this man to eat his Jimmy Johns instead of coding" -Michael P, 2024',
+      '"I had to tell this man to eat his Jimmy Johns instead of coding" -Michael P, 2024', // Yeah, this might not be the best qoute, feel free to choose John - Michael.
       "assets/hof/tag.png",
     )
   ];
