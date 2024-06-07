@@ -56,6 +56,11 @@ Make sure to set serverHostName in app_state.dart to the address of the actual s
   
   * Pit Scouting - Already implemented on the backend
 
+  * Videos
+    * Link to the video of a specified match to make rescouting easier
+    * Stream/link to stream of the event
+    * Stream timberwolves games
+
 # Contributers
 
 - [Michael P](https://github.com/mp768)
