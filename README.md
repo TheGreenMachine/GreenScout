@@ -49,10 +49,12 @@ Make sure to set serverHostName in app_state.dart to the address of the actual s
   * Admin Features
     * Impersonation of other users.
     * Removing assigned matches from users. (Mutable schedules - talk to Lydia for specifics of what she wants)
+    * Public shaming (requested by Lydia)
 
   * Settings
     * Match Form Builder 
     * More menus for customizing the app further.
+    * Theme changing
   
   * Pit Scouting - Already implemented on the backend
 
