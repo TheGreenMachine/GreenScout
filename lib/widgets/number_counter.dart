@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/reference.dart';
+import 'package:green_scout/utils/hue_shift.dart';
 
 /// A widget that encapsulates reusable behavior for incrementing
 /// and decrementing a referenced number. 
@@ -46,19 +47,19 @@ class _NumberCounterButton extends State<NumberCounterButton> {
       height: 35,
       child: TextButton(
         style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(
+          textStyle: WidgetStateProperty.all(
             Theme.of(context).textTheme.labelLarge,
           ),
 
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return Theme.of(context).colorScheme.primary;
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return Theme.of(context).colorScheme.primary; //leonTODO
             }
 
             return Theme.of(context).colorScheme.inversePrimary;
           }),
 
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(buttonRadius),
             ),
@@ -86,19 +87,20 @@ class _NumberCounterButton extends State<NumberCounterButton> {
       height: 35,
       child: TextButton(
         style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(
+          textStyle: WidgetStateProperty.all(
             Theme.of(context).textTheme.titleLarge,
           ),
 
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return Theme.of(context).colorScheme.primary.withRed(255);
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            var temp = Theme.of(context).colorScheme.primary;
+            if (states.contains(WidgetState.pressed)) {
+              return hueShift(temp,10);
             }
-
-            return Theme.of(context).colorScheme.inversePrimary.withRed(255);
+            temp = Theme.of(context).colorScheme.inversePrimary;
+            return hueShift(temp,10);
           }),
 
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(buttonRadius),
             ),

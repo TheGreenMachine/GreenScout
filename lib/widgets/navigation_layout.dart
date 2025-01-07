@@ -9,6 +9,7 @@ import 'package:green_scout/pages/leaderboard.dart';
 import 'package:green_scout/pages/login_as_user.dart';
 import 'package:flutter/material.dart';
 import 'package:green_scout/pages/match_form.dart';
+import 'package:green_scout/pages/pit_scouting.dart';
 import 'package:green_scout/pages/settings.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -81,6 +82,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     context, Icons.home, "Home", const HomePage()),
                 buildNavigationButton(
                     context, Icons.create, "Match Form", const MatchFormPage()),
+                buildNavigationButton(
+                    context, Icons.edit_document, "Pit Scouting", const PitScoutingPage()),
                 buildNavigationButton(context, Icons.leaderboard,
                     "Leaderboards", const LeaderboardPage()),
                 buildNavigationButton(context, Icons.emoji_events_sharp,

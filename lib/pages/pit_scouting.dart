@@ -29,45 +29,39 @@ import 'package:green_scout/widgets/toggle_floating_button.dart';
 /// I expect this part to have stuff ripped out when it makes sense to not have
 /// it anymore. So, feel free to absolutely demolish this and start from scrtach
 /// when it makes sense to. - Michael. 
-class MatchFormPage extends StatefulWidget {
-  const MatchFormPage({
+class PitScoutingPage extends StatefulWidget {
+  const PitScoutingPage({
     super.key,
-    this.matchNum,
     this.teamNum,
     this.isBlue,
-    this.driverNumber,
+    this.autoNumber,
   });
 
-  final String? matchNum;
   final String? teamNum;
   final bool? isBlue;
-  final int? driverNumber;
+  final int? autoNumber;
 
   @override
-  State<MatchFormPage> createState() => _MatchFormPage();
+  State<PitScoutingPage> createState() => _PitScoutingPage();
 }
 
 /// A simple enum to store the multiple
 /// locations where a team can shoot.
 enum CycleTimeLocation {
-  coralL1,
-  coralL2,
-  coralL3,
-  coralL4,
-  processor,
+  amp,
+  speaker,
   shuttle,
+  distance,
 
   none;
 
   @override
   String toString() {
     return switch (this) {
-      coralL1 => "Trough/Coral Level 1",
-      coralL2 => "Coral Level 2",
-      coralL3 => "Coral Level 3",
-      coralL4 => "Coral Level 4",
-      processor => "Processor",
+      amp => "Amp",
+      speaker => "Speaker",
       shuttle => "Shuttle",
+      distance => "Distance",
       none => "None",
 
       // This is left just in case we need to add something new...
@@ -93,10 +87,10 @@ class CycleTimeInfo {
   CycleTimeLocation location;
 }
 
-class _MatchFormPage extends State<MatchFormPage> {
+class _PitScoutingPage extends State<PitScoutingPage> {
   /// This will most likely never go away. Because I doubt
   /// there won't be drivestations in the future.
-  Reference<(bool, int)> driverStation = Reference((false, 1));
+  Reference<int> autoNumber = Reference(1);
 
   /* 
   * I also highly doubt that the items below will be going away.
@@ -105,7 +99,7 @@ class _MatchFormPage extends State<MatchFormPage> {
 
   Reference<bool> isReplay = Reference(false);
   Reference<bool> isRescout = Reference(false);
-  Reference<String> matchNum = Reference("");
+  Reference<bool> driveTrainType = Reference(false);
   Reference<String> teamNum = Reference("");
   String notes = "";
 
@@ -116,7 +110,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   /* START OF SEASON SPECIFIC INFORMATION */
 
   Reference<bool> canClimbSuccessfully = Reference(false);
-  Reference<bool> canParkSuccessfully = Reference(false);
 
   Reference<bool> canDoAuto = Reference(false);
   Reference<int> autoScores = Reference(0);
@@ -131,17 +124,16 @@ class _MatchFormPage extends State<MatchFormPage> {
   bool cycleTimerActive = false;
   List<CycleTimeInfo> cycles = [];
 
+  Reference<bool> shootingPositionMiddle = Reference(false);
+  Reference<bool> shootingPositionSides = Reference(false);
+
   Reference<bool> pickupGround = Reference(false);
   Reference<bool> pickupSource = Reference(false);
 
-  Reference<int> netScores = Reference(0);
-  Reference<int> netMisses = Reference(0);
-  Reference<int> netPScores = Reference(0);
-  Reference<int> netPMisses = Reference(0);
+  Reference<int> trapScores = Reference(0);
+  Reference<int> trapMisses = Reference(0);
 
-  Reference<String> parkStatus = Reference("");
   Reference<bool> endgamePark = Reference(false);
-
   Reference<bool> scouterLostTrack = Reference(false);
   Reference<bool> disconnectOrDisabled = Reference(false);
 
@@ -151,10 +143,9 @@ class _MatchFormPage extends State<MatchFormPage> {
   void initState() {
     super.initState();
 
-    matchNum.value = widget.matchNum ?? "0";
     teamNum.value = widget.teamNum ?? "0";
 
-    driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? 1);
+    autoNumber.value = (-1);
   }
 
   @override
@@ -169,18 +160,11 @@ class _MatchFormPage extends State<MatchFormPage> {
       endCycleStopwatch();
     }
 
-    matchNumberController.text = matchNum.value;
     teamNumberController.text = teamNum.value;
     notesController.text = notes;
 
     Widget mainContent = buildMainContent(context);
-    Widget navigationRail = buildNavigationRail(context);
 
-    Widget leftWidget =
-        Settings.sideBarLeftSided.value() ? navigationRail : mainContent;
-
-    Widget rightWidget =
-        Settings.sideBarLeftSided.value() ? mainContent : navigationRail;
 
     return Scaffold(
       appBar: AppBar(
@@ -190,12 +174,7 @@ class _MatchFormPage extends State<MatchFormPage> {
       drawer: const NavigationLayoutDrawer(),
       body: Row(
         children: [
-          leftWidget,
-          const VerticalDivider(
-            width: 0.1,
-            thickness: 0,
-          ),
-          rightWidget,
+          mainContent
         ],
       ),
     );
@@ -269,39 +248,15 @@ class _MatchFormPage extends State<MatchFormPage> {
             color: cycleTimerActive ? Colors.blue.shade600 : null,
           ),
           disabled: !cycleTimerActive,
-          label: const Text("Trough"),
-        ),
-                NavigationRailDestination(
-          icon: Icon(
-            Icons.density_large,
-            color: cycleTimerActive ? Colors.blue.shade600 : null,
-          ),
-          disabled: !cycleTimerActive,
-          label: const Text("Coral L2"),
-        ),
-                NavigationRailDestination(
-          icon: Icon(
-            Icons.density_medium,
-            color: cycleTimerActive ? Colors.blue.shade600 : null,
-          ),
-          disabled: !cycleTimerActive,
-          label: const Text("Coral L3"),
-        ),
-                NavigationRailDestination(
-          icon: Icon(
-            Icons.density_small,
-            color: cycleTimerActive ? Colors.blue.shade600 : null,
-          ),
-          disabled: !cycleTimerActive,
-          label: const Text("Coral L4"),
+          label: const Text("Amp"),
         ),
         NavigationRailDestination(
           icon: Icon(
-            Icons.archive_outlined,
+            Icons.speaker,
             color: cycleTimerActive ? Colors.blue.shade600 : null,
           ),
           disabled: !cycleTimerActive,
-          label: const Text("Processor"),
+          label: const Text("Speaker"),
         ),
         NavigationRailDestination(
           icon: Icon(
@@ -310,6 +265,14 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
           disabled: !cycleTimerActive,
           label: const Text("Shuttle"),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.social_distance,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Distance"),
         ),
         NavigationRailDestination(
           icon: climberTimerIcon,
@@ -332,8 +295,6 @@ class _MatchFormPage extends State<MatchFormPage> {
             case 2:
             case 3:
             case 4:
-            case 5:
-            case 6:   
               cycles.add(
                 CycleTimeInfo(
                   time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
@@ -341,12 +302,10 @@ class _MatchFormPage extends State<MatchFormPage> {
 
                   // Make sure to update this when modifying the previous cases above.
                   location: switch (index) {
-                    1 => CycleTimeLocation.coralL1,
-                    2 => CycleTimeLocation.coralL2,
-                    3 => CycleTimeLocation.coralL3,
-                    4 => CycleTimeLocation.coralL4,
-                    5 => CycleTimeLocation.processor,
-                    6 => CycleTimeLocation.shuttle,
+                    1 => CycleTimeLocation.amp,
+                    2 => CycleTimeLocation.speaker,
+                    3 => CycleTimeLocation.shuttle,
+                    4 => CycleTimeLocation.distance,
                     _ => CycleTimeLocation.none,
                   },
                 ),
@@ -355,7 +314,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               break;
 
             // Climbing timer index. Make sure to update when moving around stuff!
-            case 7:
+            case 5:
               climbingTimerActive = !climbingTimerActive;
               break;
           }
@@ -367,7 +326,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   Widget buildMainContent(BuildContext context) {
     const widthRatio = 0.85;
 
-    final width = MediaQuery.of(context).size.width * widthRatio;
     final widthPadding =
         MediaQuery.of(context).size.width * (1.0 - widthRatio) / 2;
 
@@ -375,15 +333,6 @@ class _MatchFormPage extends State<MatchFormPage> {
       child: ListView(
         children: [
           const Padding(padding: EdgeInsets.all(8)),
-
-          buildTextNumberContainer(
-            context,
-            widthPadding,
-            3,
-            "Match #",
-            matchNum,
-            matchNumberController,
-          ),
 
           const Padding(padding: EdgeInsets.all(5)),
 
@@ -395,75 +344,40 @@ class _MatchFormPage extends State<MatchFormPage> {
             teamNum,
             teamNumberController,
           ),
-
           const Padding(padding: EdgeInsets.all(5)),
 
-          createLabelAndDropdown<(bool, int)>(
-            "Driver Station",
+          const SubheaderLabel("Autos"),
+
+          createLabelAndDropdown<int>(
+            "Number of Autos",
             {
-              "Red 1": (false, 1),
-              "Red 2": (false, 2),
-              "Red 3": (false, 3),
-              "Blue 1": (true, 1),
-              "Blue 2": (true, 2),
-              "Blue 3": (true, 3),
+              "None": -1,
+              "1-3": 1,
+              "3-6": 2,
+              "7-10": 3,
+              "11-15": 4,
+              "16-25": 4,
+              "26+": 5,
             },
-            driverStation,
-            (false, 1),
+            autoNumber,
+            -1,
           ),
+          const Padding(padding: EdgeInsets.all(11)),
 
-          const Padding(padding: EdgeInsets.all(5)),
-
-          // This is to allow an out for the ios users out there.
-          defaultTargetPlatform == TargetPlatform.iOS
+          createLabelAndDropdown<bool>(
+            "Drive Train Type",
+            {
+              "Swerve Drive": true,
+              "Tank Drive" : false,
+            },
+            driveTrainType,
+            false,
+          ),
+                    defaultTargetPlatform == TargetPlatform.iOS
               ? buildSaveButton(context, widthPadding)
               : const Padding(
                   padding: EdgeInsets.zero,
-                ),
-
-          const Padding(padding: EdgeInsets.all(8)),
-
-          const SubheaderLabel("Auto Mode"),
-
-          createLabelAndCheckBox("Can Do It?", canDoAuto),
-          createLabelAndNumberField("Scores", autoScores),
-          createLabelAndNumberField("Misses", autoMisses),
-          createLabelAndNumberField("Ejects", autoEjects),
-
-          const Padding(padding: EdgeInsets.all(5)),
-
-          const Padding(padding: EdgeInsets.all(5)),
-
-          ExpansionTile(
-            title: Text(
-              "Cycles",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            iconColor: App.getThemeMode() == Brightness.dark
-            ? Colors.grey.shade800 : Colors.grey.shade800 ,
-            children: [
-              SizedBox(
-                width: width,
-                height: MediaQuery.of(context).size.height * 0.25,
-                child: ListView.builder(
-                  itemBuilder: (context, index) =>
-                      buildCycleTile(context, index),
-                  itemCount: cycles.length,
-                ),
-              ),
-            ],
-          ),
-
-
-          const Padding(padding: EdgeInsets.all(11)),
-
-          const SubheaderLabel("Net"),
-
-          createLabelAndNumberField("Scores", netScores),
-          createLabelAndNumberField("Misses", netMisses),
-          createLabelAndNumberField("Player Scores", netPScores),
-          createLabelAndNumberField("Player Misses", netPMisses),
+          ),  // This is to allow an out for the ios users out there.
 
           const Padding(padding: EdgeInsets.all(10)),
 
@@ -474,57 +388,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           const Padding(padding: EdgeInsets.all(10)),
 
-          const SubheaderLabel("Climbing"),
-
-          Text(
-            "${climbingTime.toStringAsPrecision(3)} secs",
-            style: Theme.of(context).textTheme.labelLarge,
-            textAlign: TextAlign.center,
-          ),
-
-          const Padding(padding: EdgeInsets.all(10)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: widthPadding),
-            child: FloatingActionButton(
-              elevation: 0.0,
-              focusElevation: 0.0,
-              disabledElevation: 0.0,
-              hoverElevation: 0.0,
-              highlightElevation: 0.0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(1)),
-              onPressed: () {
-                App.promptAlert(
-                  context,
-                  "Reset Climbing Time?",
-                  "Are you Sure?",
-                  [
-                    (
-                      "Yes",
-                      () {
-                        setState(() => climbingTime = 0.0);
-                        climbingStopwatch.reset();
-                        Navigator.of(context).pop();
-                        App.showMessage(context, "Reset Climbing Time");
-                      }
-                    ),
-                    ("No", null),
-                  ],
-                );
-              },
-              child: const Text("Reset Time"),
-            ),
-          ),
-
-          const Padding(padding: EdgeInsets.all(10)),
-
-          const SubheaderLabel("Endgame"),
-
-          createLabelAndCheckBox("Attempted to Climb? (And Succeeded)", canClimbSuccessfully),
-          createLabelAndCheckBox("Attempted to Park? (And Succeeded)", canParkSuccessfully),
-          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
-
           const SubheaderLabel("Misc."),
+
+          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
 
           createLabelAndCheckBox(
             "Did Their Robot Get Disconnected Or Disabled?",
@@ -609,25 +475,6 @@ class _MatchFormPage extends State<MatchFormPage> {
                 )
               : const Padding(padding: EdgeInsets.zero),
 
-            Padding(
-            padding: EdgeInsets.symmetric(horizontal: widthPadding),
-            child: FloatingToggleButton(
-              initialColor: Theme.of(context)
-                  .colorScheme
-                  .inversePrimary
-                  .withBlue(App.getThemeMode() == Brightness.dark ? 115 : 255),
-              pressedColor: Theme.of(context).colorScheme.inversePrimary,
-
-              labelText: "Is Replay?",
-
-              initialIcon: const Icon(Icons.close),
-              pressedIcon: const Icon(Icons.check),
-
-              // onPressed: (value) => isReplay.value = value,
-
-              inValue: isReplay,
-            ),
-          ),
           const Padding(padding: EdgeInsets.all(4)),
 
           defaultTargetPlatform == TargetPlatform.iOS
@@ -656,9 +503,7 @@ class _MatchFormPage extends State<MatchFormPage> {
                 (
                   "Yes",
                   () {
-                    if (matchNum.value == "0" ||
-                        teamNum.value == "0" ||
-                        matchNum.value.isEmpty ||
+                    if (teamNum.value == "0" ||
                         teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
@@ -673,82 +518,6 @@ class _MatchFormPage extends State<MatchFormPage> {
               ]);
         },
       ),
-    );
-  }
-
-  Widget buildCycleTile(BuildContext context, int index) {
-    final info = cycles[index];
-
-    return ListTile(
-      title: Text("${info.time.toStringAsPrecision(3)} seconds"),
-      subtitle: Text(info.location.toString()),
-      leading: FloatingButton(
-          icon: switch (info.location) {
-            CycleTimeLocation.coralL1 => const Icon(Icons.amp_stories),
-            CycleTimeLocation.coralL2 => const Icon(Icons.density_large),
-            CycleTimeLocation.coralL3 => const Icon(Icons.density_medium),
-            CycleTimeLocation.coralL4 => const Icon(Icons.density_small),            
-            CycleTimeLocation.processor => const Icon(Icons.archive_outlined),
-            CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
-            _ => const Icon(Icons.error),
-          },
-          onPressed: () {
-            // This loops around. We just avoid the 'none' cycle time location.
-            info.location = CycleTimeLocation.values[(info.location.index + 1) %
-                (CycleTimeLocation.values.length - 1)];
-
-            setState(() {});
-          },
-          color: App.getThemeMode() == Brightness.dark
-              ? Colors.grey.shade800
-              : Colors.white),
-      onLongPress: () {
-        App.promptAlert(
-          context,
-          "Do You Want To Delete This Cycle Record?",
-          "time: ${info.time}, location: ${info.location}, success: ${info.success}",
-          [
-            (
-              "Yes",
-              () {
-                Navigator.of(context).pop();
-
-                setState(() => cycles.removeAt(index));
-
-                App.promptAction(
-                  context,
-                  "Deleted Cycle Record",
-                  "Undo?",
-                  () {
-                    setState(() => cycles.insert(index, info));
-                  },
-                );
-              }
-            ),
-            ("No", null),
-          ],
-        );
-      },
-      trailing: FloatingActionButton(
-        heroTag: null,
-        backgroundColor: info.success
-            ? Theme.of(context).colorScheme.inversePrimary
-            : Theme.of(context)
-                .colorScheme
-                .inversePrimary
-                .withRed(App.getThemeMode() == Brightness.dark ? 225 : 255),
-        elevation: 0,
-        focusElevation: 0,
-        hoverElevation: 0,
-        disabledElevation: 0,
-        highlightElevation: 0,
-        onPressed: () => setState(() {
-          info.success = !info.success;
-        }),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: info.success ? const Icon(Icons.check) : const Icon(Icons.close),
-      ),
-      hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 
@@ -904,42 +673,27 @@ class _MatchFormPage extends State<MatchFormPage> {
 
     final result = jsonEncode({
       "Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
-      "Match": {
-        "Number": matchNum.value.isEmpty ? 1 : int.parse(matchNum.value),
-        "isReplay": isReplay.value
-      },
-      "Driver Station": {
-        "Is Blue": driverStation.value.$1,
-        "Number": driverStation.value.$2
-      },
       "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
+      "Speaker Positions": {
+        "sides": shootingPositionSides.value,
+        "middle": shootingPositionMiddle.value
+      },
       "Pickup Locations": {
         "Ground": pickupGround.value,
         "Source": pickupSource.value,
       },
       "Auto": {
         "Can": canDoAuto.value,
-        "Scores": autoScores.value,
-        "Misses": autoMisses.value,
-        "Ejects": autoEjects.value
-      },
-      "Net": {
-      "Misses": netMisses.value, 
-      "Score": netScores.value,
-      "PlayerMisses": netPMisses.value, 
-      "PlayerScore": netPScores.value      
+        "Count": autoNumber.value,
       },
       "Climbing": {
         "Succeeded": canClimbSuccessfully.value,
         "Time": climbingTime
       },
-      "Endgame": {
-        "Parked": endgamePark.value,
-        "Can Park": canParkSuccessfully.value,
-        "Time": climbingTime
-      },
+      "Trap": {"Misses": trapMisses.value, "Score": trapScores.value},
       "Misc": {
+        "Parked": endgamePark.value,
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
         "User Lost Track": scouterLostTrack.value,
       },

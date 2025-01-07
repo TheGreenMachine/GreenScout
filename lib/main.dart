@@ -142,7 +142,7 @@ void main() async {
 // the context and pull the color data from there. That, at least, would be how I'd approach it. - Michael.
 var lightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
-    seedColor: greenMachineGreen,
+    seedColor: const Color.fromARGB(255, 6, 54, 86), //    seedColor: greenMachineGreen,
     brightness: Brightness.light,
   ),
   useMaterial3: true,
@@ -151,7 +151,7 @@ var lightTheme = ThemeData(
 // This theme looks a little weird - Michael.
 var darkTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
-    seedColor: greenMachineGreen,
+    seedColor: const Color.fromARGB(255, 53, 81, 173), //    seedColor: lightGreen,
     brightness: Brightness.dark,
   ),
   useMaterial3: true,
@@ -177,7 +177,7 @@ class MyApp extends StatelessWidget {
           !MainAppData.loggedIn ? const LoginPageForUsers() : const HomePage(),
       themeAnimationCurve: Curves.easeInOut,
       themeMode: AchievementManager.appThemesUnlocked.value
-          ? ThemeMode.system
+          ? ThemeMode.dark //leon darkmode here
           : ThemeMode.light,
       debugShowCheckedModeBanner: false,
     );

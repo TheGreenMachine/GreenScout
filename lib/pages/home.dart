@@ -1,3 +1,4 @@
+import 'package:green_scout/pages/pit_scouting.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
@@ -47,7 +48,7 @@ class _HomePage extends State<HomePage> {
         ),
         child: FloatingButton(
           icon: const Icon(Icons.admin_panel_settings),
-          color: Theme.of(context).colorScheme.primaryContainer.withBlue(255),
+          color: Theme.of(context).colorScheme.primaryContainer,
           onPressed: () => App.gotoPage(context, const AdminPage()),
         ),
       ),
@@ -83,6 +84,22 @@ class _HomePage extends State<HomePage> {
     ];
   }
 
+    List<Widget> createPitScoutingPageButton(BuildContext context) {
+    return [
+      const SubheaderLabel("Create Pit Scouting Form"),
+      const Padding(padding: EdgeInsets.all(2)),
+      Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+        child: FloatingButton(
+          icon: const Icon(Icons.edit_document),
+          color: Theme.of(context).colorScheme.inversePrimary,
+          onPressed: () => App.gotoPage(context, const PitScoutingPage()),
+        ),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,8 +111,10 @@ class _HomePage extends State<HomePage> {
       body: ListView(
         children: [
           ...createAdminPageButton(context),
-          const Padding(padding: EdgeInsets.all(15)),
+          const Padding(padding: EdgeInsets.all(12)),
           ...createMatchFormPageButton(context),
+          const Padding(padding: EdgeInsets.all(12)),
+          ...createPitScoutingPageButton(context),
           const Padding(padding: EdgeInsets.all(18)),
           const HeaderLabel("Assigned Matches"),
           const Padding(padding: EdgeInsets.all(4)),
