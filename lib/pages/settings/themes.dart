@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:green_scout/main.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/utils/general_utils.dart';
 import 'package:green_scout/utils/main_app_data_helper.dart';
@@ -7,7 +6,6 @@ import 'package:green_scout/utils/reference.dart';
 import 'package:green_scout/utils/action_bar.dart';
 import 'package:green_scout/widgets/dropdown.dart';
 import 'package:green_scout/widgets/header.dart';
-import 'package:green_scout/widgets/subheader.dart';
 
 class themesPage extends StatefulWidget {
   const themesPage({
@@ -20,7 +18,6 @@ class themesPage extends StatefulWidget {
 }
 
 class _themesPage extends State<themesPage> {
-  @override
   
   Reference<int> themeNum = Reference(1);
 

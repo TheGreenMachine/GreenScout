@@ -29,35 +29,72 @@ import 'package:green_scout/widgets/toggle_floating_button.dart';
 /// I expect this part to have stuff ripped out when it makes sense to not have
 /// it anymore. So, feel free to absolutely demolish this and start from scrtach
 /// when it makes sense to. - Michael. 
-class PitScoutingPage extends StatefulWidget {
-  const PitScoutingPage({
+class HumanScoutingForm extends StatefulWidget {
+  const HumanScoutingForm({
     super.key,
-    this.teamNum,
+    this.teamNumB,
+    this.teamNumR,
+    this.matchNum,
     this.isBlue,
     this.autoNumber,
-    this.gearRatio,
-    this.cycleTime,
-    this.autoCount,
-    this.weightBumper,
-    this.endgamePreference
   });
 
-  final String? teamNum;
-  final String? autoCount;
-  final String? gearRatio;
-  final String? cycleTime;
-  final String? weightBumper;
+  final String? matchNum;
+  final String? teamNumB;
+  final String? teamNumR;
   final bool? isBlue;
   final int? autoNumber;
-  final int? endgamePreference;
 
   @override
-  State<PitScoutingPage> createState() => _PitScoutingPage();
+  State<HumanScoutingForm> createState() => _HumanScoutingForm();
 }
 
-class _PitScoutingPage extends State<PitScoutingPage> {
+/// A simple enum to store the multiple
+/// locations where a team can shoot.
+enum CycleTimeLocation {
+  amp,
+  speaker,
+  shuttle,
+  distance,
+
+  none;
+
+  @override
+  String toString() {
+    return switch (this) {
+      amp => "Amp",
+      speaker => "Speaker",
+      shuttle => "Shuttle",
+      distance => "Distance",
+      none => "None",
+
+      // This is left just in case we need to add something new...
+      // ignore: unreachable_switch_case
+      _ => "Unknown",
+    };
+  }
+}
+
+/// A simple class to store data related to 
+/// a "cycle", which can be thought of as 
+/// "how long does it take to pick up and
+/// shoot a note."
+class CycleTimeInfo {
+  CycleTimeInfo({
+    this.time = 0.0,
+    this.success = false,
+    this.location = CycleTimeLocation.none,
+  });
+
+  double time;
+  bool success;
+  CycleTimeLocation location;
+}
+
+class _HumanScoutingForm extends State<HumanScoutingForm> {
   /// This will most likely never go away. Because I doubt
   /// there won't be drivestations in the future.
+  Reference<int> autoNumber = Reference(1);
 
   /* 
   * I also highly doubt that the items below will be going away.
@@ -66,61 +103,27 @@ class _PitScoutingPage extends State<PitScoutingPage> {
 
   Reference<bool> isReplay = Reference(false);
   Reference<bool> isRescout = Reference(false);
-  Reference<bool> driveTrainType = Reference(false);
-  Reference<String> teamNum = Reference("");
-  Reference<String> autoNumber = Reference("");
-  Reference<String> weightBumper = Reference("");
-  Reference<String> autoCount = Reference("");
-  Reference<String> cycleTime = Reference("");
-  Reference<String> gearRatio = Reference("");
-
+  Reference<String> matchNum = Reference("");
+  Reference<String> teamNumB = Reference("");
+  Reference<String> teamNumR = Reference("");
   String notes = "";
 
   TextEditingController matchNumberController = TextEditingController();
-  TextEditingController teamNumberController = TextEditingController();
-  TextEditingController weightBumperController = TextEditingController();
-  TextEditingController autoCountController = TextEditingController();
+  TextEditingController teamNumberControllerBlue = TextEditingController();
+  TextEditingController teamNumberControllerRed = TextEditingController();
   TextEditingController notesController = TextEditingController();
-  TextEditingController cycleTimeController = TextEditingController();
-  TextEditingController favoritePartController = TextEditingController();
-  TextEditingController prefRobotController = TextEditingController();
-  TextEditingController gearRatioController = TextEditingController();
 
   /* START OF SEASON SPECIFIC INFORMATION */
 
-  Reference<bool> canClimbSuccessfully = Reference(false);
-
-  Reference<bool> canDoAuto = Reference(false);
-  Reference<bool> dynamicAuto = Reference(false);
-
-
-  Reference<bool> canL1 = Reference(false);
-  Reference<bool> canL2 = Reference(false);
-  Reference<bool> canL3 = Reference(false);
-  Reference<bool> canL4 = Reference(false);
-
+  Reference<int> netScoresB = Reference(0);
+  Reference<int> netMissesB = Reference(0);
+  Reference<int> netScoresR = Reference(0);
+  Reference<int> netMissesR = Reference(0);  
   Stopwatch climbingStopwatch = Stopwatch();
   double climbingTime = 0.0;
   bool climbingTimerActive = false;
 
-  Reference<bool> pickupGround = Reference(false);
-  Reference<bool> pickupSource = Reference(false);
-
-  Reference<bool> knocksL2Algae = Reference(false); 
-  Reference<bool> knocksL3Algae = Reference(false); 
-  Reference<bool> pickupAGround = Reference(false); //A for Algae
-  Reference<bool> pickupASource = Reference(false);
-  Reference<bool> robotNet = Reference(false);
-  Reference<bool> canProcess= Reference(false);   
-
-  Reference<int> driverExp = Reference(0);
-  Reference<int> teleopPreference = Reference(1);
-
-
-  Reference<bool> endgamePark = Reference(false);
-  Reference<int> endgamePreference = Reference(1);
-  Reference<bool> climbsDeep = Reference(false);
-  Reference<bool> climbsShallow = Reference(false);
+  Reference<bool> scouterLostTrack = Reference(false);
 
   /* END OF SEASON SPECIFIC INFORMATION */
 
@@ -128,21 +131,18 @@ class _PitScoutingPage extends State<PitScoutingPage> {
   void initState() {
     super.initState();
 
-    teamNum.value = widget.teamNum ?? "0";
-    weightBumper.value = widget.weightBumper ?? "0";
-    autoCount.value = widget.autoCount ?? "0";
-    gearRatio.value = widget.gearRatio ?? "0";
-    cycleTime.value = widget.cycleTime ?? "0";
+    matchNum.value = widget.matchNum ?? "0";
+    teamNumB.value = widget.teamNumB ?? "0";
+    teamNumR.value = widget.teamNumR ?? "0";
+
+    autoNumber.value = (-1);
   }
 
   @override
   Widget build(BuildContext context) {
 
-    teamNumberController.text = teamNum.value; //TODO: HEY NERD ADD THE NOTES AND TEXT STUFF HERE
-    weightBumperController.text = weightBumper.value;
-    autoCountController.text = autoCount.value;
-    gearRatioController.text = gearRatio.value;
-    cycleTimeController.text = cycleTime.value;
+    teamNumberControllerBlue.text = teamNumB.value;
+    teamNumberControllerRed.text = teamNumR.value;
     notesController.text = notes;
 
     Widget mainContent = buildMainContent(context);
@@ -171,175 +171,72 @@ class _PitScoutingPage extends State<PitScoutingPage> {
     return Expanded(
       child: ListView(
         children: [
-          const Padding(padding: EdgeInsets.all(8)),
 
-          const Padding(padding: EdgeInsets.all(5)),
-
-          buildTextNumberContainer(
-            context,
-            widthPadding,
-            5,
-            "Team #",
-            teamNum,
-            teamNumberController,
-          ),
           const Padding(padding: EdgeInsets.all(10)),
 
           buildTextNumberContainer(
             context,
             widthPadding,
-            5,
-            "Weight w/ Bumpers",
-            weightBumper,
-            weightBumperController,
-          ),
-          const Padding(padding: EdgeInsets.all(5)),
-
-          const SubheaderLabel("Autos"),
-
-          const Padding(padding: EdgeInsets.all(6)),
-
-          buildTextNumberContainer(
-            context,
-            widthPadding,
-            5,
-            "# of Autos",
-            autoCount,
-            autoCountController,
-          ),
-          const Padding(padding: EdgeInsets.all(2)),
-          createLabelAndCheckBox("Dynamic Auto?", dynamicAuto),
-          
-          const Padding(padding: EdgeInsets.all(6)),
-
-          const SubheaderLabel("Drive Motor"),
-
-          const Padding(padding: EdgeInsets.all(6)),
-
-          buildTextNumberContainer(
-            context,
-            widthPadding,
-            5,
-            "Gear Ratio?",
-            gearRatio,
-            gearRatioController,
+            3,
+            "",
+            "Match #",
+            matchNum,
+            matchNumberController,
           ),
 
-          createLabelAndDropdown<bool>(
-            "Drive Train Type",
-            {
-              "Swerve Drive": true,
-              "Tank Drive" : false,
-            },
-            driveTrainType,
-            false,
-          ),
+          const Padding(padding: EdgeInsets.all(11)),
 
-          defaultTargetPlatform == TargetPlatform.iOS
+                    defaultTargetPlatform == TargetPlatform.iOS
               ? buildSaveButton(context, widthPadding)
               : const Padding(
                   padding: EdgeInsets.zero,
           ),  // This is to allow an out for the ios users out there.
 
           const Padding(padding: EdgeInsets.all(10)),
+          const SubheaderLabel("Red Player"),
 
-          const SubheaderLabel("Coral"),
+          const Padding(padding: EdgeInsets.all(8)),
+          // buildTextNumberContainerSmall(
+          //   context,
+          //   widthPadding,
+          //   5,
+          //   "Team Number",
+          //   "",
+          //   teamNumR,
+          //   teamNumberControllerRed,
+          // ),
 
-          createLabelAndCheckBox("L1/Trough?", canL1),
-          createLabelAndCheckBox("L2?", canL2),
-          createLabelAndCheckBox("L3?", canL3),
-          createLabelAndCheckBox("L4?", canL4),
-
-          const Padding(padding: EdgeInsets.all(10)),
-          const SubheaderLabel("Coral Pickup Locations"),
-
-          createLabelAndCheckBox("Ground", pickupGround),
-          createLabelAndCheckBox("Source", pickupSource),
-
-          const Padding(padding: EdgeInsets.all(10)),
-          const SubheaderLabel("Algae"),
-
-          createLabelAndCheckBox("Can Knock Off L2 Algae?", knocksL2Algae),
-          createLabelAndCheckBox("Can Knock Off L3 Algae?", knocksL3Algae),
-          createLabelAndCheckBox("Can Use The Processor?", canProcess),
-          createLabelAndCheckBox("Can The Robot Throw Into The Net?", robotNet),   
+          createLabelAndNumberField("Scores", netScoresR),
+          createLabelAndNumberField("Misses", netMissesR),
 
           const Padding(padding: EdgeInsets.all(10)),
-          const SubheaderLabel("Algae Pickup Locations"),
+          const SubheaderLabel("Blue Player"),
 
-          createLabelAndCheckBox("Ground", pickupAGround),
-          createLabelAndCheckBox("Source", pickupASource),       
-
-          const Padding(padding: EdgeInsets.all(10)),
-          const SubheaderLabel("Driver"),
-          const Padding(padding: EdgeInsets.all(6)),
+          const Padding(padding: EdgeInsets.all(8)),
+          
           buildTextNumberContainer(
             context,
             widthPadding,
             5,
-            "Average Cycle Time?",
-            cycleTime,
-            cycleTimeController,
+            "",
+            "Enter Team Number",
+            teamNumB,
+            teamNumberControllerBlue
           ),
-          const Padding(padding: EdgeInsets.all(6)),
-          createLabelAndNumberField("Driver Years of Experience", driverExp),          
-          createLabelAndDropdown<int>(
-            "Preferred Teleop",
-            {
-              "No Preference": -1,
-              "Scoring Trough": 1,
-              "Scoring L2": 2,
-              "Scoring L3": 3,
-              "Scoring L4": 4,
-              "Scoring Processor": 5,
-              "Scoring Net": 6,              
-              "Knocking Algae": 7,
-            },
-            teleopPreference,
-            -1,
-          ), 
+
+          createLabelAndNumberField("Scores", netScoresB),
+          createLabelAndNumberField("Misses", netMissesB),
+
+          const Padding(padding: EdgeInsets.all(10)),
+          const SubheaderLabel("Misc."),
+
+          createLabelAndCheckBox(
+            "Did You Lose Track At Any Point?",
+            scouterLostTrack,
+          ),
 
           const Padding(padding: EdgeInsets.all(10)),
 
-          const SubheaderLabel("Endgame"),
-          createLabelAndDropdown<int>(
-            "Preferred Endgame",
-            {
-              "No Preference": -1,
-              "Keep Scoring Coral": 1,
-              "Play Defense": 2,
-              "Park In The Barge": 3,
-              "Climb Shallow Cage": 4,
-              "Climb Deep Cage": 5,
-              "Keep Scoring Algae": 6,
-            },
-            endgamePreference,
-            -1,
-          ),  
-          createLabelAndCheckBox("Can Climb Shallow?", climbsShallow),
-          createLabelAndCheckBox("Can Climb Deep?", climbsDeep),        
-
-          const Padding(padding: EdgeInsets.all(10)),
-
-          const SubheaderLabel("Misc."),     
-          const Padding(padding: EdgeInsets.all(4)),
-          buildTextContainer(
-            context,
-            widthPadding,
-            200,
-            "What Type of Robot Would Compliment You Best?",
-            teamNum,
-            prefRobotController,
-          ),
-          const Padding(padding: EdgeInsets.all(10)),
-          buildTextContainer(
-            context,
-            widthPadding,
-            200,
-            "Favorite Part of The Robot? ",
-            teamNum,
-            favoritePartController,
-          ),
           const SubheaderLabel("Notes"),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
@@ -349,14 +246,14 @@ class _PitScoutingPage extends State<PitScoutingPage> {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(fontSize: 17),
+                  ?.copyWith(fontSize: 18),
 
               onChanged: (value) => notes = value,
               maxLines: 10,
 
               decoration: const InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(1.0)),
                 ),
                 // contentPadding: EdgeInsets.symmetric(vertical: 125),
                 isDense: false,
@@ -439,8 +336,12 @@ class _PitScoutingPage extends State<PitScoutingPage> {
                 (
                   "Yes",
                   () {
-                    if (teamNum.value == "0" ||
-                        teamNum.value.isEmpty) {
+                    if (matchNum.value == "0" ||
+                        matchNum.value.isEmpty || 
+                        teamNumR.value == "0" ||
+                        teamNumR.value.isEmpty ||
+                        teamNumB.value == "0" ||
+                        teamNumB.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
                           "You haven't filled in the team number or match number.");
@@ -461,6 +362,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
     BuildContext context,
     double widthPadding,
     int digitLimit,
+    String hint,
     String label,
     Reference<String> assigned,
     TextEditingController controller,
@@ -481,39 +383,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
           ],
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: label,
-            floatingLabelAlignment: FloatingLabelAlignment.start,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            labelStyle: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildTextContainer(
-    BuildContext context,
-    double widthPadding,
-    int lenLimit,
-    String label,
-    Reference<String> assigned,
-    TextEditingController controller,
-  ) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: widthPadding),
-      child: SizedBox(
-        height: 96,
-        child: TextField(
-          maxLines: 3,
-          controller: controller,
-          style: Theme.of(context).textTheme.titleMedium,
-          textAlign: TextAlign.left,
-          onChanged: (value) => assigned.value = value,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(lenLimit),
-          ],
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
+            hintText: hint,
             labelText: label,
             floatingLabelAlignment: FloatingLabelAlignment.start,
             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -616,47 +486,10 @@ class _PitScoutingPage extends State<PitScoutingPage> {
   }
 
   String toJson() {
-
     final result = jsonEncode({
-      "Team": teamNum.value.isEmpty ? 1 : int.parse(teamNum.value),
+      "Red Team": teamNumR.value.isEmpty ? 1 : int.parse(teamNumR.value),
+      "Blue Team": teamNumB.value.isEmpty ? 1 : int.parse(teamNumB.value),
       "Scouter": MainAppData.scouterName,
-
-      "Weight": weightBumper.value.isEmpty ? -1 : int.parse(weightBumper.value),
-      "Auto": {
-        "Number of Autos": autoCount.value.isEmpty ? -1 : int.parse(autoCount.value),
-        "Dynamic Auto": dynamicAuto.value,
-      },
-      "Drive": {
-        "Gear Ratio": gearRatio.value.isEmpty ? "idk" : gearRatio.value,
-        "Drive Train": driveTrainType.value ? "Tank Drive" : "Swerve Drive",
-      },
-      "Coral" :{
-        "L1": canL1.value,
-        "L2": canL2.value,
-        "L3": canL3.value,    
-        "L4": canL4.value,
-        "Coral Ground Pickup": pickupGround.value,
-        "Coral Source Pickup": pickupSource.value,
-      },
-      "Algae" :{
-        "L2": knocksL2Algae.value,
-        "L3": knocksL3Algae.value,
-        "Can Net": robotNet.value,    
-        "Can Processor": canProcess.value,
-        "Algae Ground Pickup": pickupAGround.value,
-        "Algae Source Pickup": pickupASource.value,
-      },
-      "Driver": {
-        "Avg. Cycle Time": cycleTime.value.isEmpty ? -1 : int.parse(cycleTime.value),
-      },
-      "Endgame": {
-
-      },
-      "Misc.": {
-
-      "Notes" : notes,  
-      }
-
       
     });
 

@@ -1,3 +1,4 @@
+import 'package:green_scout/pages/human_player_match_form.dart';
 import 'package:green_scout/pages/pit_scouting.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -100,6 +101,22 @@ class _HomePage extends State<HomePage> {
     ];
   }
 
+  List<Widget> createPlayerScoutingPageButton (BuildContext context) {
+    return [
+      const SubheaderLabel("Create Player Scouting Form"),
+      const Padding(padding: EdgeInsets.all(2)),
+      Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * (1.0 - 0.75)),
+        child: FloatingButton(
+          icon: const Icon(Icons.assignment_ind),
+          color: Theme.of(context).colorScheme.inversePrimary,
+          onPressed: () => App.gotoPage(context, const HumanScoutingForm()),
+        ),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,6 +130,8 @@ class _HomePage extends State<HomePage> {
           ...createAdminPageButton(context),
           const Padding(padding: EdgeInsets.all(12)),
           ...createMatchFormPageButton(context),
+          const Padding(padding: EdgeInsets.all(12)),
+          ...createPlayerScoutingPageButton(context),
           const Padding(padding: EdgeInsets.all(12)),
           ...createPitScoutingPageButton(context),
           const Padding(padding: EdgeInsets.all(18)),

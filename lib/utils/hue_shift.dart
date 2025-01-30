@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:green_scout/utils/app_state.dart';
-import 'package:green_scout/utils/reference.dart';
 
 //this is a short thing so I don't lose my mind over bad colour schemes
 

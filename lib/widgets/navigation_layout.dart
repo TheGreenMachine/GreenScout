@@ -1,6 +1,7 @@
 import 'package:green_scout/pages/achievements.dart';
 import 'package:green_scout/pages/extras.dart';
 import 'package:green_scout/pages/hall_of_fame.dart';
+import 'package:green_scout/pages/human_player_match_form.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
 import 'package:green_scout/pages/admin.dart';
@@ -82,6 +83,8 @@ class NavigationLayoutDrawer extends StatelessWidget {
                     context, Icons.home, "Home", const HomePage()),
                 buildNavigationButton(
                     context, Icons.create, "Match Form", const MatchFormPage()),
+                buildNavigationButton(
+                    context, Icons.assignment_ind, "Human Player Scouting", const HumanScoutingForm()),
                 buildNavigationButton(
                     context, Icons.edit_document, "Pit Scouting", const PitScoutingPage()),
                 buildNavigationButton(context, Icons.leaderboard,

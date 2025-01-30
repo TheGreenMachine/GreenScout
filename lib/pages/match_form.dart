@@ -55,6 +55,7 @@ enum CycleTimeLocation {
   coralL3,
   coralL4,
   processor,
+  net,
   shuttle,
 
   none;
@@ -67,6 +68,7 @@ enum CycleTimeLocation {
       coralL3 => "Coral Level 3",
       coralL4 => "Coral Level 4",
       processor => "Processor",
+      net => "Net",
       shuttle => "Shuttle",
       none => "None",
 
@@ -114,7 +116,8 @@ class _MatchFormPage extends State<MatchFormPage> {
   TextEditingController notesController = TextEditingController();
 
   /* START OF SEASON SPECIFIC INFORMATION */
-
+  
+  Reference<int> parkStatus = Reference(0);
   Reference<bool> canClimbSuccessfully = Reference(false);
   Reference<bool> canParkSuccessfully = Reference(false);
 
@@ -133,13 +136,9 @@ class _MatchFormPage extends State<MatchFormPage> {
 
   Reference<bool> pickupGround = Reference(false);
   Reference<bool> pickupSource = Reference(false);
+  Reference<bool> pickupAGround = Reference(false); //A for algae
+  Reference<bool> pickupASource = Reference(false);
 
-  Reference<int> netScores = Reference(0);
-  Reference<int> netMisses = Reference(0);
-  Reference<int> netPScores = Reference(0);
-  Reference<int> netPMisses = Reference(0);
-
-  Reference<String> parkStatus = Reference("");
   Reference<bool> endgamePark = Reference(false);
 
   Reference<bool> scouterLostTrack = Reference(false);
@@ -302,6 +301,14 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
           disabled: !cycleTimerActive,
           label: const Text("Processor"),
+        ),        
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.waves_outlined,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Net"),
         ),
         NavigationRailDestination(
           icon: Icon(
@@ -333,7 +340,8 @@ class _MatchFormPage extends State<MatchFormPage> {
             case 3:
             case 4:
             case 5:
-            case 6:   
+            case 6:
+            case 7:   
               cycles.add(
                 CycleTimeInfo(
                   time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
@@ -346,7 +354,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                     3 => CycleTimeLocation.coralL3,
                     4 => CycleTimeLocation.coralL4,
                     5 => CycleTimeLocation.processor,
-                    6 => CycleTimeLocation.shuttle,
+                    6 => CycleTimeLocation.net,
+                    7 => CycleTimeLocation.shuttle,
                     _ => CycleTimeLocation.none,
                   },
                 ),
@@ -355,7 +364,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               break;
 
             // Climbing timer index. Make sure to update when moving around stuff!
-            case 7:
+            case 8:
               climbingTimerActive = !climbingTimerActive;
               break;
           }
@@ -455,22 +464,19 @@ class _MatchFormPage extends State<MatchFormPage> {
             ],
           ),
 
-
-          const Padding(padding: EdgeInsets.all(11)),
-
-          const SubheaderLabel("Net"),
-
-          createLabelAndNumberField("Scores", netScores),
-          createLabelAndNumberField("Misses", netMisses),
-          createLabelAndNumberField("Player Scores", netPScores),
-          createLabelAndNumberField("Player Misses", netPMisses),
-
           const Padding(padding: EdgeInsets.all(10)),
 
-          const SubheaderLabel("Pickup Locations"),
+          const SubheaderLabel("Coral Pickup Locations"),
 
           createLabelAndCheckBox("Ground", pickupGround),
           createLabelAndCheckBox("Source", pickupSource),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+          const SubheaderLabel("Algae Pickup Locations"),
+
+          createLabelAndCheckBox("Ground", pickupAGround),
+          createLabelAndCheckBox("Source", pickupASource),
 
           const Padding(padding: EdgeInsets.all(10)),
 
@@ -520,9 +526,20 @@ class _MatchFormPage extends State<MatchFormPage> {
 
           const SubheaderLabel("Endgame"),
 
-          createLabelAndCheckBox("Attempted to Climb? (And Succeeded)", canClimbSuccessfully),
-          createLabelAndCheckBox("Attempted to Park? (And Succeeded)", canParkSuccessfully),
-          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
+          createLabelAndDropdown<int>(
+            "Park Status",
+            {
+              "Didn't Attempt to Park": 0,
+              "Attempted to Park": 1,
+              "Attempted Climb": 2,
+              "Parked In The Barge": 3,
+              "Climbed Shallow Cage (High Cage)": 4,
+              "Climbed Deep Cage": 5,
+            },
+            parkStatus,
+            0,
+          ),
+          
 
           const SubheaderLabel("Misc."),
 
@@ -612,11 +629,11 @@ class _MatchFormPage extends State<MatchFormPage> {
             Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingToggleButton(
-              initialColor: Theme.of(context)
+              initialColor: Theme.of(context).colorScheme.inversePrimary, 
+              pressedColor: Theme.of(context)
                   .colorScheme
                   .inversePrimary
                   .withBlue(App.getThemeMode() == Brightness.dark ? 115 : 255),
-              pressedColor: Theme.of(context).colorScheme.inversePrimary,
 
               labelText: "Is Replay?",
 
@@ -777,7 +794,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: label,
-            floatingLabelAlignment: FloatingLabelAlignment.center,
+            floatingLabelAlignment: FloatingLabelAlignment.start,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             labelStyle: Theme.of(context).textTheme.titleLarge,
           ),
@@ -923,12 +940,6 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Scores": autoScores.value,
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
-      },
-      "Net": {
-      "Misses": netMisses.value, 
-      "Score": netScores.value,
-      "PlayerMisses": netPMisses.value, 
-      "PlayerScore": netPScores.value      
       },
       "Climbing": {
         "Succeeded": canClimbSuccessfully.value,
