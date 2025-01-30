@@ -932,8 +932,10 @@ class _MatchFormPage extends State<MatchFormPage> {
       "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
       "Pickup Locations": {
-        "Ground": pickupGround.value,
-        "Source": pickupSource.value,
+        "Coral Ground": pickupGround.value,
+        "Coral Source": pickupSource.value,
+        "Algae Ground": pickupAGround.value,
+        "Algae Source": pickupASource.value,
       },
       "Auto": {
         "Can": canDoAuto.value,

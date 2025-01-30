@@ -73,6 +73,8 @@ class _PitScoutingPage extends State<PitScoutingPage> {
   Reference<String> autoCount = Reference("");
   Reference<String> cycleTime = Reference("");
   Reference<String> gearRatio = Reference("");
+  Reference<String> favoritePart = Reference("");
+  Reference<String> prefRobot = Reference("");
 
   String notes = "";
 
@@ -114,7 +116,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
   Reference<bool> canProcess= Reference(false);   
 
   Reference<int> driverExp = Reference(0);
-  Reference<int> teleopPreference = Reference(1);
+  Reference<int> teleopPreference = Reference(-1);
 
 
   Reference<bool> endgamePark = Reference(false);
@@ -138,7 +140,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
   @override
   Widget build(BuildContext context) {
 
-    teamNumberController.text = teamNum.value; //TODO: HEY NERD ADD THE NOTES AND TEXT STUFF HERE
+    teamNumberController.text = teamNum.value; 
     weightBumperController.text = weightBumper.value;
     autoCountController.text = autoCount.value;
     gearRatioController.text = gearRatio.value;
@@ -328,7 +330,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
             widthPadding,
             200,
             "What Type of Robot Would Compliment You Best?",
-            teamNum,
+            prefRobot,
             prefRobotController,
           ),
           const Padding(padding: EdgeInsets.all(10)),
@@ -337,7 +339,7 @@ class _PitScoutingPage extends State<PitScoutingPage> {
             widthPadding,
             200,
             "Favorite Part of The Robot? ",
-            teamNum,
+            favoritePart,
             favoritePartController,
           ),
           const SubheaderLabel("Notes"),
@@ -648,12 +650,17 @@ class _PitScoutingPage extends State<PitScoutingPage> {
       },
       "Driver": {
         "Avg. Cycle Time": cycleTime.value.isEmpty ? -1 : int.parse(cycleTime.value),
+        "Driver Years of Experience": driverExp.value,
+        "Preferred Teleop": teleopPreference.value, 
       },
       "Endgame": {
-
+        "Preferred Endgame": endgamePreference.value,
+        "Can Climb Shallow Cage": climbsShallow,
+        "Can Climb Deep Cage": climbsDeep,        
       },
       "Misc.": {
-
+      "What Type of Robot Would Compliment You Best?" : prefRobot,
+      "Favorite Part of the Robot?" :favoritePart,
       "Notes" : notes,  
       }
 

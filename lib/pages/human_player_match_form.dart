@@ -17,18 +17,6 @@ import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
-/// The main bread and butter of the app. 
-/// 
-/// This is where everything related to the actual scouting is stored.
-/// It's best to describe this as monolithic page that contains a whole toolset.
-/// 
-/// This page __will__ get updated overtime and as such, I'd recommend
-/// storing branches to the previous years versions. That way you can reference
-/// and take what you like UI-wise. 
-/// 
-/// I expect this part to have stuff ripped out when it makes sense to not have
-/// it anymore. So, feel free to absolutely demolish this and start from scrtach
-/// when it makes sense to. - Michael. 
 class HumanScoutingForm extends StatefulWidget {
   const HumanScoutingForm({
     super.key,
