@@ -119,7 +119,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   
   Reference<int> parkStatus = Reference(0);
   Reference<bool> canClimbSuccessfully = Reference(false);
-  Reference<bool> canParkSuccessfully = Reference(false);
 
   Reference<bool> canDoAuto = Reference(false);
   Reference<int> autoScores = Reference(0);
@@ -138,8 +137,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<bool> pickupSource = Reference(false);
   Reference<bool> pickupAGround = Reference(false); //A for algae
   Reference<bool> pickupASource = Reference(false);
-
-  Reference<bool> endgamePark = Reference(false);
 
   Reference<bool> scouterLostTrack = Reference(false);
   Reference<bool> disconnectOrDisabled = Reference(false);
@@ -530,11 +527,12 @@ class _MatchFormPage extends State<MatchFormPage> {
             "Park Status",
             {
               "Didn't Attempt to Park": 0,
-              "Attempted to Park": 1,
-              "Attempted Climb": 2,
-              "Parked In The Barge": 3,
-              "Climbed Shallow Cage (High Cage)": 4,
-              "Climbed Deep Cage": 5,
+              "Failed Attempted Park": 1,
+              "Failed Attempted Shallow Climb": 2,
+              "Failed Attempted Deep Climb": 3,
+              "Parked In The Barge": 4,
+              "Climbed Shallow Cage (High Cage)": 5,
+              "Climbed Deep Cage": 6,
             },
             parkStatus,
             0,
@@ -948,9 +946,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Time": climbingTime
       },
       "Endgame": {
-        "Parked": endgamePark.value,
-        "Can Park": canParkSuccessfully.value,
-        "Time": climbingTime
+        "Parking Status": parkStatus,
       },
       "Misc": {
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
