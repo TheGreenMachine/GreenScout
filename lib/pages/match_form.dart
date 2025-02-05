@@ -118,7 +118,6 @@ class _MatchFormPage extends State<MatchFormPage> {
   /* START OF SEASON SPECIFIC INFORMATION */
   
   Reference<int> parkStatus = Reference(0);
-  Reference<bool> canClimbSuccessfully = Reference(false);
 
   Reference<bool> canDoAuto = Reference(false);
   Reference<int> autoScores = Reference(0);
@@ -941,12 +940,9 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
       },
-      "Climbing": {
-        "Succeeded": canClimbSuccessfully.value,
-        "Time": climbingTime
-      },
       "Endgame": {
         "Parking Status": parkStatus,
+        "Time": climbingTime
       },
       "Misc": {
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
