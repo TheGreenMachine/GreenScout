@@ -941,7 +941,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Ejects": autoEjects.value
       },
       "Endgame": {
-        "Parking Status": parkStatus,
+        "Parking Status": parkStatus.value,
         "Time": climbingTime
       },
       "Misc": {
