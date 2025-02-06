@@ -130,7 +130,7 @@ class _HomePage extends State<HomePage> {
           ...createAdminPageButton(context),
           const Padding(padding: EdgeInsets.all(12)),
           ...createMatchFormPageButton(context),
-          // const Padding(padding: EdgeInsets.all(12)),
+          // const Padding(padding: EdgeInsets.all(12)), //this is mainly here incase player scouting would be useful later on in the future
           // ...createPlayerScoutingPageButton(context),
           const Padding(padding: EdgeInsets.all(12)),
           ...createPitScoutingPageButton(context),
