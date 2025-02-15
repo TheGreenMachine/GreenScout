@@ -98,7 +98,7 @@ class CycleTimeInfo {
 class _MatchFormPage extends State<MatchFormPage> {
   /// This will most likely never go away. Because I doubt
   /// there won't be drivestations in the future.
-  Reference<(bool, int)> driverStation = Reference((false, 1));
+  Reference<(bool, int)> driverStation = Reference((false, -1));
 
   /* 
   * I also highly doubt that the items below will be going away.
@@ -149,7 +149,7 @@ class _MatchFormPage extends State<MatchFormPage> {
     matchNum.value = widget.matchNum ?? "0";
     teamNum.value = widget.teamNum ?? "0";
 
-    driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? 1);
+    driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? -1);
   }
 
   @override
@@ -406,6 +406,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           createLabelAndDropdown<(bool, int)>(
             "Driver Station",
             {
+              "Select a Driver Station": (false, -1),
               "Red 1": (false, 1),
               "Red 2": (false, 2),
               "Red 3": (false, 3),
@@ -414,7 +415,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               "Blue 3": (true, 3),
             },
             driverStation,
-            (false, 1),
+            (false, -1),
           ),
 
           const Padding(padding: EdgeInsets.all(5)),
@@ -672,11 +673,12 @@ class _MatchFormPage extends State<MatchFormPage> {
                   () {
                     if (matchNum.value == "0" ||
                         teamNum.value == "0" ||
+                        driverStation.value == (false, -1) ||
                         matchNum.value.isEmpty ||
                         teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
-                          "You haven't filled in the team number or match number.");
+                          "You haven't filled in the team number, changed driver station, or match number.");
                       return;
                     }
                     MainAppData.addToMatchCache(toJson());

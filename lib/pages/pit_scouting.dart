@@ -655,12 +655,12 @@ class _PitScoutingPage extends State<PitScoutingPage> {
       },
       "Endgame": {
         "Preferred Endgame": endgamePreference.value,
-        "Can Climb Shallow Cage": climbsShallow,
-        "Can Climb Deep Cage": climbsDeep,        
+        "Can Climb Shallow Cage": climbsShallow.value,
+        "Can Climb Deep Cage": climbsDeep.value,        
       },
       "Misc.": {
-      "What Type of Robot Would Compliment You Best?" : prefRobot,
-      "Favorite Part of the Robot?" :favoritePart,
+      "What Type of Robot Would Compliment You Best?" : prefRobot.value,
+      "Favorite Part of the Robot?" : favoritePart.value,
       "Notes" : notes,  
       }
 
