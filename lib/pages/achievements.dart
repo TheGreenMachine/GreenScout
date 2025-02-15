@@ -80,7 +80,7 @@ class _AchievementsPage extends State<AchievementsPage> {
         progressColor: greenMachineGreen,
         alignment: MainAxisAlignment.center,
         barRadius: const Radius.circular(10),
-        center: Text("${(percent * 100).truncate()}% complete"),
+        center: Text("${(percent * 100).truncate()}% complete"), //is this a fake loading bar .-.
         animateFromLastPercent: true,
         animation: true,
         animationDuration: 2000,

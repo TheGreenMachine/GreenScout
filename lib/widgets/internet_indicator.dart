@@ -46,10 +46,9 @@ class _InternetIndicator extends State<InternetIndicator> {
         child: Tooltip(
           message: "Unable to connect to the server.",
           preferBelow: true,
-
           child: Icon(
             Icons.wifi_off, 
-            color: Colors.red.shade600, 
+            color: Theme.of(context).colorScheme.onPrimary,
             shadows: [Shadow(offset: Offset.fromDirection(pi / 2, 0.35))],
           ),
         ),

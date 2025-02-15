@@ -50,20 +50,26 @@ class MatchFormPage extends StatefulWidget {
 /// A simple enum to store the multiple
 /// locations where a team can shoot.
 enum CycleTimeLocation {
-  amp,
-  speaker,
+  coralL1,
+  coralL2,
+  coralL3,
+  coralL4,
+  processor,
+  net,
   shuttle,
-  distance,
 
   none;
 
   @override
   String toString() {
     return switch (this) {
-      amp => "Amp",
-      speaker => "Speaker",
+      coralL1 => "Trough/Coral Level 1",
+      coralL2 => "Coral Level 2",
+      coralL3 => "Coral Level 3",
+      coralL4 => "Coral Level 4",
+      processor => "Processor",
+      net => "Net",
       shuttle => "Shuttle",
-      distance => "Distance",
       none => "None",
 
       // This is left just in case we need to add something new...
@@ -110,8 +116,8 @@ class _MatchFormPage extends State<MatchFormPage> {
   TextEditingController notesController = TextEditingController();
 
   /* START OF SEASON SPECIFIC INFORMATION */
-
-  Reference<bool> canClimbSuccessfully = Reference(false);
+  
+  Reference<int> parkStatus = Reference(0);
 
   Reference<bool> canDoAuto = Reference(false);
   Reference<int> autoScores = Reference(0);
@@ -126,16 +132,11 @@ class _MatchFormPage extends State<MatchFormPage> {
   bool cycleTimerActive = false;
   List<CycleTimeInfo> cycles = [];
 
-  Reference<bool> shootingPositionMiddle = Reference(false);
-  Reference<bool> shootingPositionSides = Reference(false);
-
   Reference<bool> pickupGround = Reference(false);
   Reference<bool> pickupSource = Reference(false);
+  Reference<bool> pickupAGround = Reference(false); //A for algae
+  Reference<bool> pickupASource = Reference(false);
 
-  Reference<int> trapScores = Reference(0);
-  Reference<int> trapMisses = Reference(0);
-
-  Reference<bool> endgamePark = Reference(false);
   Reference<bool> scouterLostTrack = Reference(false);
   Reference<bool> disconnectOrDisabled = Reference(false);
 
@@ -263,15 +264,47 @@ class _MatchFormPage extends State<MatchFormPage> {
             color: cycleTimerActive ? Colors.blue.shade600 : null,
           ),
           disabled: !cycleTimerActive,
-          label: const Text("Amp"),
+          label: const Text("Trough"),
         ),
-        NavigationRailDestination(
+                NavigationRailDestination(
           icon: Icon(
-            Icons.speaker,
+            Icons.density_large,
             color: cycleTimerActive ? Colors.blue.shade600 : null,
           ),
           disabled: !cycleTimerActive,
-          label: const Text("Speaker"),
+          label: const Text("Coral L2"),
+        ),
+                NavigationRailDestination(
+          icon: Icon(
+            Icons.density_medium,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Coral L3"),
+        ),
+                NavigationRailDestination(
+          icon: Icon(
+            Icons.density_small,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Coral L4"),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.archive_outlined,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Processor"),
+        ),        
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.waves_outlined,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Net"),
         ),
         NavigationRailDestination(
           icon: Icon(
@@ -280,14 +313,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
           disabled: !cycleTimerActive,
           label: const Text("Shuttle"),
-        ),
-        NavigationRailDestination(
-          icon: Icon(
-            Icons.social_distance,
-            color: cycleTimerActive ? Colors.blue.shade600 : null,
-          ),
-          disabled: !cycleTimerActive,
-          label: const Text("Distance"),
         ),
         NavigationRailDestination(
           icon: climberTimerIcon,
@@ -310,6 +335,9 @@ class _MatchFormPage extends State<MatchFormPage> {
             case 2:
             case 3:
             case 4:
+            case 5:
+            case 6:
+            case 7:   
               cycles.add(
                 CycleTimeInfo(
                   time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
@@ -317,10 +345,13 @@ class _MatchFormPage extends State<MatchFormPage> {
 
                   // Make sure to update this when modifying the previous cases above.
                   location: switch (index) {
-                    1 => CycleTimeLocation.amp,
-                    2 => CycleTimeLocation.speaker,
-                    3 => CycleTimeLocation.shuttle,
-                    4 => CycleTimeLocation.distance,
+                    1 => CycleTimeLocation.coralL1,
+                    2 => CycleTimeLocation.coralL2,
+                    3 => CycleTimeLocation.coralL3,
+                    4 => CycleTimeLocation.coralL4,
+                    5 => CycleTimeLocation.processor,
+                    6 => CycleTimeLocation.net,
+                    7 => CycleTimeLocation.shuttle,
                     _ => CycleTimeLocation.none,
                   },
                 ),
@@ -329,7 +360,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               break;
 
             // Climbing timer index. Make sure to update when moving around stuff!
-            case 5:
+            case 8:
               climbingTimerActive = !climbingTimerActive;
               break;
           }
@@ -371,26 +402,6 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
 
           const Padding(padding: EdgeInsets.all(5)),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: widthPadding),
-            child: FloatingToggleButton(
-              initialColor: Theme.of(context)
-                  .colorScheme
-                  .inversePrimary
-                  .withRed(App.getThemeMode() == Brightness.dark ? 225 : 255),
-              pressedColor: Theme.of(context).colorScheme.inversePrimary,
-
-              labelText: "Is Replay?",
-
-              initialIcon: const Icon(Icons.close),
-              pressedIcon: const Icon(Icons.check),
-
-              // onPressed: (value) => isReplay.value = value,
-
-              inValue: isReplay,
-            ),
-          ),
 
           createLabelAndDropdown<(bool, int)>(
             "Driver Station",
@@ -434,9 +445,8 @@ class _MatchFormPage extends State<MatchFormPage> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            collapsedBackgroundColor: App.getThemeMode() == Brightness.dark
-                ? Colors.grey.shade900
-                : Colors.grey.shade200,
+            iconColor: App.getThemeMode() == Brightness.dark
+            ? Colors.grey.shade800 : Colors.grey.shade800 ,
             children: [
               SizedBox(
                 width: width,
@@ -450,7 +460,21 @@ class _MatchFormPage extends State<MatchFormPage> {
             ],
           ),
 
-          const Padding(padding: EdgeInsets.all(13)),
+          const Padding(padding: EdgeInsets.all(10)),
+
+          const SubheaderLabel("Coral Pickup Locations"),
+
+          createLabelAndCheckBox("Ground", pickupGround),
+          createLabelAndCheckBox("Source", pickupSource),
+
+          const Padding(padding: EdgeInsets.all(10)),
+
+          const SubheaderLabel("Algae Pickup Locations"),
+
+          createLabelAndCheckBox("Ground", pickupAGround),
+          createLabelAndCheckBox("Source", pickupASource),
+
+          const Padding(padding: EdgeInsets.all(10)),
 
           const SubheaderLabel("Climbing"),
 
@@ -460,10 +484,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             textAlign: TextAlign.center,
           ),
 
-          const Padding(padding: EdgeInsets.all(4)),
-
-          createLabelAndCheckBox("Are They Successful?", canClimbSuccessfully),
-          const Padding(padding: EdgeInsets.all(1.2)),
+          const Padding(padding: EdgeInsets.all(10)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingActionButton(
@@ -497,32 +518,27 @@ class _MatchFormPage extends State<MatchFormPage> {
             ),
           ),
 
-          const Padding(padding: EdgeInsets.all(11)),
-
-          const SubheaderLabel("Trap"),
-
-          createLabelAndNumberField("Scores", trapScores),
-          createLabelAndNumberField("Misses", trapMisses),
-
           const Padding(padding: EdgeInsets.all(10)),
 
-          const SubheaderLabel("Shooting Position (Speaker / Subwoofer)"),
+          const SubheaderLabel("Endgame"),
 
-          createLabelAndCheckBox("Middle", shootingPositionMiddle),
-          createLabelAndCheckBox("Sides", shootingPositionSides),
-
-          const Padding(padding: EdgeInsets.all(10)),
-
-          const SubheaderLabel("Pickup Locations"),
-
-          createLabelAndCheckBox("Ground", pickupGround),
-          createLabelAndCheckBox("Source", pickupSource),
-
-          const Padding(padding: EdgeInsets.all(10)),
+          createLabelAndDropdown<int>(
+            "Park Status",
+            {
+              "Didn't Attempt to Park": 0,
+              "Failed Attempted Park": 1,
+              "Failed Attempted Shallow Climb": 2,
+              "Failed Attempted Deep Climb": 3,
+              "Parked In The Barge": 4,
+              "Climbed Shallow Cage (High Cage)": 5,
+              "Climbed Deep Cage": 6,
+            },
+            parkStatus,
+            0,
+          ),
+          
 
           const SubheaderLabel("Misc."),
-
-          createLabelAndCheckBox("Do They Park On The Stage?", endgamePark),
 
           createLabelAndCheckBox(
             "Did Their Robot Get Disconnected Or Disabled?",
@@ -607,6 +623,25 @@ class _MatchFormPage extends State<MatchFormPage> {
                 )
               : const Padding(padding: EdgeInsets.zero),
 
+            Padding(
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
+            child: FloatingToggleButton(
+              initialColor: Theme.of(context).colorScheme.inversePrimary, 
+              pressedColor: Theme.of(context)
+                  .colorScheme
+                  .inversePrimary
+                  .withBlue(App.getThemeMode() == Brightness.dark ? 115 : 255),
+
+              labelText: "Is Replay?",
+
+              initialIcon: const Icon(Icons.close),
+              pressedIcon: const Icon(Icons.check),
+
+              // onPressed: (value) => isReplay.value = value,
+
+              inValue: isReplay,
+            ),
+          ),
           const Padding(padding: EdgeInsets.all(4)),
 
           defaultTargetPlatform == TargetPlatform.iOS
@@ -641,10 +676,9 @@ class _MatchFormPage extends State<MatchFormPage> {
                         teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
-                          "You haven't fillied in the team number or match number.");
+                          "You haven't filled in the team number or match number.");
                       return;
                     }
-
                     MainAppData.addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());
                   }
@@ -664,10 +698,12 @@ class _MatchFormPage extends State<MatchFormPage> {
       subtitle: Text(info.location.toString()),
       leading: FloatingButton(
           icon: switch (info.location) {
-            CycleTimeLocation.amp => const Icon(Icons.amp_stories),
-            CycleTimeLocation.speaker => const Icon(Icons.speaker),
+            CycleTimeLocation.coralL1 => const Icon(Icons.amp_stories),
+            CycleTimeLocation.coralL2 => const Icon(Icons.density_large),
+            CycleTimeLocation.coralL3 => const Icon(Icons.density_medium),
+            CycleTimeLocation.coralL4 => const Icon(Icons.density_small),            
+            CycleTimeLocation.processor => const Icon(Icons.archive_outlined),
             CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
-            CycleTimeLocation.distance => const Icon(Icons.social_distance),
             _ => const Icon(Icons.error),
           },
           onPressed: () {
@@ -755,7 +791,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: label,
-            floatingLabelAlignment: FloatingLabelAlignment.center,
+            floatingLabelAlignment: FloatingLabelAlignment.start,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             labelStyle: Theme.of(context).textTheme.titleLarge,
           ),
@@ -892,13 +928,11 @@ class _MatchFormPage extends State<MatchFormPage> {
       },
       "Scouter": MainAppData.scouterName,
       "Cycles": expandCycles(),
-      "Speaker Positions": {
-        "sides": shootingPositionSides.value,
-        "middle": shootingPositionMiddle.value
-      },
       "Pickup Locations": {
-        "Ground": pickupGround.value,
-        "Source": pickupSource.value,
+        "Coral Ground": pickupGround.value,
+        "Coral Source": pickupSource.value,
+        "Algae Ground": pickupAGround.value,
+        "Algae Source": pickupASource.value,
       },
       "Auto": {
         "Can": canDoAuto.value,
@@ -906,13 +940,11 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
       },
-      "Climbing": {
-        "Succeeded": canClimbSuccessfully.value,
+      "Endgame": {
+        "Parking Status": parkStatus.value,
         "Time": climbingTime
       },
-      "Trap": {"Misses": trapMisses.value, "Score": trapScores.value},
       "Misc": {
-        "Parked": endgamePark.value,
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
         "User Lost Track": scouterLostTrack.value,
       },

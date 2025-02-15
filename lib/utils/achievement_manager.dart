@@ -7,7 +7,7 @@ import 'package:green_scout/utils/reference.dart';
 /// to add new badges and achievements. 
 const cheat = false;
 
-/// The achievemnt manager.
+/// The achievement manager.
 /// 
 /// It's a global class that holds onto state regarding achievements and bagdes.
 /// 
@@ -45,6 +45,9 @@ class AchievementManager {
       "Scouted 1 match",
       gearEye,
       () => MainAppData.lifeScore / 1.0,
+        unlocks: "App themes (Dark Mode!)",
+        ref: (appThemesUnlocked),
+        setterKey: "Themes Unlocked"
     ),
     PercentAchievement(
       "Scouting Novice",
@@ -62,10 +65,7 @@ class AchievementManager {
         "Scouting Pro",
         "Scouted 100 matches",
         const Icon(Icons.workspace_premium_sharp, size: 100),
-        () => MainAppData.lifeScore / 100.0,
-        unlocks: "App themes (Dark Mode!)",
-        ref: (appThemesUnlocked),
-        setterKey: "Themes Unlocked"),
+        () => MainAppData.lifeScore / 100.0),
     PercentAchievement(
         "Scouting Enthusiast",
         "Scouted 500 matches",

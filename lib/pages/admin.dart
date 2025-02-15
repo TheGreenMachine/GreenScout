@@ -6,6 +6,7 @@ import 'package:green_scout/pages/admin/group_admin_assign_matches.dart';
 import 'package:green_scout/pages/admin/individual_admin_assign_matches.dart';
 import 'package:green_scout/widgets/navigation_layout.dart';
 import 'package:green_scout/utils/action_bar.dart';
+import 'package:green_scout/utils/hue_shift.dart';
 import 'package:green_scout/widgets/floating_button.dart';
 import 'package:green_scout/widgets/header.dart';
 import 'package:green_scout/widgets/subheader.dart';
@@ -49,6 +50,7 @@ class _AdminPage extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color buttonColour = Theme.of(context).colorScheme.inversePrimary;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -66,13 +68,13 @@ class _AdminPage extends State<AdminPage> {
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
             child: FloatingButton(
               icon: const Icon(Icons.event),
-              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              color: valueShift(hueShift(buttonColour, -5), -0.15),
               onPressed: () {
                 App.gotoPage(context, const EventConfigPage(), canGoBack: true);
               },
             ),
           ),
-          const Padding(padding: EdgeInsets.all(2)),
+          const Padding(padding: EdgeInsets.all(4)),
           const SubheaderLabel("Assign Matches Individually"),
           const Padding(padding: EdgeInsets.all(2)),
           Padding(
@@ -80,14 +82,14 @@ class _AdminPage extends State<AdminPage> {
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
             child: FloatingButton(
               icon: const Icon(Icons.assignment_ind),
-              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              color: valueShift(hueShift(buttonColour, -5), -0.15),
               onPressed: () {
                 App.gotoPage(context, const IndividualAdminAssignMatchesPage(),
                     canGoBack: true);
               },
             ),
           ),
-          const Padding(padding: EdgeInsets.all(16)),
+          const Padding(padding: EdgeInsets.all(4)),
           const SubheaderLabel("Assign Matches To Group"),
           const Padding(padding: EdgeInsets.all(2)),
           Padding(
@@ -95,14 +97,14 @@ class _AdminPage extends State<AdminPage> {
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
             child: FloatingButton(
               icon: const Icon(Icons.assignment),
-              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              color: valueShift(hueShift(buttonColour, -5), -0.15),
               onPressed: () {
                 App.gotoPage(context, const GroupAdminAssignMatchesPage(),
                     canGoBack: true);
               },
             ),
           ),
-          const Padding(padding: EdgeInsets.all(16)),
+          const Padding(padding: EdgeInsets.all(4)),
           const SubheaderLabel("Edit information of users"),
           const Padding(padding: EdgeInsets.all(2)),
           Padding(
@@ -110,7 +112,7 @@ class _AdminPage extends State<AdminPage> {
                 horizontal: MediaQuery.of(context).size.width * (1.0 - 0.85)),
             child: FloatingButton(
               icon: const Icon(Icons.supervised_user_circle),
-              color: Theme.of(context).colorScheme.inversePrimary.withBlue(255),
+              color: valueShift(hueShift(buttonColour, -5), -0.15),
               onPressed: () {
                 App.gotoPage(context, const EditUsersAdminPage(),
                     canGoBack: true);
