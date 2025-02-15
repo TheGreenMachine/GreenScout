@@ -29,7 +29,7 @@ This should present you with a few options for building, for example on windows 
 Windows (desktop) • windows • windows-x64    • Microsoft Windows [Version 10.0.19045.4291]
 Chrome (web)      • chrome  • web-javascript • Google Chrome 124.0.6367.60
 Edge (web)        • edge    • web-javascript • Microsoft Edge 124.0.2478.51
-[1]: Windows (windows)
+[1]: Windows (windows)  <-Changes depending on what device is used
 [2]: Chrome (chrome)
 [3]: Edge (edge)
 ```
@@ -49,10 +49,12 @@ Make sure to set serverHostName in app_state.dart to the address of the actual s
   * Admin Features
     * Impersonation of other users.
     * Removing assigned matches from users. (Mutable schedules - talk to Lydia for specifics of what she wants)
+    * Public shaming (requested by Lydia)
 
   * Settings
     * Match Form Builder 
     * More menus for customizing the app further.
+    * Theme changing
   
   * Pit Scouting - Already implemented on the backend
 
