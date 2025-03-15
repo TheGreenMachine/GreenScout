@@ -17,18 +17,18 @@ import 'package:green_scout/widgets/number_counter.dart';
 import 'package:green_scout/widgets/subheader.dart';
 import 'package:green_scout/widgets/toggle_floating_button.dart';
 
-/// The main bread and butter of the app. 
-/// 
+/// The main bread and butter of the app.
+///
 /// This is where everything related to the actual scouting is stored.
 /// It's best to describe this as monolithic page that contains a whole toolset.
-/// 
+///
 /// This page __will__ get updated overtime and as such, I'd recommend
 /// storing branches to the previous years versions. That way you can reference
-/// and take what you like UI-wise. 
-/// 
+/// and take what you like UI-wise.
+///
 /// I expect this part to have stuff ripped out when it makes sense to not have
 /// it anymore. So, feel free to absolutely demolish this and start from scrtach
-/// when it makes sense to. - Michael. 
+/// when it makes sense to. - Michael.
 class MatchFormPage extends StatefulWidget {
   const MatchFormPage({
     super.key,
@@ -57,6 +57,7 @@ enum CycleTimeLocation {
   processor,
   net,
   shuttle,
+  knock,
 
   none;
 
@@ -70,6 +71,7 @@ enum CycleTimeLocation {
       processor => "Processor",
       net => "Net",
       shuttle => "Shuttle",
+      knock => "Knock",
       none => "None",
 
       // This is left just in case we need to add something new...
@@ -79,8 +81,8 @@ enum CycleTimeLocation {
   }
 }
 
-/// A simple class to store data related to 
-/// a "cycle", which can be thought of as 
+/// A simple class to store data related to
+/// a "cycle", which can be thought of as
 /// "how long does it take to pick up and
 /// shoot a note."
 class CycleTimeInfo {
@@ -115,8 +117,14 @@ class _MatchFormPage extends State<MatchFormPage> {
   TextEditingController teamNumberController = TextEditingController();
   TextEditingController notesController = TextEditingController();
 
+  ScrollController scrollController = ScrollController();
+
+  scrollToBottom() {
+    scrollController.jumpTo(scrollController.position.maxScrollExtent);
+  }
+
   /* START OF SEASON SPECIFIC INFORMATION */
-  
+
   Reference<int> parkStatus = Reference(0);
 
   Reference<bool> canDoAuto = Reference(false);
@@ -150,6 +158,11 @@ class _MatchFormPage extends State<MatchFormPage> {
     teamNum.value = widget.teamNum ?? "0";
 
     driverStation.value = (widget.isBlue ?? false, widget.driverNumber ?? -1);
+
+    Future.delayed(const Duration(seconds: 1), () {
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+    duration: Duration(seconds: cycles.length * 10), curve: Curves.linear);
+    });
   }
 
   @override
@@ -264,9 +277,9 @@ class _MatchFormPage extends State<MatchFormPage> {
             color: cycleTimerActive ? Colors.blue.shade600 : null,
           ),
           disabled: !cycleTimerActive,
-          label: const Text("Trough"),
+          label: const Text("Trough/L1"),
         ),
-                NavigationRailDestination(
+        NavigationRailDestination(
           icon: Icon(
             Icons.density_large,
             color: cycleTimerActive ? Colors.blue.shade600 : null,
@@ -274,7 +287,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Coral L2"),
         ),
-                NavigationRailDestination(
+        NavigationRailDestination(
           icon: Icon(
             Icons.density_medium,
             color: cycleTimerActive ? Colors.blue.shade600 : null,
@@ -282,7 +295,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           disabled: !cycleTimerActive,
           label: const Text("Coral L3"),
         ),
-                NavigationRailDestination(
+        NavigationRailDestination(
           icon: Icon(
             Icons.density_small,
             color: cycleTimerActive ? Colors.blue.shade600 : null,
@@ -297,7 +310,7 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
           disabled: !cycleTimerActive,
           label: const Text("Processor"),
-        ),        
+        ),
         NavigationRailDestination(
           icon: Icon(
             Icons.waves_outlined,
@@ -305,6 +318,14 @@ class _MatchFormPage extends State<MatchFormPage> {
           ),
           disabled: !cycleTimerActive,
           label: const Text("Net"),
+        ),
+        NavigationRailDestination(
+          icon: Icon(
+            Icons.water_rounded,
+            color: cycleTimerActive ? Colors.blue.shade600 : null,
+          ),
+          disabled: !cycleTimerActive,
+          label: const Text("Knock"),
         ),
         NavigationRailDestination(
           icon: Icon(
@@ -337,7 +358,8 @@ class _MatchFormPage extends State<MatchFormPage> {
             case 4:
             case 5:
             case 6:
-            case 7:   
+            case 7:
+            case 8:
               cycles.add(
                 CycleTimeInfo(
                   time: cycleStopwatch.elapsedMilliseconds.toDouble() / 1000,
@@ -351,7 +373,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                     4 => CycleTimeLocation.coralL4,
                     5 => CycleTimeLocation.processor,
                     6 => CycleTimeLocation.net,
-                    7 => CycleTimeLocation.shuttle,
+                    7 => CycleTimeLocation.knock,
+                    8 => CycleTimeLocation.shuttle,
                     _ => CycleTimeLocation.none,
                   },
                 ),
@@ -360,7 +383,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               break;
 
             // Climbing timer index. Make sure to update when moving around stuff!
-            case 8:
+            case 9:
               climbingTimerActive = !climbingTimerActive;
               break;
           }
@@ -441,18 +464,24 @@ class _MatchFormPage extends State<MatchFormPage> {
           const Padding(padding: EdgeInsets.all(5)),
 
           ExpansionTile(
+            onExpansionChanged: (bool expanded) {
+              scrollController.animateTo(scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 200), curve: Curves.easeOut);;
+            },
             title: Text(
               "Cycles",
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             iconColor: App.getThemeMode() == Brightness.dark
-            ? Colors.grey.shade800 : Colors.grey.shade800 ,
+                ? Colors.grey.shade800
+                : Colors.grey.shade800,
             children: [
               SizedBox(
                 width: width,
                 height: MediaQuery.of(context).size.height * 0.25,
                 child: ListView.builder(
+                  controller: scrollController,
+                  reverse: false, //this doesn't really have to be here
                   itemBuilder: (context, index) =>
                       buildCycleTile(context, index),
                   itemCount: cycles.length,
@@ -484,6 +513,25 @@ class _MatchFormPage extends State<MatchFormPage> {
             style: Theme.of(context).textTheme.labelLarge,
             textAlign: TextAlign.center,
           ),
+
+          // const Padding(padding: EdgeInsets.all(10)),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: widthPadding),
+          //   child: FloatingActionButton(
+          //     elevation: 0.0,
+          //     focusElevation: 0.0,
+          //     disabledElevation: 0.0,
+          //     hoverElevation: 0.0,
+          //     highlightElevation: 0.0,
+          //     shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(1)),
+          //     onPressed: () {
+          //       climbingStopwatch.start();
+          //       climbingTimerActive = !climbingTimerActive;
+          //     },
+          //     child: const Text("Start Stopwatch Timer"),
+          //   ),
+          // ),
 
           const Padding(padding: EdgeInsets.all(10)),
           Padding(
@@ -537,7 +585,6 @@ class _MatchFormPage extends State<MatchFormPage> {
             parkStatus,
             0,
           ),
-          
 
           const SubheaderLabel("Misc."),
 
@@ -624,10 +671,10 @@ class _MatchFormPage extends State<MatchFormPage> {
                 )
               : const Padding(padding: EdgeInsets.zero),
 
-            Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingToggleButton(
-              initialColor: Theme.of(context).colorScheme.inversePrimary, 
+              initialColor: Theme.of(context).colorScheme.inversePrimary,
               pressedColor: Theme.of(context)
                   .colorScheme
                   .inversePrimary
@@ -703,7 +750,7 @@ class _MatchFormPage extends State<MatchFormPage> {
             CycleTimeLocation.coralL1 => const Icon(Icons.amp_stories),
             CycleTimeLocation.coralL2 => const Icon(Icons.density_large),
             CycleTimeLocation.coralL3 => const Icon(Icons.density_medium),
-            CycleTimeLocation.coralL4 => const Icon(Icons.density_small),            
+            CycleTimeLocation.coralL4 => const Icon(Icons.density_small),
             CycleTimeLocation.processor => const Icon(Icons.archive_outlined),
             CycleTimeLocation.shuttle => const Icon(Icons.airport_shuttle),
             _ => const Icon(Icons.error),
@@ -942,10 +989,7 @@ class _MatchFormPage extends State<MatchFormPage> {
         "Misses": autoMisses.value,
         "Ejects": autoEjects.value
       },
-      "Endgame": {
-        "Parking Status": parkStatus.value,
-        "Time": climbingTime
-      },
+      "Endgame": {"Parking Status": parkStatus.value, "Time": climbingTime},
       "Misc": {
         "Lost Communication Or Disabled": disconnectOrDisabled.value,
         "User Lost Track": scouterLostTrack.value,

@@ -47,8 +47,14 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
   }
 
   Future<RSAPublicKey> getPublicKey() async { //server stuff here
-    final url =
+  final Uri url;
+    if (enableHttps == true){
+        url =
+        Uri(scheme: 'https', host: serverHostName, path: 'pub', port: serverPort); 
+    } else{
+      url =
         Uri(scheme: 'http', host: serverHostName, path: 'pub', port: serverPort); 
+    }
 
     var response = await http.get(url);
 
@@ -182,7 +188,7 @@ class _LoginPageForUsers extends State<LoginPageForUsers> {
 
                 floatingLabelAlignment: FloatingLabelAlignment.start,
 
-                labelText: "User Name",
+                labelText: "Username",
 
                 // errorText: validateName(),
               ),

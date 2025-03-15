@@ -17,6 +17,8 @@ const timerPeriodicMilliseconds = 115;
 const serverHostName = 'localhost'; // TODO Put your server name here! SERVER STUFF (localhost is the default)
 const serverPort = 8080; //swap port based on TLS [backend main.go]
 
+const enableHttps = false; //uri protocol stuff, determines if the front end uses https or http
+
 const emptyMap = {"empty": " "};
 
 enum ThemeColor {
@@ -259,12 +261,23 @@ class App {
     dynamic genericErr;
     dynamic responseErr;
 
-    final uriPath = Uri(
-      scheme: 'http',
-      host: serverHostName,
-      path: path,
-      port: serverPort,
-    );
+    final Uri uriPath;
+
+    if (enableHttps == true){
+      uriPath = Uri(
+        scheme: 'https', 
+        host: serverHostName,
+        path: path,
+        port: serverPort,
+      );
+    } else{
+      uriPath = Uri(
+        scheme: 'http', 
+        host: serverHostName,
+        path: path,
+        port: serverPort,
+      );
+    }
 
     Map<String, String> headersToSend = {
       "Certificate": MainAppData.userCertificate,
