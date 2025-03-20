@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:green_scout/pages/settings/themes.dart';
 import 'package:green_scout/pages/settings/user_info.dart';
 import 'package:green_scout/utils/achievement_manager.dart';
 import 'package:green_scout/utils/app_state.dart';
@@ -50,6 +51,14 @@ class _SettingsPage extends State<SettingsPage> {
             Icons.format_list_bulleted_outlined,
             "Match Form Layout",
             const SettingsMatchFormLayoutPage(),
+          ),
+          buildSettingTile(
+            context,
+            widthPadding,
+            width,
+            Icons.palette,
+            "Themes (In Progress)",
+            const themesPage(),
           ),
           buildSettingTile(context, widthPadding, width, Icons.developer_board,
               "Debug Info", const SettingsDebugInfoPage()),

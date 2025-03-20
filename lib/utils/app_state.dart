@@ -10,13 +10,33 @@ import 'package:green_scout/utils/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-const greenMachineGreen = Color.fromARGB(255, 0, 167, 68);
+const greenMachineGreen = Color.fromARGB(255, 0, 167, 67);
+const lightGreen = Color.fromARGB(255, 81, 222, 121);
 const timerPeriodicMilliseconds = 115;
 
-const serverHostName = 'localhost'; // TODO Put your server name here!
-const serverPort = 443;
+const serverHostName = 'localhost'; // TODO Put your server name here! SERVER STUFF (localhost is the default)
+const serverPort = 8080; //swap port based on TLS [backend main.go]
+
+const enableHttps = false; //uri protocol stuff, determines if the front end uses https or http
 
 const emptyMap = {"empty": " "};
+
+enum ThemeColor {
+  dark,
+  light,
+  green;
+
+  static ThemeColor fromString(String str) {
+    switch (str) {
+      case "dark":
+        return dark;
+      case "green":
+        return green;
+      default:
+        return light;
+    }
+  }
+}
 
 var isDarkMode =
     MediaQuery.of(globalNavigatorKey.currentContext!).platformBrightness ==
@@ -83,8 +103,12 @@ class Settings {
   );
 
   static EnumSettingOption<LeaderboardColor> selectedLeaderboardColor =
-      EnumSettingOption("Leaderboard Color", LeaderboardColor.none,
-          LeaderboardColor.fromString);
+    EnumSettingOption("Leaderboard Color", LeaderboardColor.none,
+         LeaderboardColor.fromString);
+
+  static EnumSettingOption<ThemeColor> selectedThemeColor =
+      EnumSettingOption("Leaderboard Color", ThemeColor.light,
+          ThemeColor.fromString);
 
   static void update() {
     flipNumberCounter.update();
@@ -237,12 +261,23 @@ class App {
     dynamic genericErr;
     dynamic responseErr;
 
-    final uriPath = Uri(
-      scheme: 'https',
-      host: serverHostName,
-      path: path,
-      port: serverPort,
-    );
+    final Uri uriPath;
+
+    if (enableHttps == true){
+      uriPath = Uri(
+        scheme: 'https', 
+        host: serverHostName,
+        path: path,
+        port: serverPort,
+      );
+    } else{
+      uriPath = Uri(
+        scheme: 'http', 
+        host: serverHostName,
+        path: path,
+        port: serverPort,
+      );
+    }
 
     Map<String, String> headersToSend = {
       "Certificate": MainAppData.userCertificate,
@@ -299,7 +334,7 @@ class App {
 
   static Image getProfileImage(String arg) {
     return Image(
-        image: NetworkImage("https://$serverHostName/getPfp?username=$arg"));
+        image: NetworkImage("http://$serverHostName:$serverPort/getPfp?username=$arg"));
   }
 
   static Widget getGalleryImage(int index) {
@@ -318,7 +353,7 @@ class App {
         },
         height: 500,
         image: NetworkImage(
-          "https://$serverHostName/gallery?index=$index",
+          "http://$serverHostName:$serverPort/gallery?index=$index",
         ));
   }
 
