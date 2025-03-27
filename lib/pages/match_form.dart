@@ -771,10 +771,10 @@ class _MatchFormPage extends State<MatchFormPage> {
                 (
                   "Yes",
                   () {
-                    if (matchNum.value == "0" ||
+                    if (
                         teamNum.value == "0" ||
                         driverStation.value == (false, -1) ||
-                        matchNum.value.isEmpty ||
+                        (matchNum.value.isEmpty|| matchNum.value == "0" || isPrescout.value) ||
                         teamNum.value.isEmpty) {
                       Navigator.of(context).pop();
                       App.showMessage(context,
