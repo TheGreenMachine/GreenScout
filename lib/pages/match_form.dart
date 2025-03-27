@@ -131,6 +131,7 @@ class _MatchFormPage extends State<MatchFormPage> {
   Reference<int> autoScores = Reference(0);
   Reference<int> autoMisses = Reference(0);
   Reference<int> autoEjects = Reference(0);
+  Reference<bool> isPrescout = Reference(false);
 
   Stopwatch climbingStopwatch = Stopwatch();
   double climbingTime = 0.0;
@@ -514,25 +515,6 @@ class _MatchFormPage extends State<MatchFormPage> {
             textAlign: TextAlign.center,
           ),
 
-          // const Padding(padding: EdgeInsets.all(10)),
-          // Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: widthPadding),
-          //   child: FloatingActionButton(
-          //     elevation: 0.0,
-          //     focusElevation: 0.0,
-          //     disabledElevation: 0.0,
-          //     hoverElevation: 0.0,
-          //     highlightElevation: 0.0,
-          //     shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(1)),
-          //     onPressed: () {
-          //       climbingStopwatch.start();
-          //       climbingTimerActive = !climbingTimerActive;
-          //     },
-          //     child: const Text("Start Stopwatch Timer"),
-          //   ),
-          // ),
-
           const Padding(padding: EdgeInsets.all(10)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
@@ -543,7 +525,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               hoverElevation: 0.0,
               highlightElevation: 0.0,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(1)),
+                  borderRadius: BorderRadius.circular(16)),
               onPressed: () {
                 App.promptAlert(
                   context,
@@ -564,6 +546,24 @@ class _MatchFormPage extends State<MatchFormPage> {
                 );
               },
               child: const Text("Reset Time"),
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(5)),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
+            child: FloatingActionButton(
+              elevation: 0.0,
+              focusElevation: 0.0,
+              disabledElevation: 0.0,
+              hoverElevation: 0.0,
+              highlightElevation: 0.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              onPressed: () {
+                climbingTimerActive = false;
+              },
+              child: const Text("Stop Timer"),
             ),
           ),
 
@@ -671,6 +671,59 @@ class _MatchFormPage extends State<MatchFormPage> {
                 )
               : const Padding(padding: EdgeInsets.zero),
 
+          Settings.enableMatchPrescouting.value()
+            ? const Padding(padding: EdgeInsets.all(7))
+            : const Padding(padding: EdgeInsets.zero),
+            
+          Settings.enableMatchPrescouting.value()
+              ? Padding(
+                  padding: EdgeInsets.symmetric(horizontal: widthPadding),
+                  child: FloatingToggleButton(
+                    initialColor: Theme.of(context)
+                        .colorScheme
+                        .inversePrimary
+                        .withRed(
+                            App.getThemeMode() == Brightness.dark ? 225 : 255),
+                    pressedColor: Theme.of(context).colorScheme.inversePrimary,
+                    labelText: "Prescouting?",
+                    initialIcon: const Icon(Icons.close),
+                    pressedIcon: const Icon(Icons.check),
+                    inValue: isPrescout,
+                    onPressed: (pressed) {
+                      if (pressed) {
+                        App.promptAlert(
+                          context,
+                          "Are you sure you're prescouting this match?",
+                          "This flag when submitted with \"Save\" is irreversible.",
+                          [
+                            (
+                              "Yes",
+                              () {
+                                isRescout.value = pressed;
+                                Navigator.of(context).pop();
+                              }
+                            ),
+                            (
+                              "No",
+                              () {
+                                setState(() {
+                                  isRescout.value = false;
+                                });
+                                Navigator.of(context).pop();
+                              }
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                )
+              : const Padding(padding: EdgeInsets.zero),
+
+          Settings.enableMatchPrescouting.value()
+            ? const Padding(padding: EdgeInsets.all(7))
+            : const Padding(padding: EdgeInsets.zero),
+            
           Padding(
             padding: EdgeInsets.symmetric(horizontal: widthPadding),
             child: FloatingToggleButton(
@@ -996,6 +1049,7 @@ class _MatchFormPage extends State<MatchFormPage> {
       },
       "Penalties": [],
       "Mangled": false,
+      "Prescouting": isPrescout.value,
       "Rescouting": isRescout.value,
       "Notes": notes
     });

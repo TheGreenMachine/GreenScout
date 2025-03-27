@@ -102,6 +102,11 @@ class Settings {
     false,
   );
 
+    static BoolSettingOption enableMatchPrescouting = BoolSettingOption(
+    "[Settings] Enable Match Prescouting",
+    false,
+  );
+
   static EnumSettingOption<LeaderboardColor> selectedLeaderboardColor =
     EnumSettingOption("Leaderboard Color", LeaderboardColor.none,
          LeaderboardColor.fromString);
