@@ -119,6 +119,7 @@ class Settings {
     flipNumberCounter.update();
     sideBarLeftSided.update();
     enableMatchRescouting.update();
+    enableMatchPrescouting.update();
   }
 }
 

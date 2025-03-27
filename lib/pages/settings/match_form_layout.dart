@@ -70,6 +70,8 @@ class _SettingsMatchFormLayoutPage extends State<SettingsMatchFormLayoutPage> {
 
             createLabelAndCheckBox("Enable Match Rescouting?", widthPadding,
                 Settings.enableMatchRescouting.ref),
+            createLabelAndCheckBox("Enable Match Prescouting?", widthPadding,
+                Settings.enableMatchPrescouting.ref),
           ],
         ),
       ),

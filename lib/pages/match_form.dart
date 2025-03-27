@@ -671,8 +671,8 @@ class _MatchFormPage extends State<MatchFormPage> {
                 )
               : const Padding(padding: EdgeInsets.zero),
 
-          Settings.enableMatchPrescouting.value()
-            ? const Padding(padding: EdgeInsets.all(7))
+          Settings.enableMatchRescouting.value()
+            ? const Padding(padding: EdgeInsets.all(4))
             : const Padding(padding: EdgeInsets.zero),
             
           Settings.enableMatchPrescouting.value()
@@ -721,7 +721,7 @@ class _MatchFormPage extends State<MatchFormPage> {
               : const Padding(padding: EdgeInsets.zero),
 
           Settings.enableMatchPrescouting.value()
-            ? const Padding(padding: EdgeInsets.all(7))
+            ? const Padding(padding: EdgeInsets.all(4))
             : const Padding(padding: EdgeInsets.zero),
             
           Padding(
