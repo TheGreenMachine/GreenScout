@@ -771,15 +771,28 @@ class _MatchFormPage extends State<MatchFormPage> {
                 (
                   "Yes",
                   () {
-                    if (
-                        teamNum.value == "0" ||
+                    if (teamNum.value == "0" ||
                         driverStation.value == (false, -1) ||
-                        (matchNum.value.isEmpty|| matchNum.value == "0" || isPrescout.value) ||
-                        teamNum.value.isEmpty) {
+                        teamNum.value.isEmpty || 
+                        matchNum.value.isEmpty || 
+                        matchNum.value == "0") 
+                    {
+                      if(isPrescout.value){
+                        if (teamNum.value == "0" ||
+                        driverStation.value == (false, -1) ||
+                        teamNum.value.isEmpty){
+                          Navigator.of(context).pop();
+                          App.showMessage(context,
+                          "You haven't filled in the team number, changed driver station, or match number.");
+                          return;
+                        }
+                      }
+                      else{
                       Navigator.of(context).pop();
                       App.showMessage(context,
                           "You haven't filled in the team number, changed driver station, or match number.");
                       return;
+                      }
                     }
                     MainAppData.addToMatchCache(toJson());
                     App.gotoPage(context, const HomePage());

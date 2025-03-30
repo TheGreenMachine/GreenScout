@@ -94,7 +94,7 @@ void main() async {
     }
   });
 
-  Timer.periodic(const Duration(minutes: 1), (timer) async {
+  Timer.periodic(const Duration(minutes: 1), (timer) async { 
     if (MainAppData.loggedIn) {
       MainAppData.setUserInfo();
     }
