@@ -561,6 +561,25 @@ class _MatchFormPage extends State<MatchFormPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               onPressed: () {
+                climbingTimerActive = true;
+                startClimbingStopwatch();
+              },
+              child: const Text("Start Timer"),
+            ),
+          ),
+
+           const Padding(padding: EdgeInsets.all(5)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: widthPadding),
+            child: FloatingActionButton(
+              elevation: 0.0,
+              focusElevation: 0.0,
+              disabledElevation: 0.0,
+              hoverElevation: 0.0,
+              highlightElevation: 0.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              onPressed: () {
                 climbingTimerActive = false;
               },
               child: const Text("Stop Timer"),
