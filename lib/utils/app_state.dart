@@ -104,7 +104,7 @@ class Settings {
 
     static BoolSettingOption enableMatchPrescouting = BoolSettingOption(
     "[Settings] Enable Match Prescouting",
-    false,
+    true,
   );
 
   static EnumSettingOption<LeaderboardColor> selectedLeaderboardColor =
